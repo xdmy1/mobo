@@ -50,7 +50,7 @@ function StarRow({ starClassName }: { starClassName?: string }) {
           key={i}
           viewBox="0 0 16 16"
           aria-hidden="true"
-          className={cn("shrink-0 fill-lime-brand", starClassName ?? "size-3 sm:size-3.5")}
+          className={cn("shrink-0 fill-lime-brand", starClassName ?? "size-2.5 sm:size-3.5")}
         >
           <path d={STAR_PATH} />
         </svg>
@@ -76,16 +76,16 @@ function ReviewCard({
        stretch to the tallest card in the row without fighting the flex gutter. */
     <li
       className={cn(
-        "mr-3 flex shrink-0 sm:mr-5",
+        "mr-2.5 flex shrink-0 sm:mr-5",
         far
-          ? "w-[15rem] sm:w-[clamp(18.25rem,23vw,22rem)]"
-          : "w-[16.5rem] sm:w-[clamp(20rem,26vw,24rem)]",
+          ? "w-[12.5rem] sm:w-[clamp(18.25rem,23vw,22rem)]"
+          : "w-[14rem] sm:w-[clamp(20rem,26vw,24rem)]",
       )}
     >
       <figure
         className={cn(
           "group/card glass relative flex flex-1 flex-col rounded-card",
-          far ? "p-4 sm:p-6" : "p-4 sm:p-7",
+          far ? "p-3.5 sm:p-6" : "p-3.5 sm:p-7",
           /* translate + scale are separate CSS properties in v4, so the lift
              and the neighbours' settle compose instead of overwriting. */
           "transition-transform duration-[250ms] ease-out-strong",
@@ -117,20 +117,20 @@ function ReviewCard({
 
         <StarRow />
 
-        <blockquote className="mt-5">
-          <p className="text-pretty line-clamp-5 text-[0.8125rem] leading-[1.6] text-fg-dim sm:line-clamp-6 sm:text-[0.9375rem]">
+        <blockquote className="mt-3.5 sm:mt-5">
+          <p className="text-pretty line-clamp-4 text-[0.75rem] leading-[1.55] text-fg-dim sm:line-clamp-6 sm:text-[0.9375rem]">
             {review.text}
           </p>
         </blockquote>
 
-        <figcaption className="mt-auto flex items-center gap-2.5 border-t border-white/8 pt-4 sm:gap-3 sm:pt-6">
+        <figcaption className="mt-auto flex items-center gap-2 border-t border-white/8 pt-3 sm:gap-3 sm:pt-6">
           <span
             aria-hidden="true"
-            className="grid size-8 shrink-0 place-items-center rounded-full bg-lime-brand/12 text-[0.75rem] font-medium text-lime-brand ring-1 ring-inset ring-lime-brand/25 sm:size-10 sm:text-sm"
+            className="grid size-7 shrink-0 place-items-center rounded-full bg-lime-brand/12 text-[0.6875rem] font-medium text-lime-brand ring-1 ring-inset ring-lime-brand/25 sm:size-10 sm:text-sm"
           >
             {initial}
           </span>
-          <span className="min-w-0 truncate text-[0.8125rem] font-medium text-fg sm:text-sm">{review.name}</span>
+          <span className="min-w-0 truncate text-[0.75rem] font-medium text-fg sm:text-sm">{review.name}</span>
         </figcaption>
       </figure>
     </li>
