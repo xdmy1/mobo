@@ -1,0 +1,393 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   Custom variants
+   ----------------------------------------------------------------------------
+   Hover effects must never fire on touch: a tap triggers :hover and leaves the
+   element stuck in its hover state until the next tap elsewhere.
+
+   Tailwind v4 already wraps `hover:` in @media (hover: hover), but that alone
+   still matches hybrid devices (a touchscreen laptop, a stylus). Adding
+   `pointer: fine` restricts it to a real cursor.
+
+   These exist as named variants because the inline arbitrary form
+   `[@media(hover:hover)and(pointer:fine)]:` compiles to invalid CSS — Tailwind
+   emits `@media (hover:hover)and(pointer:fine)` with no space before `and`,
+   which browsers reject, silently dropping the pointer condition.
+   ========================================================================== */
+@custom-variant hover-fine (@media (hover: hover) and (pointer: fine));
+@custom-variant hover-fine-motion (@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference));
+
+/* ============================================================================
+   MOBO Kitchens & Home — design system
+   ----------------------------------------------------------------------------
+   Palette derivation:
+     The brand accent is NOT invented. Sampling mobo.md's own logo PNG returns
+     #CCDF10 across 38.5% of its opaque pixels — MOBO is already a lime brand.
+     That lands within a few degrees of navarro.ro's #c6ff69 accent, so the
+     reference aesthetic and the existing brand agree with each other.
+
+     navarro.ro sits on #0d0d0d — near-pure black. The brief was "this style,
+     but not too black", so the base here is #20211B: a warm graphite with an
+     olive cast that ties into the lime, measurably lifted off black. The page
+     then alternates dark and warm-ivory bands so it reads editorial rather
+     than as one long dark tunnel.
+   ========================================================================== */
+
+@theme {
+  /* --- Brand ------------------------------------------------------------ */
+  --color-lime-brand: #ccdf10;
+  --color-lime-hi: #dff23c;
+  --color-lime-dim: #9aa80c;
+  --color-lime-ink: #1a1d02;
+  /* Lime is unreadable on the ivory bands — bg-lime-brand on bone-50 measures
+     1.36:1. This darkened mix clears 4.5:1 and is the ONLY lime permitted on a
+     light background. Previously each light section improvised its own value. */
+  --color-lime-on-light: color-mix(in oklab, var(--color-lime-dim) 70%, var(--color-lime-ink));
+
+  /* --- Warm graphite ("not too black") ---------------------------------- */
+  --color-ink-950: #131410;
+  --color-ink-900: #191a14;
+  --color-ink-850: #20211b;
+  --color-ink-800: #292a22;
+  --color-ink-700: #383a2e;
+  --color-ink-600: #4d503f;
+  --color-ink-500: #6b6f5b;
+
+  /* --- Warm ivory (the light bands) ------------------------------------- */
+  --color-bone-50: #f6f5ee;
+  --color-bone-100: #eceadf;
+  --color-bone-200: #dedbcb;
+  --color-bone-300: #c7c3ae;
+
+  /* --- Semantic text ---------------------------------------------------- */
+  --color-fg: #f6f5ee;
+  --color-fg-dim: #a9ac9c;
+  --color-fg-faint: #6b6f5b;
+  --color-fg-invert: #20211b;
+  --color-fg-invert-dim: #5e6152;
+
+  /* --- Type ------------------------------------------------------------- */
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-instrument), ui-serif, Georgia, serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* --- Motion (mirrors lib/motion.ts; keep the two in sync) ------------- */
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-navarro: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* --- Radii (navarro leans hard on pills + soft 32px cards) ------------ */
+  --radius-card: 24px;
+  --radius-card-lg: 32px;
+  --radius-pill: 999px;
+}
+
+/* ============================================================================
+   Liquid glass
+   ----------------------------------------------------------------------------
+   Lifted from navarro.ro's own custom properties (--glass-blur: 30px,
+   --glass-opacity: .08, --glass-refraction: .05) and then built out into a
+   real material rather than a flat translucent rectangle.
+
+   A convincing glass surface needs four things stacked, not one:
+     1. backdrop-filter        — blur + saturate the content behind
+     2. a tinted body          — so it has substance
+     3. a bright top edge      — light catching the leading edge
+     4. an inner specular wipe — the highlight that sells it as a solid slab
+   ========================================================================== */
+:root {
+  --glass-blur: 30px;
+  --glass-opacity: 0.08;
+  --glass-refraction: 0.05;
+  --glass-border: rgb(255 255 255 / 10%);
+  --glass-edge: rgb(255 255 255 / 22%);
+}
+
+@layer components {
+  .glass {
+    position: relative;
+    isolation: isolate;
+    background-color: rgb(255 255 255 / var(--glass-opacity));
+    backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    border: 1px solid var(--glass-border);
+    /* Inner top edge = light catching the material. Outer = it sits above. */
+    box-shadow:
+      inset 0 1px 0 0 var(--glass-edge),
+      inset 0 -1px 0 0 rgb(0 0 0 / 20%),
+      0 8px 32px -8px rgb(0 0 0 / 45%);
+  }
+
+  /* Specular sheen. Sits above the body, below the content. */
+  .glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(
+      145deg,
+      rgb(255 255 255 / calc(var(--glass-refraction) * 3)) 0%,
+      rgb(255 255 255 / 0) 42%,
+      rgb(255 255 255 / 0) 58%,
+      rgb(255 255 255 / calc(var(--glass-refraction) * 1.4)) 100%
+    );
+    pointer-events: none;
+  }
+
+  /* Heavier slab — bigger surfaces should read as thicker glass. */
+  .glass-thick {
+    --glass-blur: 60px;
+    --glass-opacity: 0.1;
+  }
+
+  /* Lighter chip — small interactive elements use a lighter material. */
+  .glass-thin {
+    --glass-blur: 16px;
+    --glass-opacity: 0.06;
+  }
+
+  /* Glass over the ivory bands needs to darken, not lighten, to stay legible. */
+  .glass-invert {
+    background-color: rgb(32 33 27 / 6%);
+    border-color: rgb(32 33 27 / 10%);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 55%),
+      0 8px 32px -12px rgb(32 33 27 / 22%);
+  }
+
+  /* A lime-tinted glass for the accent CTA surfaces. */
+  .glass-lime {
+    background-color: rgb(204 223 16 / 12%);
+    border-color: rgb(204 223 16 / 28%);
+    box-shadow:
+      inset 0 1px 0 0 rgb(223 242 60 / 35%),
+      0 8px 40px -10px rgb(204 223 16 / 18%);
+  }
+}
+
+/* ============================================================================
+   Base
+   ========================================================================== */
+@layer base {
+  html {
+    /* Lenis drives scroll; native smooth would fight it. */
+    scroll-behavior: auto;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-ink-850);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
+  }
+
+  /* Tracking is size-specific — never one value for every size.
+     Large display type reads too loose as it grows, so it tightens;
+     body copy sits at zero. (Apple, "The Details of UI Typography".) */
+  /* Scale deliberately restrained. navarro.ro can run 100px display type because
+     its headlines are short English words; Romanian carries long compounds
+     ("bucătăriile", "personalizat", "mobilierul") that turn oversized display
+     into three ragged lines. Display caps at 54px, not 104px. */
+  .text-display {
+    font-size: clamp(2.1rem, 4.2vw, 3.4rem);
+    line-height: 1.02;
+    letter-spacing: -0.032em;
+    font-weight: 500;
+  }
+  .text-h1 {
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    line-height: 1.06;
+    letter-spacing: -0.026em;
+    font-weight: 500;
+  }
+  .text-h2 {
+    font-size: clamp(1.45rem, 2.2vw, 1.95rem);
+    line-height: 1.12;
+    letter-spacing: -0.021em;
+    font-weight: 500;
+  }
+  .text-h3 {
+    font-size: clamp(1.0625rem, 1.15vw, 1.2rem);
+    line-height: 1.3;
+    letter-spacing: -0.012em;
+    font-weight: 500;
+  }
+  .text-body {
+    font-size: clamp(0.9375rem, 0.95vw, 1rem);
+    line-height: 1.65;
+    letter-spacing: 0;
+  }
+  /* Small text gets *positive* tracking for legibility — the inverse of display.
+     Dialled back from 0.14em: wide-tracked uppercase labels read as decoration
+     when every section opens with one. This is a quiet caption, not a banner. */
+  .text-eyebrow {
+    font-size: 0.6875rem;
+    line-height: 1;
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  /* The one serif accent: italic emphasis inside a sans headline. */
+  .serif-accent {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  ::selection {
+    background-color: var(--color-lime-brand);
+    color: var(--color-lime-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-lime-brand);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* Only animate transform/opacity — both skip layout and paint. */
+  .will-move {
+    will-change: transform, opacity;
+  }
+}
+
+/* ============================================================================
+   Utilities
+   ========================================================================== */
+@layer utilities {
+  /* Film grain. Keeps large flat dark areas from banding on wide gamut panels. */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Scroll edge effect — a soft mask where content meets floating chrome,
+     instead of a hard 1px divider under the header. */
+  .edge-fade-top {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 72px);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 72px);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /* Hover effects must not fire on touch — tap triggers a false hover. */
+  @media (hover: hover) and (pointer: fine) {
+    .hover-lift {
+      transition: transform 0.25s var(--ease-out-strong);
+    }
+    .hover-lift:hover {
+      transform: translateY(-4px);
+    }
+  }
+}
+
+/* ============================================================================
+   Accessibility preferences
+   ----------------------------------------------------------------------------
+   Three independent signals, handled independently. Reduced motion is not
+   "no feedback" — it's a gentler, non-vestibular equivalent: cross-fades stay,
+   travel and overshoot go.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.15s !important;
+    scroll-behavior: auto !important;
+  }
+  .marquee-track {
+    animation: none !important;
+  }
+}
+
+/* Frostier and more solid, rather than blurred. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glass-thick,
+  .glass-thin {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background-color: color-mix(in oklab, var(--color-ink-800) 92%, transparent);
+  }
+  .glass-invert {
+    background-color: color-mix(in oklab, var(--color-bone-100) 94%, transparent);
+  }
+  /* .glass-lime was falling through to the dark .glass rule above, turning the
+     one lime-tinted card on the ivory band into dark-on-light. */
+  .glass-lime {
+    background-color: color-mix(in oklab, var(--color-lime-hi) 55%, var(--color-bone-50));
+  }
+}
+
+/* Near-solid backgrounds with a defined, contrasting border.
+   NOTE: this block is intentionally UNLAYERED so it beats @layer components —
+   which is also why the light-band variants must be restated here. Without
+   them, .glass-invert resolved to a dark ink background while its contents
+   stayed dark text, landing at ~1.15:1. */
+@media (prefers-contrast: more) {
+  .glass,
+  .glass-thick,
+  .glass-thin {
+    background-color: var(--color-ink-900);
+    border-color: var(--color-fg);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .glass-invert {
+    background-color: var(--color-bone-50);
+    border-color: var(--color-fg-invert);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .glass-lime {
+    background-color: var(--color-bone-50);
+    border-color: var(--color-lime-dim);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .text-fg-dim,
+  .text-fg-faint {
+    color: var(--color-fg);
+  }
+  .text-fg-invert-dim {
+    color: var(--color-fg-invert);
+  }
+}
+
+/* Marquee — constant motion, so linear. Paused on hover so it can be read. */
+@keyframes marquee-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+.marquee-track {
+  animation: marquee-scroll var(--marquee-duration, 40s) linear infinite;
+}
+.marquee-root:hover .marquee-track {
+  animation-play-state: paused;
+}
