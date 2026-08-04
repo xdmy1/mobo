@@ -24,9 +24,10 @@
  *     once at the end of the dolly, render-on-demand, zero drift.
  *
  * Performance contract: the 3D bundle (three + fiber + drei) is dynamically
- * imported and only mounts once the section is within 600px of the viewport;
- * the frameloop stops again beyond that margin. 6 draw calls, shadows rendered
- * once, no postprocessing, DPR capped at 2 (1.5 under 768px).
+ * imported and only mounts once the section is within 600px of the viewport,
+ * while the frameloop runs only while the stage is actually on screen. Desktop
+ * only. 6 draw calls, shadows rendered once, no postprocessing, DPR capped at
+ * 2 (1.5 on coarse pointers or narrow windows).
  */
 
 import dynamic from "next/dynamic";
@@ -77,10 +78,59 @@ class SceneBoundary extends Component<
 function detectWebGL(): boolean {
   try {
     const canvas = document.createElement("canvas");
-    return Boolean(canvas.getContext("webgl2") ?? canvas.getContext("webgl"));
+    const gl = canvas.getContext("webgl2") ?? canvas.getContext("webgl");
+    /* Release the probe. Browsers cap live WebGL contexts at roughly 8–16, and
+       an abandoned one counts against that until it is garbage collected. */
+    gl?.getExtension("WEBGL_lose_context")?.loseContext();
+    return Boolean(gl);
   } catch {
     return false;
   }
+}
+
+/**
+ * Desktop-class gate.
+ *
+ * The 3D scene runs on desktop only; phones and tablets get the poster, which
+ * is a designed brand frame rather than a degraded one. Three reasons this is
+ * the right split for this site specifically:
+ *
+ *   - The audience is furniture customers in Moldova, largely on mid-range
+ *     Android over mobile data. The ~200KB three/fiber/drei chunk plus GPU
+ *     load buys them very little: on a 360px stage the extruded letters are
+ *     small enough that the parallax which sells the whole effect barely reads.
+ *   - This is a lead-generation page. Battery, heat and jank near the contact
+ *     form cost money; a slower page does not.
+ *   - `pointer: fine` carries the test: it means a real cursor, so phones and
+ *     tablets are excluded in every orientation without needing a height check.
+ *
+ * deviceMemory / hardwareConcurrency are non-standard, so they only ever veto
+ * when actually reported; absent values are treated as capable.
+ */
+function isDesktopClass(): boolean {
+  /* `pointer: fine` is the load-bearing test — it means a real cursor, which
+     already excludes phones and tablets in every orientation. An earlier
+     version also required min(innerWidth, innerHeight) >= 768 to catch
+     landscape phones; that was redundant AND wrong, because a laptop browser
+     window is only ~740-790px tall after chrome, so it rejected actual
+     desktops. Width alone is the right second test. */
+  const finePointer = window.matchMedia("(pointer: fine)").matches;
+  const wideEnough = window.innerWidth >= 1024;
+
+  /* Only genuinely low-end hardware is vetoed. An earlier version required
+     hardwareConcurrency > 4, which rejected every 4-core machine — including
+     most dual-core-with-hyperthreading laptops, which report exactly 4 and run
+     this scene without difficulty. Combined with the height bug that preceded
+     it, the gate was rejecting ordinary desktops. Both thresholds are now the
+     floor rather than a comfort margin, and an unreported value never vetoes. */
+  const nav = navigator as Navigator & {
+    deviceMemory?: number;
+    hardwareConcurrency?: number;
+  };
+  const notLowMemory = (nav.deviceMemory ?? 8) >= 4;
+  const notSingleCore = (nav.hardwareConcurrency ?? 8) >= 4;
+
+  return finePointer && wideEnough && notLowMemory && notSingleCore;
 }
 
 export default function OutroReal() {
@@ -97,27 +147,57 @@ export default function OutroReal() {
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [dprMax, setDprMax] = useState(2);
+  const [desktopClass, setDesktopClass] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     setWebgl(detectWebGL());
-    setDprMax(window.innerWidth < 768 ? 1.5 : 2);
+    /* Coarse pointer or a narrow window caps DPR at 1.5. The coarse test is
+       what actually protects mobile GPUs from a 2x multisampled buffer. */
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    /* Capped at 1.5 even on desktop. At DPR 2 a full-viewport canvas on a
+       Retina display is ~6M pixels through five post passes; 1.5 cuts that by
+       ~44% and is indistinguishable once DoF and grain are applied. Very wide
+       windows drop further — cost scales with area, not with how impressive
+       the machine is. */
+    const wide = window.innerWidth >= 2000;
+    setDprMax(coarse || window.innerWidth < 1024 ? 1.5 : wide ? 1.25 : 1.5);
+    setDesktopClass(isDesktopClass());
   }, []);
 
-  // Mount the 3D bundle 600px out; park the frameloop beyond that margin.
+  /**
+   * Two observers, because "mount" and "run" are different questions.
+   *
+   * A single 600px-margin observer meant the render loop was still running at
+   * 60fps while the section sat just off-screen — which is exactly where the
+   * lead form and the footer phone number are. The site was spending GPU and
+   * battery animating a centimetre of camera drift at the precise moment the
+   * customer was filling in the thing the site exists to collect.
+   *
+   *   everNear (600px) — mount the bundle, extrude geometry, build textures
+   *   active   (0px)   — actually render frames
+   */
   useEffect(() => {
     const el = sectionRef.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(
+
+    const preload = new IntersectionObserver(
       (entries) => {
-        const isNear = entries.some((e) => e.isIntersecting);
-        setNear(isNear);
-        if (isNear) setEverNear(true);
+        if (entries.some((e) => e.isIntersecting)) setEverNear(true);
       },
       { rootMargin: "600px 0px 600px 0px" },
     );
-    io.observe(el);
-    return () => io.disconnect();
+    const live = new IntersectionObserver(
+      (entries) => setNear(entries.some((e) => e.isIntersecting)),
+      { rootMargin: "0px" },
+    );
+
+    preload.observe(el);
+    live.observe(el);
+    return () => {
+      preload.disconnect();
+      live.disconnect();
+    };
   }, []);
 
   const { scrollYProgress } = useScroll({
@@ -133,7 +213,55 @@ export default function OutroReal() {
   /* `mounted` guard: reduced-motion resolves client-side only, and the server
      markup must hydrate cleanly before the layout may branch. */
   const still = mounted && prefersReduced === true;
-  const show3d = mounted && webgl && !failed && everNear;
+  const show3d = mounted && webgl && desktopClass && !failed && everNear;
+
+  /**
+   * Warm the 3D chunk during idle time after first paint, instead of waiting
+   * for the section to come within 600px.
+   *
+   * Reported symptom: "when i scroll first i see simple mobo text for a few
+   * seconds, not the animation". The bundle only began downloading once the
+   * user was already approaching the section, so on anything but a fast
+   * connection the poster was still on screen when they arrived. Fetching it
+   * while the browser is idle costs nothing perceptible and means the scene is
+   * compiled and ready before it is ever needed.
+   */
+  useEffect(() => {
+    if (!mounted || !webgl || !desktopClass || prefersReduced) return;
+    /* Warm BOTH halves of the cold start, not just the code.
+       The scene cannot begin its texture work until the photograph has been
+       downloaded and decoded, so fetching the chunk alone still left the user
+       staring at the poster while a ~200KB JPEG came down. Kicking off the
+       image here puts it in the HTTP cache — and, with decode(), already
+       decoded — long before the section is reached, so by the time the scene
+       mounts the bitmap is effectively free. */
+    const warm = () => {
+      void import("@/components/three/OutroScene");
+      const img = new window.Image();
+      img.decoding = "async";
+      img.src = TEXTURE_URL;
+      void img.decode?.().catch(() => {});
+    };
+    const ric = window.requestIdleCallback;
+    if (typeof ric === "function") {
+      const id = ric(warm, { timeout: 2500 });
+      return () => window.cancelIdleCallback?.(id);
+    }
+    const t = window.setTimeout(warm, 1200);
+    return () => window.clearTimeout(t);
+  }, [mounted, webgl, desktopClass, prefersReduced]);
+
+  /**
+   * The poster's typographic wordmark is a FALLBACK, not a loading state.
+   *
+   * It was rendering unconditionally, so the common path showed flat display
+   * type and then cross-faded it into differently-shaped, differently-placed
+   * 3D glyphs — a visible double exposure, and the thing the client noticed
+   * immediately. Now it appears only when the 3D genuinely is not coming.
+   * While the scene loads, the photograph alone holds the frame, so the
+   * letters arrive as an addition rather than a substitution.
+   */
+  const showPosterWordmark = mounted && (!webgl || !desktopClass || failed || still);
 
   const stage = (
     <>
@@ -148,11 +276,13 @@ export default function OutroReal() {
           className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink-950/75 via-ink-950/15 to-ink-950/35" />
-        <p className="absolute inset-0 flex items-center justify-center">
-          <span className="font-semibold tracking-[-0.03em] text-bone-50 [font-size:clamp(4.5rem,17vw,15rem)] [text-shadow:0_4px_48px_rgb(0_0_0/0.55)]">
-            {SITE.shortName}
-          </span>
-        </p>
+        {showPosterWordmark && (
+          <p className="absolute inset-0 flex items-center justify-center">
+            <span className="font-semibold tracking-[-0.03em] text-bone-50 [font-size:clamp(4.5rem,17vw,15rem)] [text-shadow:0_4px_48px_rgb(0_0_0/0.55)]">
+              {SITE.shortName}
+            </span>
+          </p>
+        )}
       </div>
 
       {/* 2 — the shot. Fades in over the poster once textures are resolved. */}
@@ -218,9 +348,9 @@ export default function OutroReal() {
           {SITE.tagline} · {HERO.location}
         </motion.p>
       </div>
-      <span className="sr-only">
-        {SITE.name} — {SITE.tagline}
-      </span>
+      {/* The visible caption already carries the tagline; repeating it here
+          made screen readers announce it twice in a row. Name only. */}
+      <span className="sr-only">{SITE.name}</span>
     </section>
   );
 }

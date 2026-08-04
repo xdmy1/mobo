@@ -4,6 +4,10 @@ import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "motion/react";
 import { HERO, SITE } from "@/lib/data";
 
+/* Same-origin and resized. `href={HERO.image}` pulled the 4032px WordPress
+   original — the largest asset on the page, for a masked decoration. */
+const PHOTO_URL = `/_next/image?url=${encodeURIComponent(HERO.image)}&w=1920&q=75`;
+
 /**
  * "Soft-close" — the brand outro, staged as a film title card.
  *
@@ -59,8 +63,8 @@ const panelDelay = (i: number) => {
 };
 
 function CabinetFront({ index, progress }: { index: number; progress: MotionValue<number> }) {
-  const start = 0.14 + panelDelay(index);
-  const y = useTransform(progress, [start, start + 0.4], ["0%", panelOffset(index)], {
+  const start = 0.12 + panelDelay(index);
+  const y = useTransform(progress, [start, start + 0.5], ["0%", panelOffset(index)], {
     ease: softClose,
   });
 
@@ -92,11 +96,11 @@ export default function OutroD() {
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start end", "end end"],
+    offset: ["start start", "end end"],
   });
 
   /* Distinct rates, so it reads as a camera move with depth, not one zoom. */
-  const barScale = useTransform(scrollYProgress, [0, 0.16], [0, 1]);
+  const barScale = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
   const photoScale = useTransform(scrollYProgress, [0, 1], [1.24, 1.0]);
   const wordScale = useTransform(scrollYProgress, [0, 1], [1.07, 1.0]);
   const rakeX = useTransform(scrollYProgress, [0.5, 0.96], [-1300, 1300]);
@@ -114,12 +118,11 @@ export default function OutroD() {
       >
         <div className="mx-auto w-full max-w-[100rem] px-5">
           <Wordmark />
-          <p className="text-eyebrow mt-6 text-center text-fg-faint">
+          <p className="text-eyebrow mt-6 text-center text-fg-dim">
             {SITE.tagline} · {HERO.location}
           </p>
         </div>
-        <span className="sr-only">{SITE.name}</span>
-      </section>
+        </section>
     );
   }
 
@@ -136,7 +139,7 @@ export default function OutroD() {
 
           <motion.p
             style={{ opacity: captionOpacity, y: captionY }}
-            className="text-eyebrow mt-6 px-5 text-center text-fg-faint sm:mt-8"
+            className="text-eyebrow mt-6 px-5 text-center text-fg-dim sm:mt-8"
           >
             {SITE.tagline} · {HERO.location}
           </motion.p>
@@ -168,7 +171,6 @@ export default function OutroD() {
         />
       </div>
 
-      <span className="sr-only">{SITE.name}</span>
     </section>
   );
 }
@@ -202,7 +204,7 @@ function Wordmark({
             x="500"
             y="203"
             textAnchor="middle"
-            textLength="958"
+            textLength="930"
             lengthAdjust="spacingAndGlyphs"
             fontSize="248"
             fontWeight={600}
@@ -228,8 +230,11 @@ function Wordmark({
       </defs>
 
       <g mask={`url(#${MASK_ID})`}>
+        {/* Fallback fill: the letterforms must exist even if the photo never
+            arrives, otherwise the brand moment degrades to a black frame. */}
+        <rect x="0" y="0" width="1000" height="260" fill="var(--color-ink-800)" />
         <motion.image
-          href={HERO.image}
+          href={PHOTO_URL}
           x="0"
           y="0"
           width="1000"

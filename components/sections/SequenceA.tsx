@@ -211,7 +211,7 @@ function Shot({
         alt=""
         fill
         sizes="100vw"
-        quality={82}
+       
         className="object-cover"
         draggable={false}
       />
@@ -459,7 +459,7 @@ export default function SequenceA() {
             alt=""
             fill
             sizes="(min-width: 1280px) 76rem, 100vw"
-            quality={82}
+           
             className="object-cover"
             draggable={false}
           />

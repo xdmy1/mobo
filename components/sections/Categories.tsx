@@ -329,7 +329,7 @@ function CategoryCard({ cat, delay }: { cat: Category; delay: number }) {
         <motion.div
           variants={fade}
           className={[
-            "glass relative m-3 rounded-card p-4 sm:m-4 sm:p-5",
+            "glass relative m-2.5 rounded-card p-3 sm:m-3.5 sm:p-3.5",
             "transition-[translate] duration-200 ease-out-strong",
             "hover-fine-motion:group-hover:-translate-y-1",
           ].join(" ")}
@@ -356,8 +356,8 @@ function CategoryCard({ cat, delay }: { cat: Category; delay: number }) {
           </span>
 
           {/* `relative` so the content paints above the light layer. */}
-          <div className="relative flex items-start gap-3.5">
-            <span className="glass glass-thin grid size-11 shrink-0 place-items-center rounded-2xl">
+          <div className="relative flex items-start gap-2.5 sm:gap-3.5">
+            <span className="glass glass-thin grid size-8 shrink-0 place-items-center rounded-xl sm:size-11 sm:rounded-2xl">
               <Image
                 src={cat.icon}
                 /* Decorative: the icon restates the label sitting beside
@@ -367,7 +367,7 @@ function CategoryCard({ cat, delay }: { cat: Category; delay: number }) {
                 aria-hidden="true"
                 width={22}
                 height={22}
-                className="size-[22px]"
+                className="size-4 sm:size-[22px]"
                 style={{ filter: ICON_TO_LIME }}
               />
             </span>
@@ -377,18 +377,20 @@ function CategoryCard({ cat, delay }: { cat: Category; delay: number }) {
                   font sizes a wrapped label would re-break the row; an
                   ellipsis keeps alignment and the full text stays in the
                   accessibility tree. No label wraps at normal sizes. */}
-              <h3 className="text-h3 line-clamp-1 text-fg">
+              <h3 className="line-clamp-1 text-[0.9375rem] font-medium tracking-[-0.012em] text-fg sm:text-h3">
                 {cat.label}
                 <span className="sr-only"> — solicită o ofertă</span>
               </h3>
-              {/* THE FIX for the ragged panel tops: every blurb gets the
-                  same reserved two-line box. min-height = 2 lines ×
-                  leading-relaxed (2 × 1.625 = 3.25em) so a one-line blurb
-                  still occupies two lines' height, and line-clamp-2 caps
-                  longer copy at the same two lines. Em-based against the
-                  blurb's own font-size, so it scales with the user's font
-                  size and survives any viewport width. */}
-              <p className="text-pretty mt-1.5 line-clamp-2 min-h-[3.25em] text-[0.8125rem] leading-relaxed text-fg-dim">
+              {/* One line, ellipsised — which also solves the ragged panel
+                  tops that the previous two-line reserve was there to fix, and
+                  solves it better. A reserved 3.25em box kept every panel two
+                  lines tall even when the blurb was one, so "Bucătării" sat
+                  above a block of empty glass. Clamping to a single line makes
+                  every blurb exactly one line high, so the panels match by
+                  construction instead of by reservation, and the card gets its
+                  height back. `truncate` rather than line-clamp-1: it is a
+                  single line by definition and gets the ellipsis for free. */}
+              <p className="mt-1 truncate text-[0.75rem] leading-relaxed text-fg-dim sm:mt-1.5 sm:text-[0.8125rem]">
                 {cat.blurb}
               </p>
             </div>

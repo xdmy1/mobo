@@ -329,7 +329,12 @@ function Letters({ scale, small }: { scale: number; small: boolean }) {
         far={1.4}
         blur={2.4}
         opacity={0.55}
-        resolution={small ? 256 : 512}
+        /* Pinned, not responsive. drei creates two WebGLRenderTargets in a
+           useMemo keyed on `resolution` and never disposes them, so every
+           crossing of a breakpoint (a resize, a device rotation) orphaned
+           ~2MB of GPU memory for the life of the context. 256 is
+           indistinguishable on a blurred blob shadow. */
+        resolution={256}
         frames={1}
         color="#12110b"
       />
