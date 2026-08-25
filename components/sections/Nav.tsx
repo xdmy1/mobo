@@ -12,6 +12,7 @@ import {
   useScroll,
   type Variants,
 } from "motion/react";
+import { SocialGlyph } from "@/components/ui/BrandIcon";
 import { Button } from "@/components/ui/Button";
 import { Magnetic } from "@/components/ui/Magnetic";
 import { LEGAL_LINKS, NAV_LINKS, SITE, SOCIALS } from "@/lib/data";
@@ -558,11 +559,12 @@ export default function Nav() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className={cn(
-                          "glass glass-thin inline-flex h-9 items-center rounded-pill px-4 text-[0.8125rem] text-fg-dim",
+                          "glass glass-thin inline-flex h-9 items-center gap-2 rounded-pill px-4 text-[0.8125rem] text-fg-dim",
                           "transition-[color,transform] duration-200 ease-out-strong active:scale-[0.97]",
                           "hover-fine:hover:text-fg",
                         )}
                       >
+                        <SocialGlyph label={social.label} className="size-3.5" />
                         {social.label}
                       </a>
                     </li>

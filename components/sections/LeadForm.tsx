@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { ZodIssue } from "zod";
+import { SocialGlyph } from "@/components/ui/BrandIcon";
 import { Reveal } from "@/components/ui/Reveal";
 import { Select } from "@/components/ui/Select";
 import { leadSchema } from "@/lib/crm/types";
@@ -347,8 +348,9 @@ export default function LeadForm() {
                       href={social.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-fg-dim transition-colors duration-200 ease-out-strong hover-fine:hover:text-fg"
+                      className="inline-flex items-center gap-2 text-sm text-fg-dim transition-colors duration-200 ease-out-strong hover-fine:hover:text-fg"
                     >
+                      <SocialGlyph label={social.label} className="size-3.5" />
                       {social.label}
                     </a>
                   </li>

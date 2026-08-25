@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { SocialGlyph } from "@/components/ui/BrandIcon";
 import { Reveal } from "@/components/ui/Reveal";
 import { CATEGORIES, COMPANY, LEGAL_LINKS, NAV_LINKS, SITE, SOCIALS } from "@/lib/data";
 import { cn } from "@/lib/utils";
@@ -150,10 +151,13 @@ export default function Footer() {
                       <li key={`${block.id}-${link.label}`}>
                         <a
                           href={link.href}
-                          className={LINK_CLASS}
+                          className={cn(LINK_CLASS, "inline-flex items-center gap-2.5")}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
+                          {/* External links here are the social profiles — each
+                              carries its real brand mark. */}
+                          <SocialGlyph label={link.label} className="size-4" />
                           {link.label}
                         </a>
                       </li>

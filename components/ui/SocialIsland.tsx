@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
+import { BrandIcon } from "@/components/ui/BrandIcon";
 import { SITE, SOCIALS } from "@/lib/data";
 import { DUR, EASE_OUT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -41,67 +42,47 @@ function socialHref(label: string): string {
   return SOCIALS.find((s) => s.label === label)?.href ?? "#";
 }
 
-/* Stroke icons follow Feather geometry; TikTok and Telegram are filled glyphs
-   because their marks don't survive being outlined at 20px. */
-const ICONS = {
-  phone: (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="size-5">
-      <path
-        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ),
-  tiktok: (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5">
-      <path
-        d="M19.6 8.3a6.15 6.15 0 0 1-3.6-1.16A6.24 6.24 0 0 1 13.77 4h-3.06v11.87a2.72 2.72 0 1 1-1.94-2.6v-3.17a5.9 5.9 0 1 0 5.04 5.84v-5.7a9.13 9.13 0 0 0 5.79 2.06z"
-        fill="currentColor"
-      />
-    </svg>
-  ),
-  instagram: (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="size-5">
-      <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="12" cy="12" r="4.3" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="17.4" cy="6.6" r="1.3" fill="currentColor" />
-    </svg>
-  ),
-  telegram: (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5">
-      <path
-        d="M21.7 4.2c.3-1.1-.8-2-1.85-1.6L2.9 9.2c-1.15.44-1.1 2.07.07 2.44l4.28 1.35 1.63 5.2c.3.98 1.55 1.27 2.26.52l2.32-2.44 4.36 3.2c.9.66 2.17.17 2.4-.92zM9.3 12.9l8.35-5.42c.2-.13.42.14.25.31l-6.9 6.5c-.24.23-.4.53-.45.86l-.28 1.95c-.04.3-.46.32-.54.03l-1-3.17c-.13-.4.03-.83.57-1.06z"
-        fill="currentColor"
-      />
-    </svg>
-  ),
-} as const;
+/* The genuine marks, via BrandIcon (Simple Icons paths). TikTok gets its
+   signature chromatic offset — the cyan and magenta copies peeking out from
+   under the white glyph — because a plain white note on black reads as a
+   knock-off of the real logo. */
+const tiktokLayered = (
+  <span className="relative block size-5">
+    <BrandIcon name="tiktok" className="absolute inset-0 -translate-x-[0.75px] -translate-y-[0.75px] text-[#25f4ee]" />
+    <BrandIcon name="tiktok" className="absolute inset-0 translate-x-[0.75px] translate-y-[0.75px] text-[#fe2c55]" />
+    <BrandIcon name="tiktok" className="absolute inset-0 text-white" />
+  </span>
+);
 
 const CHANNELS: Channel[] = [
-  { label: "Sună-ne", href: SITE.phoneHref, bg: "#22a95e", icon: ICONS.phone },
+  {
+    label: "Sună-ne",
+    href: SITE.phoneHref,
+    bg: "#26b04c",
+    icon: <BrandIcon name="phone" className="size-5" />,
+  },
   {
     label: "TikTok",
     href: socialHref("TikTok"),
     external: true,
     bg: "#0f0f0f",
-    icon: ICONS.tiktok,
+    icon: tiktokLayered,
   },
   {
     label: "Instagram",
     href: socialHref("Instagram"),
     external: true,
     bg: "radial-gradient(circle at 30% 110%, #fdf497 0%, #fd5949 45%, #d6249f 62%, #285aeb 92%)",
-    icon: ICONS.instagram,
+    icon: <BrandIcon name="instagram" className="size-5" />,
   },
   {
     label: "Telegram",
     href: socialHref("Telegram"),
     external: true,
-    bg: "#229ed9",
-    icon: ICONS.telegram,
+    /* Telegram's own vertical gradient, not a flat approximation. The nudge
+       re-centres the plane, which sits low-left inside the full mark's grid. */
+    bg: "linear-gradient(180deg, #2aabee 0%, #229ed9 100%)",
+    icon: <BrandIcon name="telegramPlane" className="size-5 translate-x-[0.5px] -translate-y-px" />,
   },
 ];
 
