@@ -15,7 +15,9 @@ import { PROJECTS, PROJECTS_INDEX_HREF, type Project } from "@/lib/data";
 import { DUR, EASE_IN_OUT, EASE_OUT, STAGGER, VIEWPORT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
-const FILTERS = ["Toate", "Bucătărie", "Living"] as const;
+/* Filtrele urmează noua împărțire PE PROIECTE (feedback partener): tipul
+   locuinței, nu categoria de mobilier — încăperile trăiesc ÎN proiect. */
+const FILTERS = ["Toate", "Apartament", "Casă privată"] as const;
 type Filter = (typeof FILTERS)[number];
 
 /** Romanian needs "de" above 19 ("21 de proiecte"), and a singular below 2. */
@@ -124,14 +126,14 @@ export default function Projects({
           <header className="flex flex-col gap-6 border-b border-ink-850/15 pb-7 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
             <Reveal>
               <h2 id="proiecte-titlu" className="text-h2 text-balance max-w-[20ch]">
-                Bucătării și livinguri deja montate în case reale.
+                Proiecte întregi, montate în case reale.
               </h2>
             </Reveal>
 
             <Reveal index={1} className="lg:max-w-sm lg:pb-1">
               <p className="text-pretty text-[0.9375rem] leading-[1.7] text-fg-invert-dim">
-                Fiecare proiect a fost măsurat la fața locului, desenat în 3D și fabricat în
-                atelierul nostru.
+                Nu piese separate — case și apartamente mobilate pe proiect: măsurate la fața
+                locului, desenate în 3D, fabricate în atelierul nostru.
               </p>
             </Reveal>
           </header>
@@ -276,6 +278,13 @@ export default function Projects({
                     </h3>
                     <span className="text-eyebrow shrink-0 text-fg-invert-dim">{project.kind}</span>
                   </div>
+
+                  {/* Linia de proiect, stil fișă de catalog: încăperile mobilate
+                      + locația — informația care face cardul „un proiect", nu
+                      „o piesă de mobilier". */}
+                  <p className="text-eyebrow mt-2 text-fg-invert-dim">
+                    {[...project.rooms, project.location].join(" · ")}
+                  </p>
 
                   <p className="mt-2 text-pretty text-sm leading-[1.65] text-fg-invert-dim">
                     {project.description}

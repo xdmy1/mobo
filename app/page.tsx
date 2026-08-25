@@ -1,6 +1,5 @@
 import Nav from "@/components/sections/Nav";
 import Hero from "@/components/sections/Hero";
-import Categories from "@/components/sections/Categories";
 import Projects from "@/components/sections/Projects";
 import Process from "@/components/sections/Process";
 import WhyMobo from "@/components/sections/WhyMobo";
@@ -17,7 +16,6 @@ import Footer from "@/components/sections/Footer";
  * was "not too black", so dark and warm-ivory bands alternate:
  *
  *   Hero          dark    ink-900
- *   Categories    dark    ink-850
  *   Projects      LIGHT   bone-50     <- the page opens up
  *   Process       LIGHT   bone-100
  *   WhyMobo       dark    ink-900
@@ -29,6 +27,12 @@ import Footer from "@/components/sections/Footer";
  * The two light bands sit where the content is most photographic and most
  * information-dense, which is also where a long dark stretch would start to
  * feel oppressive.
+ *
+ * RESTRUCTURARE (feedback partener): banda „Categories" (împărțirea pe
+ * încăperi — bucătării / living / dressing) a ieșit de pe homepage. Site-ul e
+ * împărțit PE PROIECTE — case reale, mobilate cap-coadă — deci după Hero vine
+ * direct banda de proiecte. components/sections/Categories.tsx rămâne în repo
+ * pentru referință, ca OutroReal.
  */
 export default function Home() {
   return (
@@ -36,7 +40,6 @@ export default function Home() {
       <Nav />
       <main id="main">
         <Hero />
-        <Categories />
         <Projects />
         <Process />
         <WhyMobo />

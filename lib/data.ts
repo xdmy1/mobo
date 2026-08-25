@@ -227,79 +227,157 @@ export const CATEGORIES: Category[] = [
 
 /* -------------------------------------------------------------- Projects -- */
 
+/**
+ * RESTRUCTURARE (feedback partener): site-ul e împărțit PE PROIECTE — case și
+ * apartamente reale, mobilate cap-coadă — nu pe categorii de încăperi
+ * (bucătării / living / dressing). Referința de ton: ciotca.md/proiecte
+ * („Casă privată Rîscani": fișă tehnică + galerie per proiect), păstrând
+ * limbajul vizual MOBO.
+ *
+ * SCHIȚĂ DE DISCUȚIE, nu conținut final:
+ *   - Numele și fișele tehnice sunt generice — se înlocuiesc cu proiectele
+ *     reale („Casă privată Ciocana", designer, decorurile exacte etc.).
+ *   - Fotografia auditată acoperă un singur cadru pentru majoritatea
+ *     proiectelor; galeriile au nevoie de SETURI de poze per proiect
+ *     (ședința foto e oricum necesară înainte de lansare — vezi auditul PHOTO).
+ */
 export type Project = {
   slug: string;
+  /** Numele proiectului — de înlocuit cu numele real al casei/apartamentului. */
   title: string;
-  kind: "Bucătărie" | "Living";
+  kind: "Apartament" | "Casă privată";
+  location: string;
+  /** Încăperile mobilate în cadrul proiectului. */
+  rooms: string[];
   description: string;
   href: string;
   image: string;
+  /** Fișa tehnică a proiectului — perechile etichetă/valoare de sub titlu. */
+  specs: { label: string; value: string }[];
+  /** Galeria proiectului. `room` etichetează cadrul („Bucătărie", „Living"). */
+  gallery: { src: string; alt: string; room?: string }[];
 };
 
-/**
- * Six projects, not nine. The three dropped ones ("Bucătărie modernă",
- * "…cu insulă", "Living Eleganță Naturală") had only rejected photography
- * behind them, and a project card with a sideways phone photo does more damage
- * to a premium brand than a shorter grid does.
- *
- * Each photo below is matched to the copy that actually describes it — the
- * green-island kitchen sits under the entry whose text mentions the pastel
- * green island, not under a generic heading.
- */
+/* Fișă de bază comună schițelor — valorile sunt cele reale MOBO (partenerii de
+   materiale de pe /servicii); per proiect se precizează decorurile exacte. */
+const DRAFT_SPECS = {
+  fronturi: { label: "Fronturi", value: "MDF vopsit / AGT" },
+  placi: { label: "Plăci", value: "Egger, Austria" },
+  feronerie: { label: "Feronerie", value: "Blum, soft-close" },
+  glisare: { label: "Sisteme de glisare", value: "Hettich, Germania" },
+  garantie: { label: "Garanție", value: "5 ani, cu deservire" },
+} as const;
+
 export const PROJECTS: Project[] = [
   {
-    slug: "bucatarie-moderna-liniara-cu-insula",
-    title: "Bucătăria modernă liniară cu insulă",
-    kind: "Bucătărie",
+    slug: "apartament-living-deschis",
+    title: "Apartament cu living deschis spre bucătărie",
+    kind: "Apartament",
+    location: "Chișinău",
+    rooms: ["Living", "Bucătărie"],
     description:
-      "Nuanța caldă de lemn adaugă o notă naturală, iar insula în verde pastel devine elementul central.",
-    href: "/proiecte/bucatarie-moderna-liniara-cu-insula",
-    image: PHOTO.kitchenGreen,
-  },
-  {
-    slug: "bucatarie-moderna-pe-colt-alba",
-    title: "Bucătăria modernă pe colț albă",
-    kind: "Bucătărie",
-    description:
-      "Designul pe colț optimizează spațiul, creând un mediu de lucru ergonomic și eficient.",
-    href: "/proiecte/bucatarie-moderna-pe-colt-alba",
-    image: PHOTO.kitchenLight,
-  },
-  {
-    slug: "bucatarie-moderna-pe-colt",
-    title: "Bucătăria modernă pe colț",
-    kind: "Bucătărie",
-    description:
-      "Configurația pe colț maximizează fiecare unghi, oferind spații generoase de depozitare.",
-    href: "/proiecte/bucatarie-moderna-pe-colt",
-    image: PHOTO.kitchenTall,
-  },
-  {
-    slug: "bucatarie-moderna-liniara",
-    title: "Bucătărie modernă liniară",
-    kind: "Bucătărie",
-    description:
-      "Un design compact și bine organizat, care optimizează fiecare centimetru de spațiu.",
-    href: "/proiecte/bucatarie-moderna-liniara",
-    image: PHOTO.kitchenWide,
-  },
-  {
-    slug: "mobila-living-minimalism-in-contrast",
-    title: "Living «Minimalism în Contrast»",
-    kind: "Living",
-    description:
-      "O atmosferă modernă și sofisticată, definită de linii curate și materiale premium.",
-    href: "/proiecte/mobila-living-minimalism-in-contrast",
+      "Un singur volum de mobilier leagă livingul de bucătărie: linii curate, depozitare generoasă și materiale premium în contrast.",
+    href: "/proiecte/apartament-living-deschis",
     image: PHOTO.living,
+    specs: [
+      DRAFT_SPECS.fronturi,
+      DRAFT_SPECS.placi,
+      DRAFT_SPECS.feronerie,
+      DRAFT_SPECS.glisare,
+      DRAFT_SPECS.garantie,
+    ],
+    /* GALERIE DEMO: al doilea cadru vine din alt proiect — există ca pagina să
+       arate răsfoirea; se înlocuiește cu setul real de poze al proiectului. */
+    gallery: [
+      { src: PHOTO.living, alt: "Living deschis spre bucătărie, cu canapea albă și perete de marmură", room: "Living" },
+      { src: PHOTO.kitchenWide, alt: "Bucătărie în nuanțe de lemn și grafit", room: "Bucătărie" },
+    ],
   },
   {
-    slug: "mobila-living-simplitate-eleganta",
-    title: "Living «Simplitate Elegantă»",
-    kind: "Living",
+    slug: "apartament-insula-verde-salvie",
+    title: "Apartament cu insulă verde salvie",
+    kind: "Apartament",
+    location: "Chișinău",
+    rooms: ["Bucătărie"],
     description:
-      "Redefinește minimalismul modern prin utilizarea texturilor și culorilor naturale.",
-    href: "/proiecte/mobila-living-simplitate-eleganta",
+      "Nuanța caldă de nuc adaugă o notă naturală, iar insula în verde pastel devine elementul central al bucătăriei.",
+    href: "/proiecte/apartament-insula-verde-salvie",
+    image: PHOTO.kitchenGreen,
+    specs: [
+      DRAFT_SPECS.fronturi,
+      DRAFT_SPECS.placi,
+      DRAFT_SPECS.feronerie,
+      DRAFT_SPECS.garantie,
+    ],
+    gallery: [
+      { src: PHOTO.kitchenGreen, alt: "Bucătărie cu insulă în verde pastel și corpuri din nuc", room: "Bucătărie" },
+    ],
+  },
+  {
+    slug: "casa-bucatarie-nuc-grafit",
+    title: "Casă cu bucătărie în nuc și grafit",
+    kind: "Casă privată",
+    location: "Chișinău",
+    rooms: ["Bucătărie"],
+    description:
+      "Un front continuu de nuc și grafit, compact și bine organizat, care folosește fiecare centimetru al peretelui.",
+    href: "/proiecte/casa-bucatarie-nuc-grafit",
+    image: PHOTO.kitchenWide,
+    specs: [
+      DRAFT_SPECS.fronturi,
+      DRAFT_SPECS.placi,
+      DRAFT_SPECS.feronerie,
+      DRAFT_SPECS.glisare,
+      DRAFT_SPECS.garantie,
+    ],
+    gallery: [
+      { src: PHOTO.kitchenWide, alt: "Bucătărie la comandă în nuanțe de lemn și grafit", room: "Bucătărie" },
+    ],
+  },
+  {
+    slug: "apartament-bucatarie-alba-pe-colt",
+    title: "Apartament cu bucătărie albă pe colț",
+    kind: "Apartament",
+    location: "Chișinău",
+    rooms: ["Bucătărie"],
+    description:
+      "Designul pe colț optimizează spațiul și lumina de la fereastră, creând un mediu de lucru ergonomic.",
+    href: "/proiecte/apartament-bucatarie-alba-pe-colt",
+    image: PHOTO.kitchenLight,
+    specs: [DRAFT_SPECS.fronturi, DRAFT_SPECS.placi, DRAFT_SPECS.feronerie, DRAFT_SPECS.garantie],
+    gallery: [
+      { src: PHOTO.kitchenLight, alt: "Bucătărie albă pe colț, cu lumină naturală de la fereastră", room: "Bucătărie" },
+    ],
+  },
+  {
+    slug: "apartament-alb-si-marmura",
+    title: "Apartament în alb și marmură",
+    kind: "Apartament",
+    location: "Chișinău",
+    rooms: ["Bucătărie"],
+    description:
+      "Fronturi albe, vitrină iluminată și pardoseală de marmură — configurația pe colț valorifică fiecare unghi.",
+    href: "/proiecte/apartament-alb-si-marmura",
+    image: PHOTO.kitchenTall,
+    specs: [DRAFT_SPECS.fronturi, DRAFT_SPECS.placi, DRAFT_SPECS.feronerie, DRAFT_SPECS.garantie],
+    gallery: [
+      { src: PHOTO.kitchenTall, alt: "Bucătărie albă cu vitrină iluminată și pardoseală de marmură", room: "Bucătărie" },
+    ],
+  },
+  {
+    slug: "apartament-living-tonuri-naturale",
+    title: "Apartament cu living în tonuri naturale",
+    kind: "Apartament",
+    location: "Chișinău",
+    rooms: ["Living"],
+    description:
+      "Texturi și culori naturale, depozitare care nu încarcă încăperea — minimalism modern, cald.",
+    href: "/proiecte/apartament-living-tonuri-naturale",
     image: PHOTO.livingTall,
+    specs: [DRAFT_SPECS.fronturi, DRAFT_SPECS.placi, DRAFT_SPECS.glisare, DRAFT_SPECS.garantie],
+    gallery: [
+      { src: PHOTO.livingTall, alt: "Colț de living cu mobilier în tonuri naturale", room: "Living" },
+    ],
   },
 ];
 
