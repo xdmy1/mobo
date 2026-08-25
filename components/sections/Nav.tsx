@@ -324,10 +324,10 @@ export default function Nav() {
             <Image
               src={SITE.logo}
               alt="MOBO Kitchens & Home"
-              width={81}
-              height={28}
+              width={105}
+              height={36}
               priority
-              className="h-7 w-auto"
+              className="h-8 w-auto sm:h-9"
             />
           </motion.a>
 
