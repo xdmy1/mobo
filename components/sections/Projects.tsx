@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   AnimatePresence,
   motion,
@@ -52,7 +53,16 @@ function projectCountLabel(n: number): string {
  * hovering a card answers the filter bar's visual language and marks the whole
  * card as one link. No badges, scrims, shines or arrow buttons.
  */
-export default function Projects() {
+export default function Projects({
+  variant = "home",
+}: {
+  /**
+   * "home" — the homepage band, with its own header and a link to /proiecte.
+   * "page" — the same filterable grid on /proiecte, where PageHeader already
+   * carries the title and linking to the index would point at itself.
+   */
+  variant?: "home" | "page";
+}) {
   const reduce = useReducedMotion();
   const [filter, setFilter] = useState<Filter>("Toate");
 
@@ -94,25 +104,38 @@ export default function Projects() {
       };
 
   return (
-    <section id="proiecte" aria-labelledby="proiecte-titlu" className="relative bg-bone-50 text-fg-invert">
-      <div className="mx-auto w-full max-w-[88rem] px-5 py-20 sm:px-8 sm:py-24 lg:px-12 lg:py-28">
+    <section
+      id="proiecte"
+      aria-labelledby={variant === "home" ? "proiecte-titlu" : undefined}
+      aria-label={variant === "page" ? "Proiecte realizate" : undefined}
+      className="relative bg-bone-50 text-fg-invert"
+    >
+      <div
+        className={cn(
+          "mx-auto w-full max-w-[88rem] px-5 sm:px-8 lg:px-12",
+          variant === "home" ? "py-20 sm:py-24 lg:py-28" : "pb-20 pt-12 sm:pb-24 sm:pt-14 lg:pb-28",
+        )}
+      >
         {/* Heading and lead share a baseline rule instead of stacking
             label / heading / paragraph — that stack was repeating verbatim in
-            every section on the page. */}
-        <header className="flex flex-col gap-6 border-b border-ink-850/15 pb-7 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
-          <Reveal>
-            <h2 id="proiecte-titlu" className="text-h2 text-balance max-w-[20ch]">
-              Bucătării și livinguri deja montate în case reale.
-            </h2>
-          </Reveal>
+            every section on the page. On /proiecte the PageHeader above the
+            band already says all of this, so the header stays home-only. */}
+        {variant === "home" && (
+          <header className="flex flex-col gap-6 border-b border-ink-850/15 pb-7 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
+            <Reveal>
+              <h2 id="proiecte-titlu" className="text-h2 text-balance max-w-[20ch]">
+                Bucătării și livinguri deja montate în case reale.
+              </h2>
+            </Reveal>
 
-          <Reveal index={1} className="lg:max-w-sm lg:pb-1">
-            <p className="text-pretty text-[0.9375rem] leading-[1.7] text-fg-invert-dim">
-              Fiecare proiect a fost măsurat la fața locului, desenat în 3D și fabricat în
-              atelierul nostru.
-            </p>
-          </Reveal>
-        </header>
+            <Reveal index={1} className="lg:max-w-sm lg:pb-1">
+              <p className="text-pretty text-[0.9375rem] leading-[1.7] text-fg-invert-dim">
+                Fiecare proiect a fost măsurat la fața locului, desenat în 3D și fabricat în
+                atelierul nostru.
+              </p>
+            </Reveal>
+          </header>
+        )}
 
         {/* ------------------------------------------------------------ filters */}
         <Reveal index={2}>
@@ -214,8 +237,9 @@ export default function Projects() {
               >
                 {/* The whole card is the link; the drawn title underline (and
                     the global focus-visible ring) is its affordance — no
-                    button chrome needed. */}
-                <a href={project.href} target="_blank" rel="noopener noreferrer" className="group block">
+                    button chrome needed. Internal now — every project has its
+                    own page under /proiecte. */}
+                <Link href={project.href} className="group block">
                   <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[3px] bg-bone-200">
                     <Image
                       src={project.image}
@@ -256,31 +280,31 @@ export default function Projects() {
                   <p className="mt-2 text-pretty text-sm leading-[1.65] text-fg-invert-dim">
                     {project.description}
                   </p>
-                </a>
+                </Link>
               </motion.li>
             ))}
           </AnimatePresence>
         </motion.ul>
 
-        <Reveal className="mt-14 border-t border-ink-850/15 pt-7">
-          <a
-            href={PROJECTS_INDEX_HREF}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cn(
-              "group inline-flex items-baseline gap-2 text-[0.9375rem] font-medium",
-              "transition-colors duration-200 ease-out-strong hover-fine:hover:text-lime-on-light",
-            )}
-          >
-            Vezi toate proiectele
-            <span
-              aria-hidden="true"
-              className="transition-transform duration-200 ease-out-strong hover-fine:group-hover:translate-x-1"
+        {variant === "home" && (
+          <Reveal className="mt-14 border-t border-ink-850/15 pt-7">
+            <Link
+              href={PROJECTS_INDEX_HREF}
+              className={cn(
+                "group inline-flex items-baseline gap-2 text-[0.9375rem] font-medium",
+                "transition-colors duration-200 ease-out-strong hover-fine:hover:text-lime-on-light",
+              )}
             >
-              →
-            </span>
-          </a>
-        </Reveal>
+              Vezi toate proiectele
+              <span
+                aria-hidden="true"
+                className="transition-transform duration-200 ease-out-strong hover-fine:group-hover:translate-x-1"
+              >
+                →
+              </span>
+            </Link>
+          </Reveal>
+        )}
       </div>
     </section>
   );

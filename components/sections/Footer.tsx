@@ -1,6 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
-import { CATEGORIES, NAV_LINKS, SITE, SOCIALS } from "@/lib/data";
+import { CATEGORIES, COMPANY, LEGAL_LINKS, NAV_LINKS, SITE, SOCIALS } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
 /**
@@ -40,16 +41,16 @@ const NAV_BLOCKS: CreditNavBlock[] = [
     role: "Informații",
     links: [
       ...NAV_LINKS.map((link) => ({ label: link.label, href: link.href })),
-      { label: "Oferte", href: "#avantaje" },
-      { label: "Info Clienți", href: "https://mobo.md/info-clienti/", external: true },
+      { label: "Oferte", href: "/#avantaje" },
+      { label: "Info Clienți", href: "/info-clienti" },
     ],
   },
   {
     id: "footer-categorii",
     role: "Categorii",
-    /* All six point at the category grid — the single-page redesign has no
-       per-category routes, and deep-linking would fabricate URLs. */
-    links: CATEGORIES.map((category) => ({ label: category.label, href: "#categorii" })),
+    /* All six point at the category grid — there are no per-category routes,
+       and deep-linking would fabricate URLs. Absolute so it works site-wide. */
+    links: CATEGORIES.map((category) => ({ label: category.label, href: "/#categorii" })),
   },
   {
     id: "footer-social",
@@ -144,19 +145,26 @@ export default function Footer() {
               </h3>
               <nav aria-labelledby={block.id}>
                 <ul className="mt-5 list-none space-y-2.5">
-                  {block.links.map((link) => (
-                    <li key={`${block.id}-${link.label}`}>
-                      <a
-                        href={link.href}
-                        className={LINK_CLASS}
-                        {...(link.external
-                          ? { target: "_blank", rel: "noopener noreferrer" }
-                          : {})}
-                      >
-                        {link.label}
-                      </a>
-                    </li>
-                  ))}
+                  {block.links.map((link) =>
+                    link.external ? (
+                      <li key={`${block.id}-${link.label}`}>
+                        <a
+                          href={link.href}
+                          className={LINK_CLASS}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {link.label}
+                        </a>
+                      </li>
+                    ) : (
+                      <li key={`${block.id}-${link.label}`}>
+                        <Link href={link.href} className={LINK_CLASS}>
+                          {link.label}
+                        </Link>
+                      </li>
+                    ),
+                  )}
                 </ul>
               </nav>
             </Reveal>
@@ -166,18 +174,29 @@ export default function Footer() {
         {/* -------------------------------------------------- bottom bar --- */}
         <Reveal
           from="none"
-          className="mt-14 flex flex-col gap-2 border-t border-white/8 pt-6 sm:mt-16 sm:flex-row sm:items-center sm:justify-between sm:gap-6"
+          className="mt-14 flex flex-col gap-3 border-t border-white/8 pt-6 sm:mt-16 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
         >
           <p className="text-[0.8125rem] leading-6 text-fg-dim">
             © {year} {SITE.name}
             <span aria-hidden="true" className="mx-2">
               ·
             </span>
-            Bucătării la comandă în Chișinău
+            {COMPANY.legalName} · IDNO {COMPANY.idno}
           </p>
-          <p className="text-[0.8125rem] leading-6 text-fg-dim">
-            Redesign conceptual — pagină de previzualizare, nu site-ul oficial.
-          </p>
+          {/* The legal tier, restated where every site puts it — the top-bar
+              strip satisfies the client, this row satisfies convention. */}
+          <ul className="flex list-none flex-wrap gap-x-5 gap-y-1">
+            {LEGAL_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className="text-[0.8125rem] leading-6 text-fg-dim transition-colors duration-200 ease-out-strong hover-fine:hover:text-fg"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </Reveal>
       </div>
     </footer>

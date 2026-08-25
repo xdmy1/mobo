@@ -611,7 +611,14 @@ export default function LeadForm() {
                       </span>
                       <span className="text-[0.8125rem] leading-normal text-fg-dim">
                         Sunt de acord cu prelucrarea datelor personale pentru a fi contactat în
-                        legătură cu această solicitare. Datele nu sunt transmise terților.
+                        legătură cu această solicitare, conform{" "}
+                        <a
+                          href="/politica-de-confidentialitate"
+                          className="underline decoration-white/30 underline-offset-2 transition-colors duration-200 ease-out-strong hover-fine:hover:text-fg"
+                        >
+                          Politicii de confidențialitate
+                        </a>
+                        . Datele nu sunt transmise terților.
                       </span>
                     </label>
                     {errors.consent ? (

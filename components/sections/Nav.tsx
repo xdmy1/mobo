@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   AnimatePresence,
@@ -12,7 +14,7 @@ import {
 } from "motion/react";
 import { Button } from "@/components/ui/Button";
 import { Magnetic } from "@/components/ui/Magnetic";
-import { NAV_LINKS, SITE, SOCIALS } from "@/lib/data";
+import { LEGAL_LINKS, NAV_LINKS, SITE, SOCIALS } from "@/lib/data";
 import { DUR, EASE_DRAWER, EASE_OUT, SPRING } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -40,14 +42,17 @@ const SECTION_IDS = [
 
 type SectionId = (typeof SECTION_IDS)[number];
 
+/* The site is multi-page now, so the values are routes: passing a homepage
+   section lights up the nav item of the PAGE that covers the same subject.
+   On subpages the observer finds none of these ids and pathname decides. */
 const SECTION_TO_LINK: Record<SectionId, string | null> = {
   categorii: null,
-  proiecte: "#proiecte",
-  servicii: "#servicii",
-  avantaje: "#servicii",
-  recenzii: "#servicii",
-  despre: "#despre",
-  contact: "#contact",
+  proiecte: "/proiecte",
+  servicii: "/servicii",
+  avantaje: "/servicii",
+  recenzii: "/servicii",
+  despre: "/despre-noi",
+  contact: "/contacte",
 };
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -68,9 +73,20 @@ function ChevronRight({ className }: { className?: string }) {
 
 export default function Nav() {
   const reduce = useReducedMotion();
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const [activeHref, setActiveHref] = useState<string | null>(null);
+  const [spyHref, setSpyHref] = useState<string | null>(null);
+
+  /* Away from the homepage the current route owns the hairline; the scrollspy
+     only ever speaks on "/", where sections stand in for the pages. Prefix
+     matching keeps "Proiecte" lit on /proiecte/[slug]. */
+  const routeHref =
+    pathname === "/"
+      ? null
+      : (NAV_LINKS.find((l) => pathname === l.href || pathname.startsWith(`${l.href}/`))?.href ??
+        null);
+  const activeHref = pathname === "/" ? spyHref : routeHref;
 
   const rootRef = useRef<HTMLElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -109,7 +125,7 @@ export default function Nav() {
         }
         let current: SectionId | null = null;
         for (const id of SECTION_IDS) if (inBand.has(id)) current = id;
-        setActiveHref(current ? SECTION_TO_LINK[current] : null);
+        setSpyHref(current ? SECTION_TO_LINK[current] : null);
       },
       { rootMargin: "-20% 0px -70% 0px" },
     );
@@ -261,6 +277,38 @@ export default function Nav() {
       style={{ paddingRight: "var(--scroll-lock-gap, 0px)" }}
     >
       <div className="mx-auto w-full max-w-[88rem] px-4 pt-3 sm:px-6 sm:pt-4 lg:px-8">
+        {/* Utility tier — client requirement: the legal pages must be reachable
+            from the top bar. A quiet glass chip above the pill rather than
+            three more items inside it; it folds away on scroll so the chrome
+            returns to one bar the moment the reading starts. Hidden on phones,
+            where the same links live in the menu panel and the footer. */}
+        <motion.div
+          aria-hidden={scrolled}
+          className="relative z-10 hidden overflow-hidden sm:block"
+          initial={false}
+          animate={{ height: scrolled ? 0 : 36, opacity: scrolled ? 0 : 1 }}
+          transition={{ duration: DUR.ui, ease: EASE_OUT }}
+        >
+          <nav aria-label="Linkuri legale" className="flex justify-end pb-2">
+            <ul className="glass glass-thin flex items-center gap-4 rounded-pill bg-ink-950/82 px-4 py-1.5">
+              {LEGAL_LINKS.map((link) => (
+                <li key={link.href} className="flex items-center gap-4">
+                  <Link
+                    href={link.href}
+                    tabIndex={scrolled ? -1 : undefined}
+                    className={cn(
+                      "whitespace-nowrap text-[0.6875rem] leading-4 text-fg-dim",
+                      "transition-colors duration-200 ease-out-strong hover-fine:hover:text-fg",
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </motion.div>
+
         {/* z-10 is load-bearing: the fullscreen mobile panel is a later sibling
             inside this same header. With both at `z-index: auto` the panel won
             on tree order and painted over the hamburger — which doubles as the
@@ -324,9 +372,9 @@ export default function Nav() {
                 const isActive = activeHref === link.href;
                 return (
                   <li key={link.href}>
-                    <a
+                    <Link
                       href={link.href}
-                      aria-current={isActive ? "true" : undefined}
+                      aria-current={isActive ? "page" : undefined}
                       className={cn(
                         "group relative inline-flex h-10 items-center px-3 text-sm",
                         "transition-colors duration-200 ease-out-strong",
@@ -364,7 +412,7 @@ export default function Nav() {
                           transition={reduce ? { duration: 0 } : SPRING.ui}
                         />
                       )}
-                    </a>
+                    </Link>
                   </li>
                 );
               })}
@@ -386,7 +434,7 @@ export default function Nav() {
             </a>
 
             <Magnetic strength={0.25} className="hidden lg:block">
-              <Button href="#contact" size="md">
+              <Button href="/#contact" size="md">
                 Solicit Calcul
               </Button>
             </Magnetic>
@@ -461,9 +509,9 @@ export default function Nav() {
                     const isActive = activeHref === link.href;
                     return (
                       <motion.li key={link.href} variants={itemVariants}>
-                        <a
+                        <Link
                           href={link.href}
-                          aria-current={isActive ? "true" : undefined}
+                          aria-current={isActive ? "page" : undefined}
                           className="group flex items-center gap-4 border-b border-white/10 py-4 text-fg"
                         >
                           <span className="font-mono text-xs text-lime-brand">
@@ -480,7 +528,7 @@ export default function Nav() {
                               "hover-fine:group-hover:translate-x-1",
                             )}
                           />
-                        </a>
+                        </Link>
                       </motion.li>
                     );
                   })}
@@ -522,10 +570,29 @@ export default function Nav() {
                 </motion.ul>
 
                 <motion.div variants={itemVariants}>
-                  <Button href="#contact" size="lg" withArrow className="w-full">
+                  <Button href="/#contact" size="lg" withArrow className="w-full">
                     Solicit Calcul
                   </Button>
                 </motion.div>
+
+                {/* The legal tier of the top bar, restated where the utility
+                    strip is hidden — same client requirement, phone-sized. */}
+                <motion.ul
+                  variants={itemVariants}
+                  aria-label="Linkuri legale"
+                  className="flex flex-wrap gap-x-5 gap-y-2"
+                >
+                  {LEGAL_LINKS.map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className="text-[0.8125rem] text-fg-faint transition-colors duration-200 ease-out-strong hover-fine:hover:text-fg-dim"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </motion.ul>
               </div>
             </div>
           </motion.div>

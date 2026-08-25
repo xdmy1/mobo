@@ -10,7 +10,7 @@
 export const SITE = {
   name: "MOBO Kitchens & Home",
   shortName: "MOBO",
-  tagline: "Bucătării la comandă, mobilă, dormitoare, dulapuri",
+  tagline: "Mobilier la comandă pentru toată casa",
   logo: "https://mobo.md/wp-content/uploads/2024/09/logomobo.png",
   logoWidth: 500,
   logoHeight: 172,
@@ -19,6 +19,14 @@ export const SITE = {
   email: "info@mobo.md",
   address: "stradela Studenților 15A, Chișinău",
   calculator: "https://calculator.mobo.md",
+} as const;
+
+/* Entitatea juridică din spatele brandului — apare pe /contacte și în footer,
+   și este operatorul numit în paginile legale. */
+export const COMPANY = {
+  legalName: "Unlimited Art Unity SRL",
+  idno: "1022600057924",
+  mapsHref: "https://maps.google.com/?q=stradela+Studen%C8%9Bilor+15A,+Chi%C8%99in%C4%83u",
 } as const;
 
 /**
@@ -71,10 +79,20 @@ export const FILM_SHOTS: FilmShot[] = [
 ];
 
 export const NAV_LINKS = [
-  { label: "Proiecte", href: "#proiecte" },
-  { label: "Servicii", href: "#servicii" },
-  { label: "Despre Noi", href: "#despre" },
-  { label: "Contacte", href: "#contact" },
+  { label: "Proiecte", href: "/proiecte" },
+  { label: "Servicii", href: "/servicii" },
+  { label: "Despre Noi", href: "/despre-noi" },
+  { label: "Contacte", href: "/contacte" },
+] as const;
+
+/* Cerință de client: termenii, confidențialitatea și GDPR trebuie să fie
+   accesibile din bara de sus. Trăiesc într-o bandă utilitară discretă deasupra
+   pilulei (se restrânge la scroll), în meniul mobil și în footer — nu printre
+   linkurile principale, unde ar dilua navigarea. */
+export const LEGAL_LINKS = [
+  { label: "Termeni și condiții", href: "/termeni-si-conditii" },
+  { label: "Politica de confidențialitate", href: "/politica-de-confidentialitate" },
+  { label: "GDPR", href: "/gdpr" },
 ] as const;
 
 export const SOCIALS = [
@@ -127,7 +145,7 @@ export const HERO = {
      decoration standing between the reader and the sentence. */
   title: "Garanție 5 ani la toate bucătăriile și mobilierul pentru casă.",
   subtitle:
-    "Proiectăm și fabricăm bucătării premium și mobilier la comandă, adaptate exact spațiului tău — de la prima schiță 3D până la montajul final.",
+    "Realizăm mobilier de orice tip, creat pentru casa ta — de la prima schiță 3D până la montajul final.",
   primaryCta: { label: "Calculator online", href: SITE.calculator },
   secondaryCta: { label: "Solicit calcul", href: "#contact" },
   image: PHOTO.kitchenWide,
@@ -232,7 +250,7 @@ export const PROJECTS: Project[] = [
     kind: "Bucătărie",
     description:
       "Nuanța caldă de lemn adaugă o notă naturală, iar insula în verde pastel devine elementul central.",
-    href: "https://mobo.md/proiectele-realizate/bucatarii/bucatarie-moderna-liniara-cu-insula/",
+    href: "/proiecte/bucatarie-moderna-liniara-cu-insula",
     image: PHOTO.kitchenGreen,
   },
   {
@@ -241,7 +259,7 @@ export const PROJECTS: Project[] = [
     kind: "Bucătărie",
     description:
       "Designul pe colț optimizează spațiul, creând un mediu de lucru ergonomic și eficient.",
-    href: "https://mobo.md/proiectele-realizate/bucatarii/bucatarie-moderna-pe-colt-alba/",
+    href: "/proiecte/bucatarie-moderna-pe-colt-alba",
     image: PHOTO.kitchenLight,
   },
   {
@@ -250,7 +268,7 @@ export const PROJECTS: Project[] = [
     kind: "Bucătărie",
     description:
       "Configurația pe colț maximizează fiecare unghi, oferind spații generoase de depozitare.",
-    href: "https://mobo.md/proiectele-realizate/bucatarii/bucatarie-moderna-pe-colt/",
+    href: "/proiecte/bucatarie-moderna-pe-colt",
     image: PHOTO.kitchenTall,
   },
   {
@@ -259,7 +277,7 @@ export const PROJECTS: Project[] = [
     kind: "Bucătărie",
     description:
       "Un design compact și bine organizat, care optimizează fiecare centimetru de spațiu.",
-    href: "https://mobo.md/proiectele-realizate/bucatarii/bucatarie-moderna-liniara/",
+    href: "/proiecte/bucatarie-moderna-liniara",
     image: PHOTO.kitchenWide,
   },
   {
@@ -268,7 +286,7 @@ export const PROJECTS: Project[] = [
     kind: "Living",
     description:
       "O atmosferă modernă și sofisticată, definită de linii curate și materiale premium.",
-    href: "https://mobo.md/proiectele-realizate/mobilier-living/mobila-living-minimalism-in-contrast/",
+    href: "/proiecte/mobila-living-minimalism-in-contrast",
     image: PHOTO.living,
   },
   {
@@ -277,12 +295,12 @@ export const PROJECTS: Project[] = [
     kind: "Living",
     description:
       "Redefinește minimalismul modern prin utilizarea texturilor și culorilor naturale.",
-    href: "https://mobo.md/proiectele-realizate/mobilier-living/mobila-living-simplitate-eleganta/",
+    href: "/proiecte/mobila-living-simplitate-eleganta",
     image: PHOTO.livingTall,
   },
 ];
 
-export const PROJECTS_INDEX_HREF = "https://mobo.md/proiectele-realizate/";
+export const PROJECTS_INDEX_HREF = "/proiecte";
 
 /* --------------------------------------------------------------- Process -- */
 
@@ -452,3 +470,102 @@ export const BUDGET_OPTIONS = [
   "Peste 120 000 MDL",
   "Încă nu știu",
 ] as const;
+
+/* ------------------------------------------------------- Pagina Servicii -- */
+
+/**
+ * Descrierile extinse ale celor 9 etape, pentru pagina /servicii. Aliniate prin
+ * index cu PROCESS — conținutul e preluat de pe mobo.md/servicii, unde fiecare
+ * etapă are un paragraf întreg, nu doar rezumatul de pe homepage.
+ */
+export const SERVICE_DETAILS: string[] = [
+  "Fiecare proiect începe cu o discuție personalizată, la showroom sau la telefon. Analizăm împreună spațiul, stilul dorit și bugetul disponibil, ca să identificăm din start materialele și soluțiile potrivite pentru tine.",
+  "Echipa noastră vine la fața locului și ia măsurători exacte cu echipament modern. Fiecare centimetru contează: corpurile, blaturile și spațiile de depozitare trebuie să se integreze perfect în încăpere.",
+  "Designerii noștri transformă măsurătorile într-un proiect 3D detaliat, cu randări realiste. Vezi mobilierul în spațiul tău înainte de orice decizie — configurație, culori, sisteme de depozitare inteligente.",
+  "Îți prezentăm proiectul final și discutăm fiecare detaliu: scheme de culori, calitatea materialelor, feronerie. Feedback-ul tău este implementat înainte ca proiectul să plece în producție.",
+  "Toate detaliile convenite intră într-un contract clar și transparent: termene de livrare, specificații tehnice, condiții de garanție. Știi exact ce primești și când.",
+  "Mobilierul este fabricat în atelierul nostru, cu tehnologie avansată și materiale certificate — plăci stratificate, MDF de înaltă calitate, accesorii premium — sub un control riguros al calității.",
+  "Livrăm mobilierul în siguranță, în ambalaje de protecție, respectând termenii stabiliți în contract. Fiecare componentă este verificată înainte de instalare.",
+  "Montatorii noștri cu experiență asamblează mobilierul rapid și precis, inclusiv sistemele soft-close și sertarele cu mecanisme inteligente Blum. Totul este reglat și verificat împreună cu tine.",
+  "Beneficiezi de 5 ani garanție pentru toate produsele — reflectă încrederea noastră în materialele folosite și în execuție. Deservire la un singur apel, cu posibilitate de prelungire.",
+];
+
+/**
+ * Cele trei categorii de materiale dintre care alege clientul. Denumirile sunt
+ * cele reale (MATERIALS); descrierile rezumă poziționarea fiecărei trepte fără
+ * a promite branduri sau prețuri concrete pe treaptă.
+ */
+export const MATERIAL_TIERS = [
+  {
+    name: "Standard",
+    blurb: "Soluția echilibrată: materiale verificate, finisaje curate și aceeași execuție atentă, la cel mai accesibil buget.",
+  },
+  {
+    name: "Optim",
+    blurb: "Cel mai des ales: plăci și feronerie de clasă superioară, mai multe decoruri și mecanisme silențioase incluse.",
+  },
+  {
+    name: "Premium",
+    blurb: "Materiale de top de la partenerii noștri europeni, fronturi speciale și accesorii din gamele înalte Blum și Hettich.",
+  },
+] as const;
+
+/** Partenerii de materiale și feronerie, așa cum îi listează mobo.md. */
+export const PARTNERS = [
+  { name: "Egger", origin: "Austria", role: "plăci și decoruri" },
+  { name: "AGT", origin: "Turcia", role: "fronturi MDF" },
+  { name: "Fundermax", origin: "Austria", role: "suprafețe compacte" },
+  { name: "SM'art", origin: "Italia", role: "suprafețe decorative" },
+  { name: "Blum", origin: "Austria", role: "feronerie și soft-close" },
+  { name: "Hettich", origin: "Germania", role: "sisteme de glisare" },
+] as const;
+
+/* ----------------------------------------------------- Pagina Despre noi -- */
+
+export const ABOUT_PAGE = {
+  headline: "Echipă cu 39 de ani de experiență cumulativă.",
+  /** Repere reale, de pe mobo.md/despre-noi. */
+  story:
+    "MOBO Kitchens & Home a fost fondat în 2022 și lansat oficial la începutul lui 2023, ca un brand creat pentru a transforma fiecare locuință într-un spațiu confortabil, funcțional și plin de stil. În spatele lui stă o echipă cu 39 de ani de experiență cumulativă în proiectarea și fabricarea mobilierului la comandă.",
+  kitchens: [
+    "Mobilier ergonomic, personalizat pe spațiul tău",
+    "Soluții moderne cu sisteme de depozitare inteligente",
+    "Materiale premium: Fundermax, AGT, SM'art, Egger",
+    "Accesorii premium de la Hettich și Blum",
+    "5 ani garanție pentru toate bucătăriile",
+  ],
+  beyondKitchens:
+    "Mai mult decât bucătării: mobilăm toată casa — antreuri, dulapuri și dressinguri, ansambluri TV pentru living, mobilier de baie și de birou, plus mobilier tapițat pentru dormitoare.",
+  team: [
+    {
+      role: "Designeri",
+      blurb: "Cu studii de design interior, transformă fiecare măsurătoare într-un proiect 3D care arată exact ca rezultatul final.",
+    },
+    {
+      role: "Manageri de calitate",
+      blurb: "Urmăresc fiecare comandă din atelier până la montaj și verifică estetica și funcționarea fiecărui detaliu.",
+    },
+    {
+      role: "Montatori calificați",
+      blurb: "Cu ani de experiență în spate, instalează mobilierul precis și curat — și îl predau doar după verificarea împreună cu tine.",
+    },
+  ],
+} as const;
+
+/* ---------------------------------------------------- Pagina Info clienți -- */
+
+/**
+ * Informațiile obligatorii privind protecția consumatorilor, preluate de pe
+ * mobo.md/info-clienti. Autoritatea și datele ei de contact sunt publice.
+ */
+export const CONSUMER_INFO = {
+  intro:
+    "În conformitate cu legislația Republicii Moldova, consumatorii au dreptul de a fi informați și protejați. Pentru sesizări sau reclamații referitoare la produsele și serviciile noastre, contactează-ne mai întâi direct — răspundem în aceeași zi lucrătoare.",
+  authority: {
+    name: "Inspectoratul de Stat pentru Supravegherea Produselor Nealimentare și Protecția Consumatorilor",
+    address: "str. Vasile Alecsandri 78, MD-2012, mun. Chișinău, Republica Moldova",
+    phones: ["022 51 51 51", "022 50 19 81"],
+    website: "https://consumator.gov.md",
+    websiteLabel: "consumator.gov.md",
+  },
+} as const;

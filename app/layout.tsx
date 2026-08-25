@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import SmoothScroll from "@/components/ui/SmoothScroll";
 import PageGrade from "@/components/ui/PageGrade";
+import SocialIsland from "@/components/ui/SocialIsland";
 import { SITE } from "@/lib/data";
 import "./globals.css";
 
@@ -31,11 +32,11 @@ const instrument = Instrument_Serif({
 export const metadata: Metadata = {
   metadataBase: new URL("https://mobo.md"),
   title: {
-    default: "MOBO Kitchens & Home — Bucătării la comandă în Chișinău",
+    default: "MOBO Kitchens & Home — Mobilier la comandă în Chișinău",
     template: "%s · MOBO",
   },
   description:
-    "Bucătării premium și mobilier la comandă în Chișinău. Proiect 3D, 5 ani garanție, plată în 10 rate. De la consultație până la montaj.",
+    "Mobilier la comandă pentru toată casa — bucătării, livinguri, dormitoare, dressinguri. Proiect 3D, 5 ani garanție, plată în 10 rate. De la consultație până la montaj.",
   keywords: [
     "bucatarii la comanda",
     "mobila la comanda Chisinau",
@@ -49,9 +50,9 @@ export const metadata: Metadata = {
     locale: "ro_MD",
     url: "https://mobo.md",
     siteName: SITE.name,
-    title: "MOBO Kitchens & Home — Bucătării la comandă în Chișinău",
+    title: "MOBO Kitchens & Home — Mobilier la comandă în Chișinău",
     description:
-      "Bucătării premium și mobilier la comandă. Proiect 3D, 5 ani garanție, plată în 10 rate.",
+      "Mobilier la comandă pentru toată casa. Proiect 3D, 5 ani garanție, plată în 10 rate.",
     images: [{ url: SITE.logo, width: SITE.logoWidth, height: SITE.logoHeight, alt: SITE.name }],
   },
   robots: { index: true, follow: true },
@@ -111,6 +112,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <PageGrade />
         <SmoothScroll />
         {children}
+        {/* Quick-contact island — floats on every page, below the nav overlay. */}
+        <SocialIsland />
       </body>
     </html>
   );

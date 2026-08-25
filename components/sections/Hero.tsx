@@ -34,8 +34,9 @@ import { cn } from "@/lib/utils";
  */
 
 /* First clause of HERO.subtitle. The full explanatory paragraph belongs
-   further down the page, not on the photograph. */
-const SUBLINE = "Proiectăm și fabricăm bucătării premium și mobilier la comandă.";
+   further down the page, not on the photograph. Client-approved wording — the
+   brand does every kind of furniture, not kitchens alone. */
+const SUBLINE = "Realizăm mobilier de orice tip, creat pentru casa ta.";
 
 /* The CTA arrow, twice: on hover the first copy exits right as the second
    slides in from the left through an overflow-hidden viewport. */
@@ -258,18 +259,13 @@ export default function Hero() {
               }}
             />
           )}
-          <div className="mx-auto flex w-full max-w-[88rem] items-baseline justify-between gap-6 px-5 py-4 font-mono text-[0.6875rem] tracking-[0.12em] uppercase text-fg-dim sm:px-8 lg:px-12">
+          {/* One plate credit only — the "Bucătărie la comandă" label was cut
+              at the client's request, so the location holds the line alone. */}
+          <div className="mx-auto flex w-full max-w-[88rem] items-baseline justify-end px-5 py-4 font-mono text-[0.6875rem] tracking-[0.12em] uppercase text-fg-dim sm:px-8 lg:px-12">
             <motion.span
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, ease: EASE_OUT, delay: reduce ? 0.1 : 0.7 }}
-            >
-              Bucătărie la comandă
-            </motion.span>
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, ease: EASE_OUT, delay: reduce ? 0.1 : 0.78 }}
             >
               {HERO.location}
             </motion.span>
