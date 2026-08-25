@@ -11,9 +11,9 @@ import { cn } from "@/lib/utils";
  * Hero — the photograph is the ground, not an element in a layout.
  *
  * The image bleeds to all four edges of the viewport; the type sits ON it,
- * anchored bottom-left where the cabinetry runs dark (the right of the frame
- * is the bright window). Legibility comes from one directional scrim rising
- * from the anchored edge only — the upper half of the photograph stays clean.
+ * anchored bottom-left. The current photograph (client-supplied living room)
+ * is bright to every edge, so legibility rests entirely on the directional
+ * scrim rising from the anchored edge — the upper half stays clean.
  *
  * ENTRANCE — one event, internal timing. Not four staggered fades:
  *   0.00s  photograph settles: opacity + a 1.045 → 1 scale drift

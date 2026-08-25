@@ -148,9 +148,12 @@ export const HERO = {
     "Realizăm mobilier de orice tip, creat pentru casa ta — de la prima schiță 3D până la montajul final.",
   primaryCta: { label: "Calculator online", href: SITE.calculator },
   secondaryCta: { label: "Solicit calcul", href: "#contact" },
-  image: PHOTO.kitchenWide,
+  /* Fotografia de hero e locală (client-supplied), nu din media library-ul
+     WordPress: un living, nu o bucătărie — imaginea poartă aceeași idee ca
+     sublinia „mobilier de orice tip". */
+  image: "/hero.jpg",
   imageAlt:
-    "Bucătărie la comandă MOBO în nuanțe de lemn și grafit, cu insulă și corpuri suspendate",
+    "Living modern mobilat la comandă — canapea modulară crem, pardoseală din lemn deschis și glisante cu profil negru",
   location: "Chișinău",
 } as const;
 
