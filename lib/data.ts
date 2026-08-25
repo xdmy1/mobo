@@ -227,80 +227,143 @@ export const CATEGORIES: Category[] = [
 
 /* -------------------------------------------------------------- Projects -- */
 
+/**
+ * Proiectele sunt împărțite PE CASE, nu pe încăperi — decizia clientului
+ * (după referința D3 Buro): un proiect = o adresă, cu tot mobilierul făcut
+ * acolo, nu „bucătării / livinguri" ca niște categorii de catalog.
+ *
+ * Datele vin de pe mobo.md: cele cinci proiecte pe străzi publicate în 2026,
+ * fiecare cu ședința lui foto completă (34–77 de cadre, toate portret 2:3).
+ * `gallery` este selecția pentru filmstrip — primele 12 cadre în ordinea în
+ * care le publică site-ul (prima e coperta); `photoCount` e numărul real de
+ * fotografii unice ale ședinței, afișat ca un credit, nu inventat.
+ */
 export type Project = {
   slug: string;
   title: string;
-  kind: "Bucătărie" | "Living";
-  description: string;
+  /** O propoziție despre ce arată coperta — legenda cardului. */
+  blurb: string;
+  /** Numărul real de cadre din ședința foto completă de pe mobo.md. */
+  photoCount: number;
   href: string;
-  image: string;
+  cover: string;
+  gallery: string[];
 };
 
-/**
- * Six projects, not nine. The three dropped ones ("Bucătărie modernă",
- * "…cu insulă", "Living Eleganță Naturală") had only rejected photography
- * behind them, and a project card with a sideways phone photo does more damage
- * to a premium brand than a shorter grid does.
- *
- * Each photo below is matched to the copy that actually describes it — the
- * green-island kitchen sits under the entry whose text mentions the pastel
- * green island, not under a generic heading.
- */
+const UPLOADS = "https://mobo.md/wp-content/uploads/";
+
+function project(
+  slug: string,
+  title: string,
+  blurb: string,
+  photoCount: number,
+  shots: string[],
+): Project {
+  const gallery = shots.map((shot) => UPLOADS + shot);
+  return { slug, title, blurb, photoCount, href: `/proiecte/${slug}`, cover: gallery[0], gallery };
+}
+
 export const PROJECTS: Project[] = [
-  {
-    slug: "bucatarie-moderna-liniara-cu-insula",
-    title: "Bucătăria modernă liniară cu insulă",
-    kind: "Bucătărie",
-    description:
-      "Nuanța caldă de lemn adaugă o notă naturală, iar insula în verde pastel devine elementul central.",
-    href: "/proiecte/bucatarie-moderna-liniara-cu-insula",
-    image: PHOTO.kitchenGreen,
-  },
-  {
-    slug: "bucatarie-moderna-pe-colt-alba",
-    title: "Bucătăria modernă pe colț albă",
-    kind: "Bucătărie",
-    description:
-      "Designul pe colț optimizează spațiul, creând un mediu de lucru ergonomic și eficient.",
-    href: "/proiecte/bucatarie-moderna-pe-colt-alba",
-    image: PHOTO.kitchenLight,
-  },
-  {
-    slug: "bucatarie-moderna-pe-colt",
-    title: "Bucătăria modernă pe colț",
-    kind: "Bucătărie",
-    description:
-      "Configurația pe colț maximizează fiecare unghi, oferind spații generoase de depozitare.",
-    href: "/proiecte/bucatarie-moderna-pe-colt",
-    image: PHOTO.kitchenTall,
-  },
-  {
-    slug: "bucatarie-moderna-liniara",
-    title: "Bucătărie modernă liniară",
-    kind: "Bucătărie",
-    description:
-      "Un design compact și bine organizat, care optimizează fiecare centimetru de spațiu.",
-    href: "/proiecte/bucatarie-moderna-liniara",
-    image: PHOTO.kitchenWide,
-  },
-  {
-    slug: "mobila-living-minimalism-in-contrast",
-    title: "Living «Minimalism în Contrast»",
-    kind: "Living",
-    description:
-      "O atmosferă modernă și sofisticată, definită de linii curate și materiale premium.",
-    href: "/proiecte/mobila-living-minimalism-in-contrast",
-    image: PHOTO.living,
-  },
-  {
-    slug: "mobila-living-simplitate-eleganta",
-    title: "Living «Simplitate Elegantă»",
-    kind: "Living",
-    description:
-      "Redefinește minimalismul modern prin utilizarea texturilor și culorilor naturale.",
-    href: "/proiecte/mobila-living-simplitate-eleganta",
-    image: PHOTO.livingTall,
-  },
+  project(
+    "str-universitatii",
+    "Strada Universității",
+    "Dressing cu fronturi din furnir de nuc și uși glisante din sticlă riflată.",
+    51,
+    [
+      "2026/05/DSC_7958.jpg",
+      "2026/05/DSC_7960.jpg",
+      "2026/05/DSC_7962.jpg",
+      "2026/05/DSC_7966.jpg",
+      "2026/05/DSC_7965.jpg",
+      "2026/05/DSC_7968.jpg",
+      "2026/05/DSC_7970.jpg",
+      "2026/05/DSC_7971.jpg",
+      "2026/05/DSC_7981.jpg",
+      "2026/05/DSC_7983.jpg",
+      "2026/05/DSC_7984.jpg",
+      "2026/05/DSC_7986.jpg",
+    ],
+  ),
+  project(
+    "str-bucovina",
+    "Strada Bucovinei",
+    "Baie cu lavoar din piatră cu aspect de marmură și corp suspendat negru mat.",
+    64,
+    [
+      "2026/05/DSC_3977.jpg",
+      "2026/05/DSC_3920.jpg",
+      "2026/05/DSC_3921.jpg",
+      "2026/05/DSC_3922.jpg",
+      "2026/05/DSC_3923.jpg",
+      "2026/05/DSC_3926.jpg",
+      "2026/05/DSC_3931.jpg",
+      "2026/05/DSC_3941.jpg",
+      "2026/05/DSC_3944.jpg",
+      "2026/05/DSC_3955.jpg",
+      "2026/05/DSC_3964.jpg",
+      "2026/05/DSC_3970.jpg",
+    ],
+  ),
+  project(
+    "str-miorita",
+    "Strada Miorița",
+    "Antreu alb cu dulap până în tavan și mânere profil din lemn.",
+    77,
+    [
+      "2026/05/DSC_3702.jpg",
+      "2026/05/DSC_3706.jpg",
+      "2026/05/DSC_3707.jpg",
+      "2026/05/DSC_3709.jpg",
+      "2026/05/DSC_3712.jpg",
+      "2026/05/DSC_3716.jpg",
+      "2026/05/DSC_3718.jpg",
+      "2026/05/DSC_3719.jpg",
+      "2026/05/DSC_3724.jpg",
+      "2026/05/DSC_3726.jpg",
+      "2026/05/DSC_3732.jpg",
+      "2026/05/DSC_3736.jpg",
+    ],
+  ),
+  project(
+    "str-ialoveni",
+    "Strada Ialoveni",
+    "Bucătărie crem pe colț, cu accente negre și candelabru din sticlă fumurie.",
+    34,
+    [
+      "2026/05/DSC_9266.jpg",
+      "2026/05/DSC_9269.jpg",
+      "2026/05/DSC_9276.jpg",
+      "2026/05/DSC_9279.jpg",
+      "2026/05/DSC_9283.jpg",
+      "2026/05/DSC_9285.jpg",
+      "2026/05/DSC_9290.jpg",
+      "2026/05/DSC_9292.jpg",
+      "2026/05/DSC_9297.jpg",
+      "2026/05/DSC_9305.jpg",
+      "2026/05/DSC_9312.jpg",
+      "2026/05/DSC_9318.jpg",
+    ],
+  ),
+  project(
+    "str-valentin-rosca",
+    "Strada Valentin Roșca",
+    "Birou acasă — dulap alb cu fronturi riflate și masă de lucru din nuc.",
+    68,
+    [
+      "2026/05/Z61_4807.jpg",
+      "2026/05/Z61_4810.jpg",
+      "2026/05/Z61_4814.jpg",
+      "2026/05/Z61_4821.jpg",
+      "2026/05/Z61_4822.jpg",
+      "2026/05/Z61_4824.jpg",
+      "2026/05/Z61_4833.jpg",
+      "2026/05/Z61_4836.jpg",
+      "2026/05/Z61_4837.jpg",
+      "2026/05/Z61_4839.jpg",
+      "2026/05/Z61_4843.jpg",
+      "2026/05/Z61_4845.jpg",
+    ],
+  ),
 ];
 
 export const PROJECTS_INDEX_HREF = "/proiecte";

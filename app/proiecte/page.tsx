@@ -7,7 +7,7 @@ import Footer from "@/components/sections/Footer";
 export const metadata: Metadata = {
   title: "Proiecte realizate",
   description:
-    "Bucătării și livinguri la comandă, deja montate în case reale din Chișinău. Fiecare proiect: măsurat la fața locului, desenat în 3D, fabricat în atelierul MOBO.",
+    "Proiecte MOBO împărțite pe case: fiecare adresă din Chișinău, cu tot mobilierul locuinței — măsurat la fața locului, desenat în 3D, fabricat în atelier propriu.",
   alternates: { canonical: "/proiecte" },
 };
 
@@ -18,8 +18,8 @@ export default function ProiectePage() {
       <main id="main">
         <PageHeader
           eyebrow="Proiecte realizate"
-          title="Mobilier deja montat în case reale."
-          intro="Fiecare proiect din această pagină a fost măsurat la fața locului, desenat în 3D și fabricat în atelierul nostru din Chișinău. Fotografiile sunt din casele clienților, nu randări."
+          title="O adresă, toată casa."
+          intro="Împărțim proiectele pe case, nu pe categorii: fiecare adresă de mai jos înseamnă tot mobilierul unei locuințe din Chișinău — măsurat la fața locului, desenat în 3D și fabricat în atelierul nostru. Fotografiile sunt din casele clienților, nu randări."
         />
         <Projects variant="page" />
       </main>

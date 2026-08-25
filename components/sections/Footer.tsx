@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { SocialGlyph } from "@/components/ui/BrandIcon";
 import { Reveal } from "@/components/ui/Reveal";
-import { CATEGORIES, COMPANY, LEGAL_LINKS, NAV_LINKS, SITE, SOCIALS } from "@/lib/data";
+import { COMPANY, LEGAL_LINKS, NAV_LINKS, PROJECTS, SITE, SOCIALS } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
 /**
@@ -47,11 +47,11 @@ const NAV_BLOCKS: CreditNavBlock[] = [
     ],
   },
   {
-    id: "footer-categorii",
-    role: "Categorii",
-    /* All six point at the category grid — there are no per-category routes,
-       and deep-linking would fabricate URLs. Absolute so it works site-wide. */
-    links: CATEGORIES.map((category) => ({ label: category.label, href: "/#categorii" })),
+    id: "footer-proiecte",
+    role: "Proiecte",
+    /* One link per home — the project-based split the client asked for,
+       restated in the credits. */
+    links: PROJECTS.map((project) => ({ label: project.title, href: project.href })),
   },
   {
     id: "footer-social",

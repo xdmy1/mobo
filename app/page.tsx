@@ -1,6 +1,5 @@
 import Nav from "@/components/sections/Nav";
 import Hero from "@/components/sections/Hero";
-import Categories from "@/components/sections/Categories";
 import Projects from "@/components/sections/Projects";
 import Process from "@/components/sections/Process";
 import WhyMobo from "@/components/sections/WhyMobo";
@@ -17,7 +16,6 @@ import Footer from "@/components/sections/Footer";
  * was "not too black", so dark and warm-ivory bands alternate:
  *
  *   Hero          dark    ink-900
- *   Categories    dark    ink-850
  *   Projects      LIGHT   bone-50     <- the page opens up
  *   Process       LIGHT   bone-100
  *   WhyMobo       dark    ink-900
@@ -26,9 +24,10 @@ import Footer from "@/components/sections/Footer";
  *   LeadForm      dark    ink-900     <- the CTA lands on dark, so lime carries
  *   Footer        dark    ink-950
  *
- * The two light bands sit where the content is most photographic and most
- * information-dense, which is also where a long dark stretch would start to
- * feel oppressive.
+ * The Categories band (rooms of the house) was cut at the client's request:
+ * the site is organised BY PROJECT — one card per home — so the projects
+ * showcase now follows the hero directly. components/sections/Categories.tsx
+ * is kept for reference, like the unused outros.
  */
 export default function Home() {
   return (
@@ -36,7 +35,6 @@ export default function Home() {
       <Nav />
       <main id="main">
         <Hero />
-        <Categories />
         <Projects />
         <Process />
         <WhyMobo />
