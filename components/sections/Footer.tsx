@@ -42,7 +42,9 @@ const NAV_BLOCKS: CreditNavBlock[] = [
     role: "Informații",
     links: [
       ...NAV_LINKS.map((link) => ({ label: link.label, href: link.href })),
-      { label: "Oferte", href: "/#avantaje" },
+      /* WhyMobo a plecat de pe homepage, deci /#avantaje nu mai există;
+         pagina Despre noi are banda echivalentă „Ofertele MOBO". */
+      { label: "Oferte", href: "/despre-noi#oferte" },
       { label: "Info Clienți", href: "/info-clienti" },
     ],
   },

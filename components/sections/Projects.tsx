@@ -14,8 +14,8 @@ import { cn } from "@/lib/utils";
  * nostru din acea referință e doar ideea; execuția vorbește limba paginii:
  *
  *   - fotografiile ședințelor sunt toate portret 2:3, așa că grila e o
- *     vitrină de cadre verticale — trei coloane pe desktop, cu coloana din
- *     mijloc coborâtă, ca un rând de planșe prinse la înălțimi diferite;
+ *     vitrină de cadre verticale — trei coloane pe desktop, toate pe aceeași
+ *     linie (clientul a cerut cardurile la același nivel, fără decalaj);
  *   - legenda e o placă de catalog: adresa și numărul real de cadre pe o
  *     linie de bază comună, cu blurb-ul dedesubt;
  *   - hover = gramatica existentă: scale lent pe fotografie + hairline care
@@ -62,8 +62,8 @@ export default function Projects({
           </header>
         )}
 
-        {/* Grila. Coloana din mijloc coboară pe desktop (planșe la înălțimi
-            diferite); pe mobil totul curge într-o singură coloană. */}
+        {/* Grila. Toate cardurile pe aceeași linie de sus — decalajul coloanei
+            din mijloc a fost scos la cererea clientului. */}
         <ul
           className={cn(
             "grid list-none grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-7 lg:gap-y-16",
@@ -71,12 +71,7 @@ export default function Projects({
           )}
         >
           {PROJECTS.map((proiect, i) => (
-            <Reveal
-              key={proiect.slug}
-              as="li"
-              index={i % 3}
-              className={cn(i % 3 === 1 && "lg:mt-14")}
-            >
+            <Reveal key={proiect.slug} as="li" index={i % 3}>
               <Link href={proiect.href} className="group block">
                 <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[3px] bg-bone-200">
                   <Image

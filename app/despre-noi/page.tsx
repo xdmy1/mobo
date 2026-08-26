@@ -128,7 +128,8 @@ export default function DespreNoiPage() {
         </section>
 
         {/* --------------------------------------------------------- avantaje */}
-        <section aria-labelledby="oferte-titlu" className="relative bg-bone-100 text-fg-invert">
+        {/* id-ul e ținta linkului „Oferte" din footer. */}
+        <section id="oferte" aria-labelledby="oferte-titlu" className="relative bg-bone-100 text-fg-invert">
           <div className="mx-auto w-full max-w-[88rem] px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
             <div className="grid gap-10 lg:grid-cols-12">
               <Reveal className="lg:col-span-5">

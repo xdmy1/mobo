@@ -27,14 +27,13 @@ const MORPH_AT = 40;
 /* Every observed section on the page, in document order. Not all of them have
    a nav link — the map below resolves each one to the link that should light
    up, using classic scrollspy semantics: the *last passed* anchor stays lit.
-   So Avantaje and Recenzii, which sit between Servicii and Despre in the flow,
-   keep "Servicii" active rather than prematurely lighting "Despre Noi" for a
+   So Recenzii, which sits between Servicii and Despre in the flow, keeps
+   "Servicii" active rather than prematurely lighting "Despre Noi" for a
    section the reader has not reached. Categorii precedes the first anchor, so
    it resolves to nothing and the indicator stays hidden through the hero. */
 const SECTION_IDS = [
   "proiecte",
   "servicii",
-  "avantaje",
   "recenzii",
   "despre",
   "contact",
@@ -48,7 +47,6 @@ type SectionId = (typeof SECTION_IDS)[number];
 const SECTION_TO_LINK: Record<SectionId, string | null> = {
   proiecte: "/proiecte",
   servicii: "/servicii",
-  avantaje: "/servicii",
   recenzii: "/servicii",
   despre: "/despre-noi",
   contact: "/contacte",
