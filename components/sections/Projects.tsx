@@ -78,6 +78,7 @@ export default function Projects({
                     src={proiect.cover}
                     alt={`${proiect.title} — ${proiect.blurb}`}
                     fill
+                    placeholder={typeof proiect.cover === "string" ? "empty" : "blur"}
                     sizes="(min-width: 1024px) 30vw, (min-width: 640px) 46vw, 92vw"
                     className={cn(
                       "object-cover",

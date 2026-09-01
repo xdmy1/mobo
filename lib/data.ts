@@ -4,8 +4,42 @@
  * the redesign can be judged on design rather than on placeholder text.
  *
  * PREVIEW NOTE: image URLs point at the live WordPress media library. On
- * approval these become local files under /public and only this file changes.
+ * approval these become local files and only this file changes. Started: the
+ * Strada Universității shoot is already local (static imports from /assets).
  */
+
+import type { StaticImageData } from "next/image";
+
+import dressing01 from "@/assets/proiecte/str-universitatii/dressing-01.jpg";
+import dressing02 from "@/assets/proiecte/str-universitatii/dressing-02.jpg";
+import dressing03 from "@/assets/proiecte/str-universitatii/dressing-03.jpg";
+import bucatarie01 from "@/assets/proiecte/str-universitatii/bucatarie-01.jpg";
+import bucatarie02 from "@/assets/proiecte/str-universitatii/bucatarie-02.jpg";
+import bucatarie03 from "@/assets/proiecte/str-universitatii/bucatarie-03.jpg";
+import bucatarie04 from "@/assets/proiecte/str-universitatii/bucatarie-04.jpg";
+import bucatarie05 from "@/assets/proiecte/str-universitatii/bucatarie-05.jpg";
+import bucatarie06 from "@/assets/proiecte/str-universitatii/bucatarie-06.jpg";
+import bucatarie07 from "@/assets/proiecte/str-universitatii/bucatarie-07.jpg";
+import living01 from "@/assets/proiecte/str-universitatii/living-01.jpg";
+import living02 from "@/assets/proiecte/str-universitatii/living-02.jpg";
+import living03 from "@/assets/proiecte/str-universitatii/living-03.jpg";
+import living04 from "@/assets/proiecte/str-universitatii/living-04.jpg";
+import dormitor01 from "@/assets/proiecte/str-universitatii/dormitor-01.jpg";
+import dormitor02 from "@/assets/proiecte/str-universitatii/dormitor-02.jpg";
+import dormitor03 from "@/assets/proiecte/str-universitatii/dormitor-03.jpg";
+import dormitor04 from "@/assets/proiecte/str-universitatii/dormitor-04.jpg";
+import dormitor05 from "@/assets/proiecte/str-universitatii/dormitor-05.jpg";
+import dormitor06 from "@/assets/proiecte/str-universitatii/dormitor-06.jpg";
+import dormitor07 from "@/assets/proiecte/str-universitatii/dormitor-07.jpg";
+import dormitor08 from "@/assets/proiecte/str-universitatii/dormitor-08.jpg";
+import dormitorDoi01 from "@/assets/proiecte/str-universitatii/dormitor-doi-01.jpg";
+import dormitorDoi02 from "@/assets/proiecte/str-universitatii/dormitor-doi-02.jpg";
+import baie01 from "@/assets/proiecte/str-universitatii/baie-01.jpg";
+import antreu01 from "@/assets/proiecte/str-universitatii/antreu-01.jpg";
+import antreu02 from "@/assets/proiecte/str-universitatii/antreu-02.jpg";
+import antreu03 from "@/assets/proiecte/str-universitatii/antreu-03.jpg";
+import antreu04 from "@/assets/proiecte/str-universitatii/antreu-04.jpg";
+import antreu05 from "@/assets/proiecte/str-universitatii/antreu-05.jpg";
 
 export const SITE = {
   name: "MOBO Kitchens & Home",
@@ -232,23 +266,53 @@ export const CATEGORIES: Category[] = [
  * (după referința D3 Buro): un proiect = o adresă, cu tot mobilierul făcut
  * acolo, nu „bucătării / livinguri" ca niște categorii de catalog.
  *
- * Datele vin de pe mobo.md: cele cinci proiecte pe străzi publicate în 2026,
- * fiecare cu ședința lui foto completă (34–77 de cadre, toate portret 2:3).
- * `gallery` este selecția pentru filmstrip — primele 12 cadre în ordinea în
- * care le publică site-ul (prima e coperta); `photoCount` e numărul real de
- * fotografii unice ale ședinței, afișat ca un credit, nu inventat.
+ * În interiorul unei case, galeria e împărțită PE SPAȚII — tot cerință de
+ * client: parcurgi ședința foto cameră cu cameră, cu eticheta spațiului pe
+ * primul cadru și în contor, nu ca un șir nediferențiat de fotografii.
+ *
+ * Strada Universității are ședința completă LOCAL: selecția de 30 de cadre a
+ * clientului (arhiva de pe Drive), redimensionată pentru web și redenumită pe
+ * spații — numele fișierelor de pe mobo.md expun numerotarea camerei
+ * (DSC_xxxx), ceea ce clientul nu mai vrea. Celelalte patru proiecte rămân pe
+ * media library-ul WordPress (un singur „spațiu" fără etichetă) până primim
+ * și selecțiile lor.
+ *
+ * Cadrele locale sunt IMPORTURI STATICE din /assets, nu căi din /public:
+ * Next le servește pe URL-uri cu hash + Cache-Control immutable, le știe
+ * dimensiunile (deci `wide` se deduce, nu se declară) și generează singur
+ * blur placeholder-ul pentru încărcare. Fișierele-sursă sunt JPEG q90 la
+ * 2400px — vizual fără pierderi; singura compresie pe care o vede vizitatorul
+ * e AVIF/WebP-ul produs de Next la servire.
  */
+export type ProjectPhoto = {
+  src: string | StaticImageData;
+  /** Cadru landscape 3:2 — filmstrip-ul îi dă lățime în loc să-l taie pe portret. */
+  wide?: boolean;
+};
+
+export type ProjectSpace = {
+  /** Eticheta spațiului („Bucătărie", „Antreu"). Lipsește la galeriile negrupate. */
+  label?: string;
+  photos: ProjectPhoto[];
+};
+
 export type Project = {
   slug: string;
   title: string;
   /** O propoziție despre ce arată coperta — legenda cardului. */
   blurb: string;
-  /** Numărul real de cadre din ședința foto completă de pe mobo.md. */
+  /** Numărul de cadre din galerie — selecția reală, nu inventat. */
   photoCount: number;
   href: string;
-  cover: string;
-  gallery: string[];
+  cover: string | StaticImageData;
+  /** Galeria, în ordinea în care parcurgi casa: spațiu după spațiu. */
+  spaces: ProjectSpace[];
 };
+
+/** URL-ul unei coperți pentru contexte care cer string (og:image). */
+export function coverUrl(cover: Project["cover"]): string {
+  return typeof cover === "string" ? cover : cover.src;
+}
 
 const UPLOADS = "https://mobo.md/wp-content/uploads/";
 
@@ -259,31 +323,46 @@ function project(
   photoCount: number,
   shots: string[],
 ): Project {
-  const gallery = shots.map((shot) => UPLOADS + shot);
-  return { slug, title, blurb, photoCount, href: `/proiecte/${slug}`, cover: gallery[0], gallery };
+  const photos = shots.map((shot) => ({ src: UPLOADS + shot }));
+  return {
+    slug,
+    title,
+    blurb,
+    photoCount,
+    href: `/proiecte/${slug}`,
+    cover: photos[0].src,
+    spaces: [{ photos }],
+  };
+}
+
+/** Un spațiu din ședința locală — orientarea vine din dimensiunile reale. */
+function spatiu(label: string, ...images: StaticImageData[]): ProjectSpace {
+  return {
+    label,
+    photos: images.map((img) => ({ src: img, ...(img.width > img.height ? { wide: true } : {}) })),
+  };
 }
 
 export const PROJECTS: Project[] = [
-  project(
-    "str-universitatii",
-    "Strada Universității",
-    "Dressing cu fronturi din furnir de nuc și uși glisante din sticlă riflată.",
-    51,
-    [
-      "2026/05/DSC_7958.jpg",
-      "2026/05/DSC_7960.jpg",
-      "2026/05/DSC_7962.jpg",
-      "2026/05/DSC_7966.jpg",
-      "2026/05/DSC_7965.jpg",
-      "2026/05/DSC_7968.jpg",
-      "2026/05/DSC_7970.jpg",
-      "2026/05/DSC_7971.jpg",
-      "2026/05/DSC_7981.jpg",
-      "2026/05/DSC_7983.jpg",
-      "2026/05/DSC_7984.jpg",
-      "2026/05/DSC_7986.jpg",
+  /* Ședința foto completă, local. Ordinea spațiilor e parcursul fotografului
+     prin casă; în fiecare spațiu, cadrul de ansamblu întâi, detaliile după. */
+  {
+    slug: "str-universitatii",
+    title: "Strada Universității",
+    blurb: "Dressing cu fronturi din furnir de nuc și uși glisante din sticlă riflată.",
+    photoCount: 30,
+    href: "/proiecte/str-universitatii",
+    cover: dressing01,
+    spaces: [
+      spatiu("Dressing", dressing01, dressing02, dressing03),
+      spatiu("Bucătărie", bucatarie01, bucatarie02, bucatarie03, bucatarie04, bucatarie05, bucatarie06, bucatarie07),
+      spatiu("Living", living01, living02, living03, living04),
+      spatiu("Dormitor matrimonial", dormitor01, dormitor02, dormitor03, dormitor04, dormitor05, dormitor06, dormitor07, dormitor08),
+      spatiu("Al doilea dormitor", dormitorDoi01, dormitorDoi02),
+      spatiu("Baie", baie01),
+      spatiu("Antreu", antreu01, antreu02, antreu03, antreu04, antreu05),
     ],
-  ),
+  },
   project(
     "str-bucovina",
     "Strada Bucovinei",

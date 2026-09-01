@@ -6,7 +6,7 @@ import Footer from "@/components/sections/Footer";
 import { Reveal, RevealText } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/Button";
 import ProjectGallery from "@/components/ui/ProjectGallery";
-import { PARTNERS, PROJECTS, SITE } from "@/lib/data";
+import { coverUrl, PARTNERS, PROJECTS, SITE } from "@/lib/data";
 
 /**
  * Pagina unui proiect — o adresă, toată casa.
@@ -34,7 +34,7 @@ export async function generateMetadata({
     title: `Proiect ${project.title}`,
     description: `${project.blurb} Mobilier la comandă pentru toată locuința, realizat de MOBO Kitchens & Home în Chișinău — ${project.photoCount} fotografii din proiectul final.`,
     alternates: { canonical: `/proiecte/${project.slug}` },
-    openGraph: { images: [{ url: project.cover }] },
+    openGraph: { images: [{ url: coverUrl(project.cover) }] },
   };
 }
 
@@ -91,7 +91,7 @@ export default async function ProiectPage({ params }: { params: Promise<{ slug: 
         {/* ---------------------------------------------------------- galeria */}
         <section aria-label={`Galeria proiectului ${project.title}`} className="relative bg-bone-50 py-12 text-fg-invert sm:py-14 lg:py-16">
           <Reveal from="none">
-            <ProjectGallery title={project.title} images={project.gallery} />
+            <ProjectGallery title={project.title} spaces={project.spaces} />
           </Reveal>
 
           {/* ------------------------------------------------ materiale + CTA */}
