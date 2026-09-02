@@ -4,8 +4,9 @@
  * the redesign can be judged on design rather than on placeholder text.
  *
  * PREVIEW NOTE: image URLs point at the live WordPress media library. On
- * approval these become local files and only this file changes. Started: the
- * Strada Universității shoot is already local (static imports from /assets).
+ * approval these become local files and only this file changes. Started: ședințele
+ * Strada Universității, Strada Miorița și Strada Valentin Roșca sunt deja locale
+ * (static imports din /assets).
  */
 
 import type { StaticImageData } from "next/image";
@@ -40,6 +41,54 @@ import antreu02 from "@/assets/proiecte/str-universitatii/antreu-02.jpg";
 import antreu03 from "@/assets/proiecte/str-universitatii/antreu-03.jpg";
 import antreu04 from "@/assets/proiecte/str-universitatii/antreu-04.jpg";
 import antreu05 from "@/assets/proiecte/str-universitatii/antreu-05.jpg";
+
+/* Ședința Strada Miorița — locală. */
+import mioAntreu01 from "@/assets/proiecte/str-miorita/antreu-01.jpg";
+import mioAntreu02 from "@/assets/proiecte/str-miorita/antreu-02.jpg";
+import mioAntreu03 from "@/assets/proiecte/str-miorita/antreu-03.jpg";
+import mioLiving01 from "@/assets/proiecte/str-miorita/living-01.jpg";
+import mioLiving02 from "@/assets/proiecte/str-miorita/living-02.jpg";
+import mioLiving03 from "@/assets/proiecte/str-miorita/living-03.jpg";
+import mioLiving04 from "@/assets/proiecte/str-miorita/living-04.jpg";
+import mioLiving05 from "@/assets/proiecte/str-miorita/living-05.jpg";
+import mioLiving06 from "@/assets/proiecte/str-miorita/living-06.jpg";
+import mioBucatarie01 from "@/assets/proiecte/str-miorita/bucatarie-01.jpg";
+import mioBucatarie02 from "@/assets/proiecte/str-miorita/bucatarie-02.jpg";
+import mioBucatarie03 from "@/assets/proiecte/str-miorita/bucatarie-03.jpg";
+import mioBucatarie04 from "@/assets/proiecte/str-miorita/bucatarie-04.jpg";
+import mioDormitor01 from "@/assets/proiecte/str-miorita/dormitor-01.jpg";
+import mioDormitor02 from "@/assets/proiecte/str-miorita/dormitor-02.jpg";
+import mioDormitor03 from "@/assets/proiecte/str-miorita/dormitor-03.jpg";
+import mioDormitor04 from "@/assets/proiecte/str-miorita/dormitor-04.jpg";
+import mioDressing01 from "@/assets/proiecte/str-miorita/dressing-01.jpg";
+import mioBaie01 from "@/assets/proiecte/str-miorita/baie-01.jpg";
+import mioBaie02 from "@/assets/proiecte/str-miorita/baie-02.jpg";
+import mioBaie03 from "@/assets/proiecte/str-miorita/baie-03.jpg";
+
+/* Ședința Strada Valentin Roșca — locală. */
+import vrBirou01 from "@/assets/proiecte/str-valentin-rosca/birou-01.jpg";
+import vrDressing01 from "@/assets/proiecte/str-valentin-rosca/dressing-01.jpg";
+import vrDressing02 from "@/assets/proiecte/str-valentin-rosca/dressing-02.jpg";
+import vrDormitor01 from "@/assets/proiecte/str-valentin-rosca/dormitor-01.jpg";
+import vrDormitor02 from "@/assets/proiecte/str-valentin-rosca/dormitor-02.jpg";
+import vrDormitor03 from "@/assets/proiecte/str-valentin-rosca/dormitor-03.jpg";
+import vrDormitor04 from "@/assets/proiecte/str-valentin-rosca/dormitor-04.jpg";
+import vrDormitor05 from "@/assets/proiecte/str-valentin-rosca/dormitor-05.jpg";
+import vrDormitor06 from "@/assets/proiecte/str-valentin-rosca/dormitor-06.jpg";
+import vrDormitor07 from "@/assets/proiecte/str-valentin-rosca/dormitor-07.jpg";
+import vrDormitorDoi01 from "@/assets/proiecte/str-valentin-rosca/dormitor-doi-01.jpg";
+import vrBucatarie01 from "@/assets/proiecte/str-valentin-rosca/bucatarie-01.jpg";
+import vrBucatarie02 from "@/assets/proiecte/str-valentin-rosca/bucatarie-02.jpg";
+import vrBucatarie03 from "@/assets/proiecte/str-valentin-rosca/bucatarie-03.jpg";
+import vrBucatarie04 from "@/assets/proiecte/str-valentin-rosca/bucatarie-04.jpg";
+import vrBucatarie05 from "@/assets/proiecte/str-valentin-rosca/bucatarie-05.jpg";
+import vrBaie01 from "@/assets/proiecte/str-valentin-rosca/baie-01.jpg";
+import vrBaie02 from "@/assets/proiecte/str-valentin-rosca/baie-02.jpg";
+import vrBaie03 from "@/assets/proiecte/str-valentin-rosca/baie-03.jpg";
+import vrBaie04 from "@/assets/proiecte/str-valentin-rosca/baie-04.jpg";
+import vrBaie05 from "@/assets/proiecte/str-valentin-rosca/baie-05.jpg";
+import vrBaie06 from "@/assets/proiecte/str-valentin-rosca/baie-06.jpg";
+import vrBaie07 from "@/assets/proiecte/str-valentin-rosca/baie-07.jpg";
 
 export const SITE = {
   name: "MOBO Kitchens & Home",
@@ -383,26 +432,22 @@ export const PROJECTS: Project[] = [
       "2026/05/DSC_3970.jpg",
     ],
   ),
-  project(
-    "str-miorita",
-    "Strada Miorița",
-    "Antreu alb cu dulap până în tavan și mânere profil din lemn.",
-    77,
-    [
-      "2026/05/DSC_3702.jpg",
-      "2026/05/DSC_3706.jpg",
-      "2026/05/DSC_3707.jpg",
-      "2026/05/DSC_3709.jpg",
-      "2026/05/DSC_3712.jpg",
-      "2026/05/DSC_3716.jpg",
-      "2026/05/DSC_3718.jpg",
-      "2026/05/DSC_3719.jpg",
-      "2026/05/DSC_3724.jpg",
-      "2026/05/DSC_3726.jpg",
-      "2026/05/DSC_3732.jpg",
-      "2026/05/DSC_3736.jpg",
+  {
+    slug: "str-miorita",
+    title: "Strada Miorița",
+    blurb: "Antreu alb cu dulap până în tavan și mânere profil din lemn.",
+    photoCount: 21,
+    href: "/proiecte/str-miorita",
+    cover: mioAntreu01,
+    spaces: [
+      spatiu("Antreu", mioAntreu01, mioAntreu02, mioAntreu03),
+      spatiu("Living", mioLiving01, mioLiving02, mioLiving03, mioLiving04, mioLiving05, mioLiving06),
+      spatiu("Bucătărie", mioBucatarie01, mioBucatarie02, mioBucatarie03, mioBucatarie04),
+      spatiu("Dormitor", mioDormitor01, mioDormitor02, mioDormitor03, mioDormitor04),
+      spatiu("Dressing", mioDressing01),
+      spatiu("Baie", mioBaie01, mioBaie02, mioBaie03),
     ],
-  ),
+  },
   project(
     "str-ialoveni",
     "Strada Ialoveni",
@@ -423,26 +468,22 @@ export const PROJECTS: Project[] = [
       "2026/05/DSC_9318.jpg",
     ],
   ),
-  project(
-    "str-valentin-rosca",
-    "Strada Valentin Roșca",
-    "Birou acasă — dulap alb cu fronturi riflate și masă de lucru din nuc.",
-    68,
-    [
-      "2026/05/Z61_4807.jpg",
-      "2026/05/Z61_4810.jpg",
-      "2026/05/Z61_4814.jpg",
-      "2026/05/Z61_4821.jpg",
-      "2026/05/Z61_4822.jpg",
-      "2026/05/Z61_4824.jpg",
-      "2026/05/Z61_4833.jpg",
-      "2026/05/Z61_4836.jpg",
-      "2026/05/Z61_4837.jpg",
-      "2026/05/Z61_4839.jpg",
-      "2026/05/Z61_4843.jpg",
-      "2026/05/Z61_4845.jpg",
+  {
+    slug: "str-valentin-rosca",
+    title: "Strada Valentin Roșca",
+    blurb: "Birou acasă — dulap alb cu fronturi riflate și masă de lucru din nuc.",
+    photoCount: 23,
+    href: "/proiecte/str-valentin-rosca",
+    cover: vrBirou01,
+    spaces: [
+      spatiu("Birou", vrBirou01),
+      spatiu("Dressing", vrDressing01, vrDressing02),
+      spatiu("Dormitor matrimonial", vrDormitor01, vrDormitor02, vrDormitor03, vrDormitor04, vrDormitor05, vrDormitor06, vrDormitor07),
+      spatiu("Al doilea dormitor", vrDormitorDoi01),
+      spatiu("Bucătărie", vrBucatarie01, vrBucatarie02, vrBucatarie03, vrBucatarie04, vrBucatarie05),
+      spatiu("Baie", vrBaie01, vrBaie02, vrBaie03, vrBaie04, vrBaie05, vrBaie06, vrBaie07),
     ],
-  ),
+  },
 ];
 
 export const PROJECTS_INDEX_HREF = "/proiecte";
