@@ -4,9 +4,8 @@
  * the redesign can be judged on design rather than on placeholder text.
  *
  * PREVIEW NOTE: image URLs point at the live WordPress media library. On
- * approval these become local files and only this file changes. Started: ședințele
- * Strada Universității, Strada Miorița și Strada Valentin Roșca sunt deja locale
- * (static imports din /assets).
+ * approval these become local files and only this file changes. Toate cele cinci ședințe foto sunt acum locale
+ * (static imports din /assets) — nu mai rămâne nimic pe media library.
  */
 
 import type { StaticImageData } from "next/image";
@@ -90,6 +89,42 @@ import vrBaie05 from "@/assets/proiecte/str-valentin-rosca/baie-05.jpg";
 import vrBaie06 from "@/assets/proiecte/str-valentin-rosca/baie-06.jpg";
 import vrBaie07 from "@/assets/proiecte/str-valentin-rosca/baie-07.jpg";
 
+/* Ședința Strada Bucovinei — locală. */
+import bucAntreu01 from "@/assets/proiecte/str-bucovina/antreu-01.jpg";
+import bucAntreu02 from "@/assets/proiecte/str-bucovina/antreu-02.jpg";
+import bucAntreu03 from "@/assets/proiecte/str-bucovina/antreu-03.jpg";
+import bucAntreu04 from "@/assets/proiecte/str-bucovina/antreu-04.jpg";
+import bucScara01 from "@/assets/proiecte/str-bucovina/scara-01.jpg";
+import bucScara02 from "@/assets/proiecte/str-bucovina/scara-02.jpg";
+import bucScara03 from "@/assets/proiecte/str-bucovina/scara-03.jpg";
+import bucScara04 from "@/assets/proiecte/str-bucovina/scara-04.jpg";
+import bucScara05 from "@/assets/proiecte/str-bucovina/scara-05.jpg";
+import bucBucatarie01 from "@/assets/proiecte/str-bucovina/bucatarie-01.jpg";
+import bucBucatarie02 from "@/assets/proiecte/str-bucovina/bucatarie-02.jpg";
+import bucBucatarie03 from "@/assets/proiecte/str-bucovina/bucatarie-03.jpg";
+import bucBucatarie04 from "@/assets/proiecte/str-bucovina/bucatarie-04.jpg";
+import bucBucatarie05 from "@/assets/proiecte/str-bucovina/bucatarie-05.jpg";
+import bucBucatarie06 from "@/assets/proiecte/str-bucovina/bucatarie-06.jpg";
+import bucBaie01 from "@/assets/proiecte/str-bucovina/baie-01.jpg";
+import bucBaie02 from "@/assets/proiecte/str-bucovina/baie-02.jpg";
+import bucDressing01 from "@/assets/proiecte/str-bucovina/dressing-01.jpg";
+import bucDressing02 from "@/assets/proiecte/str-bucovina/dressing-02.jpg";
+import bucDressing03 from "@/assets/proiecte/str-bucovina/dressing-03.jpg";
+
+/* Ședința Strada Ialoveni — locală. */
+import ialBucatarie01 from "@/assets/proiecte/str-ialoveni/bucatarie-01.jpg";
+import ialBucatarie02 from "@/assets/proiecte/str-ialoveni/bucatarie-02.jpg";
+import ialBucatarie03 from "@/assets/proiecte/str-ialoveni/bucatarie-03.jpg";
+import ialBucatarie04 from "@/assets/proiecte/str-ialoveni/bucatarie-04.jpg";
+import ialBucatarie05 from "@/assets/proiecte/str-ialoveni/bucatarie-05.jpg";
+import ialBucatarie06 from "@/assets/proiecte/str-ialoveni/bucatarie-06.jpg";
+import ialBucatarie07 from "@/assets/proiecte/str-ialoveni/bucatarie-07.jpg";
+import ialLiving01 from "@/assets/proiecte/str-ialoveni/living-01.jpg";
+import ialSala01 from "@/assets/proiecte/str-ialoveni/sala-01.jpg";
+import ialSala02 from "@/assets/proiecte/str-ialoveni/sala-02.jpg";
+import ialSala03 from "@/assets/proiecte/str-ialoveni/sala-03.jpg";
+import ialDetaliu01 from "@/assets/proiecte/str-ialoveni/detaliu-01.jpg";
+
 export const SITE = {
   name: "MOBO Kitchens & Home",
   shortName: "MOBO",
@@ -161,7 +196,10 @@ export const FILM_SHOTS: FilmShot[] = [
   },
 ];
 
+/* „Bucătării" primul — cerință de client (produsul-far al brandului), cu
+   click direct într-o galerie transversală a bucătăriilor din toate casele. */
 export const NAV_LINKS = [
+  { label: "Bucătării", href: "/bucatarii" },
   { label: "Proiecte", href: "/proiecte" },
   { label: "Servicii", href: "/servicii" },
   { label: "Despre Noi", href: "/despre-noi" },
@@ -363,27 +401,6 @@ export function coverUrl(cover: Project["cover"]): string {
   return typeof cover === "string" ? cover : cover.src;
 }
 
-const UPLOADS = "https://mobo.md/wp-content/uploads/";
-
-function project(
-  slug: string,
-  title: string,
-  blurb: string,
-  photoCount: number,
-  shots: string[],
-): Project {
-  const photos = shots.map((shot) => ({ src: UPLOADS + shot }));
-  return {
-    slug,
-    title,
-    blurb,
-    photoCount,
-    href: `/proiecte/${slug}`,
-    cover: photos[0].src,
-    spaces: [{ photos }],
-  };
-}
-
 /** Un spațiu din ședința locală — orientarea vine din dimensiunile reale. */
 function spatiu(label: string, ...images: StaticImageData[]): ProjectSpace {
   return {
@@ -412,26 +429,21 @@ export const PROJECTS: Project[] = [
       spatiu("Antreu", antreu01, antreu02, antreu03, antreu04, antreu05),
     ],
   },
-  project(
-    "str-bucovina",
-    "Strada Bucovinei",
-    "Baie cu lavoar din piatră cu aspect de marmură și corp suspendat negru mat.",
-    64,
-    [
-      "2026/05/DSC_3977.jpg",
-      "2026/05/DSC_3920.jpg",
-      "2026/05/DSC_3921.jpg",
-      "2026/05/DSC_3922.jpg",
-      "2026/05/DSC_3923.jpg",
-      "2026/05/DSC_3926.jpg",
-      "2026/05/DSC_3931.jpg",
-      "2026/05/DSC_3941.jpg",
-      "2026/05/DSC_3944.jpg",
-      "2026/05/DSC_3955.jpg",
-      "2026/05/DSC_3964.jpg",
-      "2026/05/DSC_3970.jpg",
+  {
+    slug: "str-bucovina",
+    title: "Strada Bucovinei",
+    blurb: "Baie cu lavoar din piatră cu aspect de marmură și corp suspendat negru mat.",
+    photoCount: 20,
+    href: "/proiecte/str-bucovina",
+    cover: bucBaie01,
+    spaces: [
+      spatiu("Antreu", bucAntreu01, bucAntreu02, bucAntreu03, bucAntreu04),
+      spatiu("Scară", bucScara01, bucScara02, bucScara03, bucScara04, bucScara05),
+      spatiu("Bucătărie", bucBucatarie01, bucBucatarie02, bucBucatarie03, bucBucatarie04, bucBucatarie05, bucBucatarie06),
+      spatiu("Baie", bucBaie01, bucBaie02),
+      spatiu("Dressing", bucDressing01, bucDressing02, bucDressing03),
     ],
-  ),
+  },
   {
     slug: "str-miorita",
     title: "Strada Miorița",
@@ -448,26 +460,19 @@ export const PROJECTS: Project[] = [
       spatiu("Baie", mioBaie01, mioBaie02, mioBaie03),
     ],
   },
-  project(
-    "str-ialoveni",
-    "Strada Ialoveni",
-    "Bucătărie crem pe colț, cu accente negre și candelabru din sticlă fumurie.",
-    34,
-    [
-      "2026/05/DSC_9266.jpg",
-      "2026/05/DSC_9269.jpg",
-      "2026/05/DSC_9276.jpg",
-      "2026/05/DSC_9279.jpg",
-      "2026/05/DSC_9283.jpg",
-      "2026/05/DSC_9285.jpg",
-      "2026/05/DSC_9290.jpg",
-      "2026/05/DSC_9292.jpg",
-      "2026/05/DSC_9297.jpg",
-      "2026/05/DSC_9305.jpg",
-      "2026/05/DSC_9312.jpg",
-      "2026/05/DSC_9318.jpg",
+  {
+    slug: "str-ialoveni",
+    title: "Strada Ialoveni",
+    blurb: "Bar din stejar afumat cu blat alb, sub tavan din lamele negre — lounge și sală de mese.",
+    photoCount: 12,
+    href: "/proiecte/str-ialoveni",
+    cover: ialLiving01,
+    spaces: [
+      spatiu("Lounge", ialLiving01),
+      spatiu("Bar și bucătărie", ialBucatarie01, ialBucatarie02, ialBucatarie03, ialBucatarie04, ialBucatarie05, ialBucatarie06, ialBucatarie07),
+      spatiu("Sală de mese", ialSala01, ialSala02, ialSala03, ialDetaliu01),
     ],
-  ),
+  },
   {
     slug: "str-valentin-rosca",
     title: "Strada Valentin Roșca",
@@ -487,6 +492,22 @@ export const PROJECTS: Project[] = [
 ];
 
 export const PROJECTS_INDEX_HREF = "/proiecte";
+
+/* ---------------------------------------------------- Galeria de bucătării -- */
+
+/**
+ * Cerință de client: „Bucătării" în meniu, cu click direct într-o galerie,
+ * „organizată frumos". Nu e o colecție nouă de poze — e o tăietură
+ * transversală prin aceleași ședințe: spațiul de bucătărie al fiecărui
+ * proiect, etichetat cu adresa lui, în aceeași galerie pe spații de pe
+ * paginile proiectelor. Un proiect nou cu bucătărie intră aici de la sine.
+ */
+export const KITCHENS_GALLERY: ProjectSpace[] = PROJECTS.flatMap((project) => {
+  const kitchen = project.spaces.find((space) => space.label?.includes("ucătărie"));
+  return kitchen ? [{ label: project.title, photos: kitchen.photos }] : [];
+});
+
+export const KITCHENS_HREF = "/bucatarii";
 
 /* --------------------------------------------------------------- Process -- */
 

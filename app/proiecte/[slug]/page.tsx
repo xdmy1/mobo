@@ -49,7 +49,14 @@ export default async function ProiectPage({ params }: { params: Promise<{ slug: 
   const next = PROJECTS[(index + 1) % PROJECTS.length];
 
   const facts = [
-    { label: "Fotografii în proiect", value: `${project.photoCount} de cadre` },
+    {
+      label: "Fotografii în proiect",
+      /* Sub 20, numeralul românesc merge fără „de": 12 cadre, dar 30 de cadre. */
+      value:
+        project.photoCount < 20
+          ? `${project.photoCount} cadre`
+          : `${project.photoCount} de cadre`,
+    },
     { label: "Măsurare", value: "La fața locului" },
     { label: "Fabricare", value: "Atelierul MOBO, Chișinău" },
     { label: "Garanție", value: "5 ani, cu deservire" },

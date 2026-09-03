@@ -6,6 +6,7 @@ const BASE = "https://mobo.md";
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = [
     "",
+    "/bucatarii",
     "/proiecte",
     "/servicii",
     "/despre-noi",
