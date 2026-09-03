@@ -315,7 +315,7 @@ export default function ProjectGallery({
             disabled={index === 0}
             aria-label="Fotografia precedentă"
             className={cn(
-              "glass glass-invert grid size-10 place-items-center rounded-full",
+              "glass glass-invert btn-3d-glass grid size-10 place-items-center rounded-full",
               "transition-[transform,opacity] duration-[160ms] ease-out-strong active:scale-[0.94]",
               "disabled:pointer-events-none disabled:opacity-35",
             )}
@@ -330,7 +330,7 @@ export default function ProjectGallery({
             disabled={index === slides.length - 1}
             aria-label="Fotografia următoare"
             className={cn(
-              "glass glass-invert grid size-10 place-items-center rounded-full",
+              "glass glass-invert btn-3d-glass grid size-10 place-items-center rounded-full",
               "transition-[transform,opacity] duration-[160ms] ease-out-strong active:scale-[0.94]",
               "disabled:pointer-events-none disabled:opacity-35",
             )}

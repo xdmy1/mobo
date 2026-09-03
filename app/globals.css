@@ -105,7 +105,70 @@
   --glass-edge: rgb(255 255 255 / 22%);
 }
 
+/* Stops-urile gradientului de buton, înregistrate ca <color> ca hover-ul să
+   le tranziteze la fel de lin cum tranzita vechiul background-color. */
+@property --btn-top {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: transparent;
+}
+@property --btn-bottom {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: transparent;
+}
+
 @layer components {
+  /* ------------------------------------------------------------ Butoane 3D --
+     Cerință de client: toate butoanele cu volum — gradient vertical de la
+     culoarea mai deschisă (sus) spre cea închisă (jos) și un inner glow alb
+     subțire pe muchia de sus. La apăsare lumina se inversează: glow-ul
+     dispare și interiorul intră în umbră, ca o tastă apăsată. */
+  .btn-3d {
+    background-image: linear-gradient(to bottom, var(--btn-top), var(--btn-bottom));
+    box-shadow:
+      inset 0 1px 0 0 var(--btn-glow),
+      inset 0 -1px 0 0 rgb(0 0 0 / 8%),
+      0 1px 2px 0 rgb(0 0 0 / 10%);
+  }
+  .btn-3d:active {
+    box-shadow:
+      inset 0 1px 0 0 rgb(0 0 0 / 5%),
+      inset 0 2px 6px 0 rgb(0 0 0 / 16%);
+  }
+
+  .btn-3d-lime {
+    --btn-top: var(--color-lime-hi);
+    --btn-bottom: var(--color-lime-brand);
+    --btn-glow: rgb(255 255 255 / 60%);
+  }
+  .btn-3d-ink {
+    --btn-top: var(--color-ink-800);
+    --btn-bottom: var(--color-ink-900);
+    --btn-glow: rgb(255 255 255 / 14%);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .btn-3d-lime:hover {
+      --btn-top: color-mix(in oklab, var(--color-lime-hi) 78%, white);
+      --btn-bottom: var(--color-lime-hi);
+    }
+    .btn-3d-ink:hover {
+      --btn-top: color-mix(in oklab, var(--color-ink-800) 86%, white);
+      --btn-bottom: var(--color-ink-800);
+    }
+  }
+
+  /* Butoanele de sticlă au deja muchia albă de sus din .glass/.glass-invert;
+     aici primesc doar volumul — lumină sus, umbră jos, peste blur. */
+  .btn-3d-glass {
+    background-image: linear-gradient(
+      to bottom,
+      rgb(255 255 255 / 14%),
+      rgb(255 255 255 / 0%) 55%,
+      rgb(0 0 0 / 7%)
+    );
+  }
+
   .glass {
     position: relative;
     isolation: isolate;

@@ -18,12 +18,13 @@ type Props = {
 
 const VARIANTS: Record<Variant, string> = {
   /* The brand lime. Reserved for the single primary action in a viewport.
-     No glow: a coloured halo behind a button is decoration pretending to be
-     depth, and it is one of the clearest tells of a generated interface. */
-  primary: "bg-lime-brand text-lime-ink hover:bg-lime-hi",
-  glass: "glass glass-thin text-fg hover:bg-white/12",
+     3D per client: vertical light→dark gradient + thin white top glow
+     (btn-3d in globals.css). Still no outer halo — the depth is in the
+     surface itself, not painted behind it. */
+  primary: "btn-3d btn-3d-lime text-lime-ink",
+  glass: "glass glass-thin btn-3d-glass text-fg hover:bg-white/12",
   ghost: "text-fg-dim hover:text-fg",
-  invert: "bg-ink-850 text-fg hover:bg-ink-800",
+  invert: "btn-3d btn-3d-ink text-fg",
 };
 
 const SIZES: Record<Size, string> = {
@@ -48,7 +49,7 @@ export const Button = forwardRef<HTMLButtonElement & HTMLAnchorElement, Props>(f
 ) {
   const classes = cn(
     "group relative inline-flex items-center justify-center rounded-pill font-medium",
-    "transition-[transform,background-color,color,box-shadow] duration-[160ms] ease-[var(--ease-out-strong)]",
+    "transition-[transform,background-color,color,box-shadow,--btn-top,--btn-bottom] duration-[160ms] ease-[var(--ease-out-strong)]",
     "active:scale-[0.97] select-none whitespace-nowrap",
     VARIANTS[variant],
     SIZES[size],

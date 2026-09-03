@@ -414,7 +414,7 @@ export default function Nav() {
               aria-controls={PANEL_ID}
               aria-label={open ? "Închide meniul" : "Deschide meniul"}
               className={cn(
-                "glass glass-thin grid size-11 shrink-0 place-items-center rounded-full text-fg",
+                "glass glass-thin btn-3d-glass grid size-11 shrink-0 place-items-center rounded-full text-fg",
                 "transition-transform duration-[160ms] ease-out-strong active:scale-[0.97] lg:hidden",
               )}
             >
