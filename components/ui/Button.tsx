@@ -49,7 +49,7 @@ export const Button = forwardRef<HTMLButtonElement & HTMLAnchorElement, Props>(f
 ) {
   const classes = cn(
     "group relative inline-flex items-center justify-center rounded-pill font-medium",
-    "transition-[transform,background-color,color,box-shadow,--btn-top,--btn-bottom] duration-[160ms] ease-[var(--ease-out-strong)]",
+    "transition-[transform,background-color,color,box-shadow,--btn-top,--btn-mid,--btn-bottom] duration-[160ms] ease-[var(--ease-out-strong)]",
     "active:scale-[0.97] select-none whitespace-nowrap",
     VARIANTS[variant],
     SIZES[size],

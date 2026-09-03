@@ -112,6 +112,11 @@
   inherits: false;
   initial-value: transparent;
 }
+@property --btn-mid {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: transparent;
+}
 @property --btn-bottom {
   syntax: "<color>";
   inherits: false;
@@ -122,50 +127,65 @@
   /* ------------------------------------------------------------ Butoane 3D --
      Cerință de client: toate butoanele cu volum — gradient vertical de la
      culoarea mai deschisă (sus) spre cea închisă (jos) și un inner glow alb
-     subțire pe muchia de sus. La apăsare lumina se inversează: glow-ul
-     dispare și interiorul intră în umbră, ca o tastă apăsată. */
+     subțire pe muchia de sus. Intensitatea e calibrată pe referința dată de
+     client (scoalaautoglg.com): trei stop-uri cu un interval mare de
+     luminozitate (deschis → baza la 55% → închis) și o BORDURĂ de 1px mai
+     închisă decât tot gradientul — ea dă muchia „fizică" a butonului. La
+     apăsare lumina se inversează, ca o tastă apăsată. */
   .btn-3d {
-    background-image: linear-gradient(to bottom, var(--btn-top), var(--btn-bottom));
+    background-image: linear-gradient(
+      to bottom,
+      var(--btn-top) 0%,
+      var(--btn-mid) 55%,
+      var(--btn-bottom) 100%
+    );
+    border: 1px solid var(--btn-edge);
     box-shadow:
       inset 0 1px 0 0 var(--btn-glow),
-      inset 0 -1px 0 0 rgb(0 0 0 / 8%),
-      0 1px 2px 0 rgb(0 0 0 / 10%);
+      0 1px 2px 0 rgb(10 14 23 / 15%);
   }
   .btn-3d:active {
     box-shadow:
-      inset 0 1px 0 0 rgb(0 0 0 / 5%),
-      inset 0 2px 6px 0 rgb(0 0 0 / 16%);
+      inset 0 1px 0 0 rgb(0 0 0 / 6%),
+      inset 0 2px 6px 0 rgb(0 0 0 / 18%);
   }
 
   .btn-3d-lime {
-    --btn-top: var(--color-lime-hi);
-    --btn-bottom: var(--color-lime-brand);
-    --btn-glow: rgb(255 255 255 / 60%);
+    --btn-top: color-mix(in oklab, var(--color-lime-hi) 72%, white);
+    --btn-mid: var(--color-lime-brand);
+    --btn-bottom: color-mix(in oklab, var(--color-lime-brand) 72%, var(--color-lime-dim));
+    --btn-edge: color-mix(in oklab, var(--color-lime-dim) 80%, var(--color-lime-ink));
+    --btn-glow: rgb(255 255 255 / 55%);
   }
   .btn-3d-ink {
-    --btn-top: var(--color-ink-800);
+    --btn-top: color-mix(in oklab, var(--color-ink-800) 80%, white);
+    --btn-mid: var(--color-ink-800);
     --btn-bottom: var(--color-ink-900);
-    --btn-glow: rgb(255 255 255 / 14%);
+    --btn-edge: color-mix(in oklab, var(--color-ink-900) 55%, black);
+    --btn-glow: rgb(255 255 255 / 20%);
   }
   @media (hover: hover) and (pointer: fine) {
     .btn-3d-lime:hover {
-      --btn-top: color-mix(in oklab, var(--color-lime-hi) 78%, white);
-      --btn-bottom: var(--color-lime-hi);
+      --btn-top: color-mix(in oklab, var(--color-lime-hi) 55%, white);
+      --btn-mid: var(--color-lime-hi);
+      --btn-bottom: var(--color-lime-brand);
     }
     .btn-3d-ink:hover {
-      --btn-top: color-mix(in oklab, var(--color-ink-800) 86%, white);
+      --btn-top: color-mix(in oklab, var(--color-ink-800) 70%, white);
+      --btn-mid: color-mix(in oklab, var(--color-ink-800) 88%, white);
       --btn-bottom: var(--color-ink-800);
     }
   }
 
-  /* Butoanele de sticlă au deja muchia albă de sus din .glass/.glass-invert;
-     aici primesc doar volumul — lumină sus, umbră jos, peste blur. */
+  /* Butoanele de sticlă au deja muchia albă de sus și bordura din
+     .glass/.glass-invert; aici primesc doar volumul — lumină sus, umbră jos,
+     peste blur. */
   .btn-3d-glass {
     background-image: linear-gradient(
       to bottom,
-      rgb(255 255 255 / 14%),
-      rgb(255 255 255 / 0%) 55%,
-      rgb(0 0 0 / 7%)
+      rgb(255 255 255 / 20%),
+      rgb(255 255 255 / 0%) 50%,
+      rgb(0 0 0 / 10%)
     );
   }
 

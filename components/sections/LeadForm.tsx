@@ -658,7 +658,7 @@ export default function LeadForm() {
                       className={cn(
                         "inline-flex h-11 w-full select-none items-center justify-center gap-2 rounded-md px-6 sm:w-auto",
                         "btn-3d btn-3d-lime text-[0.9375rem] font-medium text-lime-ink",
-                        "transition-[transform,box-shadow,--btn-top,--btn-bottom] duration-150 ease-out-strong",
+                        "transition-[transform,box-shadow,--btn-top,--btn-mid,--btn-bottom] duration-150 ease-out-strong",
                         "active:scale-[0.98]",
                         "disabled:pointer-events-none disabled:opacity-70",
                       )}
