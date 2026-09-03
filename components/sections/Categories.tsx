@@ -287,7 +287,7 @@ function CategoryCard({ cat, delay }: { cat: Category; delay: number }) {
           variants={fade}
           aria-hidden="true"
           className={[
-            "glass glass-thin absolute top-3 right-3 grid size-9 place-items-center overflow-hidden rounded-pill text-fg",
+            "glass glass-thin btn-3d-glass absolute top-3 right-3 grid size-9 place-items-center overflow-hidden rounded-pill text-fg",
             "sm:top-4 sm:right-4",
             "transition-[background-color,color] duration-200 ease-out-strong",
             "hover-fine:group-hover:bg-lime-brand",

@@ -164,19 +164,18 @@ export default function Hero() {
 
             <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-3">
               {/* Lime is MOBO's real logo colour and may carry the one primary
-                  action — flat, no glow. Built by hand for the press/arrow
-                  micro-motion: scale acknowledges pointer-down, the arrow
-                  swaps through an overflow mask on hover. */}
+                  action — 3D per client (btn-3d). Built by hand for the
+                  press/arrow micro-motion: scale acknowledges pointer-down,
+                  the arrow swaps through an overflow mask on hover. */}
               <a
                 href={HERO.primaryCta.href}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
-                  "group inline-flex h-[3.25rem] items-center gap-2.5 rounded-pill bg-lime-brand px-7",
-                  "text-[0.9375rem] font-medium whitespace-nowrap text-lime-ink select-none",
-                  "transition-[scale,background-color] duration-[160ms] ease-out-strong",
+                  "group inline-flex h-[3.25rem] items-center gap-2.5 rounded-pill px-7",
+                  "btn-3d btn-3d-lime text-[0.9375rem] font-medium whitespace-nowrap text-lime-ink select-none",
+                  "transition-[scale,box-shadow,--btn-top,--btn-mid,--btn-bottom] duration-[160ms] ease-out-strong",
                   "active:scale-[0.97]",
-                  "hover-fine:hover:bg-lime-hi",
                 )}
               >
                 {HERO.primaryCta.label}

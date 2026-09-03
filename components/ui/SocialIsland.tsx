@@ -182,7 +182,9 @@ export default function SocialIsland() {
                   <span
                     style={{ background: channel.bg, color: channel.fg ?? "#fff" }}
                     className={cn(
-                      "grid size-12 place-items-center rounded-full",
+                      /* Culoarea de brand a rețelei vine inline; btn-3d-glass
+                         așază volumul (lumină sus, umbră jos) peste ea. */
+                      "btn-3d-glass grid size-12 place-items-center rounded-full",
                       "shadow-[0_10px_28px_-10px_rgb(0_0_0/0.55),inset_0_1px_0_0_rgb(255_255_255/0.22)]",
                       "transition-transform duration-[160ms] ease-out-strong",
                       "active:scale-[0.94] hover-fine:group-hover:scale-105",
@@ -213,10 +215,12 @@ export default function SocialIsland() {
             : { type: "spring", bounce: 0.3, duration: 0.5, delay: 0.9 }
         }
         className={cn(
-          "grid size-14 place-items-center rounded-full bg-lime-brand text-lime-ink",
-          "shadow-[0_14px_34px_-12px_rgb(0_0_0/0.6),inset_0_1px_0_0_rgb(255_255_255/0.35)]",
-          "transition-[transform,background-color] duration-[160ms] ease-out-strong",
-          "active:scale-[0.94] hover-fine:hover:bg-lime-hi",
+          "btn-3d btn-3d-lime grid size-14 place-items-center rounded-full text-lime-ink",
+          /* Umbra utilitară bate .btn-3d: păstrează plutirea bulinei ȘI
+             glow-ul alb de sus, peste gradientul/bordura 3D. */
+          "shadow-[inset_0_1px_0_0_rgb(255_255_255/0.55),0_14px_34px_-12px_rgb(0_0_0/0.6)]",
+          "transition-[transform,--btn-top,--btn-mid,--btn-bottom] duration-[160ms] ease-out-strong",
+          "active:scale-[0.94]",
         )}
       >
         <span className="relative block size-6" aria-hidden="true">

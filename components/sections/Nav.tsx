@@ -525,7 +525,7 @@ export default function Nav() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className={cn(
-                          "glass glass-thin inline-flex h-9 items-center gap-2 rounded-pill px-4 text-[0.8125rem] text-fg-dim",
+                          "glass glass-thin btn-3d-glass inline-flex h-9 items-center gap-2 rounded-pill px-4 text-[0.8125rem] text-fg-dim",
                           "transition-[color,transform] duration-200 ease-out-strong active:scale-[0.97]",
                           "hover-fine:hover:text-fg",
                         )}
