@@ -125,6 +125,29 @@ import ialSala02 from "@/assets/proiecte/str-ialoveni/sala-02.jpg";
 import ialSala03 from "@/assets/proiecte/str-ialoveni/sala-03.jpg";
 import ialDetaliu01 from "@/assets/proiecte/str-ialoveni/detaliu-01.jpg";
 
+/* Ședința Strada Constantin Stere — locală. */
+import csAntreu01 from "@/assets/proiecte/str-constantin-stere/antreu-01.jpg";
+import csAntreu02 from "@/assets/proiecte/str-constantin-stere/antreu-02.jpg";
+import csAntreu03 from "@/assets/proiecte/str-constantin-stere/antreu-03.jpg";
+import csAntreu04 from "@/assets/proiecte/str-constantin-stere/antreu-04.jpg";
+import csBucatarie01 from "@/assets/proiecte/str-constantin-stere/bucatarie-01.jpg";
+import csBucatarie02 from "@/assets/proiecte/str-constantin-stere/bucatarie-02.jpg";
+import csBucatarie03 from "@/assets/proiecte/str-constantin-stere/bucatarie-03.jpg";
+import csBucatarie04 from "@/assets/proiecte/str-constantin-stere/bucatarie-04.jpg";
+import csBucatarie05 from "@/assets/proiecte/str-constantin-stere/bucatarie-05.jpg";
+import csBucatarie06 from "@/assets/proiecte/str-constantin-stere/bucatarie-06.jpg";
+import csBucatarie07 from "@/assets/proiecte/str-constantin-stere/bucatarie-07.jpg";
+import csLiving01 from "@/assets/proiecte/str-constantin-stere/living-01.jpg";
+import csLiving02 from "@/assets/proiecte/str-constantin-stere/living-02.jpg";
+import csLiving03 from "@/assets/proiecte/str-constantin-stere/living-03.jpg";
+import csLiving04 from "@/assets/proiecte/str-constantin-stere/living-04.jpg";
+import csBirou01 from "@/assets/proiecte/str-constantin-stere/birou-01.jpg";
+import csBirou02 from "@/assets/proiecte/str-constantin-stere/birou-02.jpg";
+import csCopii01 from "@/assets/proiecte/str-constantin-stere/copii-01.jpg";
+import csCopii02 from "@/assets/proiecte/str-constantin-stere/copii-02.jpg";
+import csCopii03 from "@/assets/proiecte/str-constantin-stere/copii-03.jpg";
+import csCopii04 from "@/assets/proiecte/str-constantin-stere/copii-04.jpg";
+
 export const SITE = {
   name: "MOBO Kitchens & Home",
   shortName: "MOBO",
@@ -490,6 +513,23 @@ export const PROJECTS: Project[] = [
       spatiu("Al doilea dormitor", vrDormitorDoi01),
       spatiu("Bucătărie", vrBucatarie01, vrBucatarie02, vrBucatarie03, vrBucatarie04, vrBucatarie05),
       spatiu("Baie", vrBaie01, vrBaie02, vrBaie03, vrBaie04, vrBaie05, vrBaie06, vrBaie07),
+    ],
+  },
+  {
+    slug: "str-constantin-stere",
+    title: "Strada Constantin Stere",
+    blurb: "Bucătărie bej cu vitrină din sticlă fumurie, deschisă spre zona de luat masa.",
+    photoCount: 21,
+    href: "/proiecte/str-constantin-stere",
+    /* Copertă VERTICALĂ (regula stabilită la Ialoveni: cardul taie la 3:4,
+       cadrele landscape ies moi) — 02 e portret nativ și chiar scena din blurb. */
+    cover: csBucatarie02,
+    spaces: [
+      spatiu("Antreu", csAntreu01, csAntreu02, csAntreu03, csAntreu04),
+      spatiu("Bucătărie și dining", csBucatarie01, csBucatarie02, csBucatarie03, csBucatarie04, csBucatarie05, csBucatarie06, csBucatarie07),
+      spatiu("Living", csLiving01, csLiving02, csLiving03, csLiving04),
+      spatiu("Birou", csBirou01, csBirou02),
+      spatiu("Camera copilului", csCopii01, csCopii02, csCopii03, csCopii04),
     ],
   },
 ];
