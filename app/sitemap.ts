@@ -9,6 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/bucatarii",
     "/proiecte",
     "/servicii",
+    "/calculator",
     "/despre-noi",
     "/contacte",
     "/info-clienti",

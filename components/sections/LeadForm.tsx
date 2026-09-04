@@ -457,8 +457,6 @@ export default function LeadForm() {
                   <div className="mt-6 flex flex-wrap items-baseline gap-x-6 gap-y-2 text-[0.9375rem]">
                     <a
                       href={SITE.calculator}
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="text-fg underline decoration-white/30 underline-offset-4 transition-colors duration-200 ease-out-strong hover-fine:hover:decoration-lime-brand"
                     >
                       Între timp, calculator online

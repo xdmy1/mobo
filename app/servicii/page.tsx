@@ -120,8 +120,6 @@ export default function ServiciiPage() {
                 </Button>
                 <a
                   href={SITE.calculator}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="text-[0.9375rem] font-medium underline decoration-ink-850/30 underline-offset-4 transition-colors duration-200 ease-out-strong hover-fine:hover:text-lime-on-light"
                 >
                   Calculator online

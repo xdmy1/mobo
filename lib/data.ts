@@ -159,7 +159,10 @@ export const SITE = {
   phoneHref: "tel:+37360331331",
   email: "info@mobo.md",
   address: "stradela Studenților 15A, Chișinău",
-  calculator: "https://calculator.mobo.md",
+  /* Din 2026-09-04 calculatorul e pagină internă (/calculator), cu aceleași
+     prețuri din CRM ca vechiul calculator.mobo.md — subdomeniul poate fi
+     redirecționat aici când decide clientul. */
+  calculator: "/calculator",
 } as const;
 
 /* Entitatea juridică din spatele brandului — apare pe /contacte și în footer,

@@ -167,10 +167,9 @@ export default function Hero() {
                   action — 3D per client (btn-3d). Built by hand for the
                   press/arrow micro-motion: scale acknowledges pointer-down,
                   the arrow swaps through an overflow mask on hover. */}
+              {/* Calculatorul e acum pagină internă — fără target blank. */}
               <a
                 href={HERO.primaryCta.href}
-                target="_blank"
-                rel="noopener noreferrer"
                 className={cn(
                   "group inline-flex h-[3.25rem] items-center gap-2.5 rounded-pill px-7",
                   "btn-3d btn-3d-lime text-[0.9375rem] font-medium whitespace-nowrap text-lime-ink select-none",
