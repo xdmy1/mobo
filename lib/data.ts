@@ -465,8 +465,11 @@ export const PROJECTS: Project[] = [
     title: "Strada Ialoveni",
     blurb: "Bar din stejar afumat cu blat alb, sub tavan din lamele negre — lounge și sală de mese.",
     photoCount: 12,
+    /* Coperta e un cadru VERTICAL — cerință de client: cardul taie la 3:4, iar
+       cadrul landscape de lounge ieșea mărit și moale. bucatarie-03 e portret
+       nativ și poartă semnătura proiectului: barul sub tavanul din lamele. */
     href: "/proiecte/str-ialoveni",
-    cover: ialLiving01,
+    cover: ialBucatarie03,
     spaces: [
       spatiu("Lounge", ialLiving01),
       spatiu("Bar și bucătărie", ialBucatarie01, ialBucatarie02, ialBucatarie03, ialBucatarie04, ialBucatarie05, ialBucatarie06, ialBucatarie07),
@@ -581,8 +584,11 @@ export const PROCESS: Step[] = [
 
 /* ------------------------------------------------------------- Why / USP -- */
 
+/* „Proiect 3D înainte de orice decizie" a dispărut de peste tot — clarificare
+   de client: proiectul 3D se primește după contractare, nu e un cadou gratuit.
+   Formularea corectă e „înainte de producție". */
 export const ADVANTAGES = [
-  "Proiect 3D al viitorului mobilier, înainte de orice decizie.",
+  "Proiect 3D detaliat al viitorului mobilier, înainte de producție.",
   "5 ani garanție și deservire la un singur apel, cu posibilitate de prelungire.",
   "Plată în 10 rate prin intermediul Microinvest.",
   "Abordare personalizată și încadrare rațională în buget.",
@@ -688,7 +694,7 @@ export const BUDGET_OPTIONS = [
 export const SERVICE_DETAILS: string[] = [
   "Fiecare proiect începe cu o discuție personalizată, la showroom sau la telefon. Analizăm împreună spațiul, stilul dorit și bugetul disponibil, ca să identificăm din start materialele și soluțiile potrivite pentru tine.",
   "Echipa noastră vine la fața locului și ia măsurători exacte cu echipament modern. Fiecare centimetru contează: corpurile, blaturile și spațiile de depozitare trebuie să se integreze perfect în încăpere.",
-  "Designerii noștri transformă măsurătorile într-un proiect 3D detaliat, cu randări realiste. Vezi mobilierul în spațiul tău înainte de orice decizie — configurație, culori, sisteme de depozitare inteligente.",
+  "Designerii noștri transformă măsurătorile într-un proiect 3D detaliat, cu randări realiste. Vezi mobilierul în spațiul tău înainte de producție — configurație, culori, sisteme de depozitare inteligente.",
   "Îți prezentăm proiectul final și discutăm fiecare detaliu: scheme de culori, calitatea materialelor, feronerie. Feedback-ul tău este implementat înainte ca proiectul să plece în producție.",
   "Toate detaliile convenite intră într-un contract clar și transparent: termene de livrare, specificații tehnice, condiții de garanție. Știi exact ce primești și când.",
   "Mobilierul este fabricat în atelierul nostru, cu tehnologie avansată și materiale certificate — plăci stratificate, MDF de înaltă calitate, accesorii premium — sub un control riguros al calității.",
@@ -758,6 +764,56 @@ export const ABOUT_PAGE = {
     },
   ],
 } as const;
+
+/* ------------------------------------------------- Istoria (Despre noi) -- */
+
+/**
+ * Cronologia „Drumul nostru" de pe /despre-noi — cerință de client, după
+ * referința parke.md (Parchetnii Dvor): un drum parcurs din 2005 până azi.
+ *
+ * ATENȚIE: clientul trimite istoria reală mai târziu. Reperele marcate
+ * `placeholder: true` sunt text de umplutură scris ca designul să poată fi
+ * judecat pe conținut plauzibil — se înlocuiesc cu faptele clientului imediat
+ * ce sosesc. 2022 și 2023 sunt reale (de pe mobo.md/despre-noi); „Azi" e
+ * sinteza conținutului deja publicat.
+ */
+export type Milestone = {
+  year: string;
+  title: string;
+  text: string;
+  /** TRUE = text de umplutură; se înlocuiește cu istoria trimisă de client. */
+  placeholder?: true;
+};
+
+export const HISTORY: Milestone[] = [
+  {
+    year: "2005",
+    title: "Primele bucătării",
+    text: "Povestea începe cu mult înaintea brandului: primii ani în producția de mobilier la comandă, primele bucătării predate și standardul de execuție care avea să definească tot ce urmează.",
+    placeholder: true,
+  },
+  {
+    year: "2015",
+    title: "Experiența se adună",
+    text: "Zeci de case mobilate cap-coadă și o echipă care crește proiect cu proiect — designeri, tehnologi și montatori care învață să lucreze ca un singur atelier.",
+    placeholder: true,
+  },
+  {
+    year: "2022",
+    title: "Se naște MOBO",
+    text: "Cei 39 de ani de experiență cumulativă primesc un nume: fondăm MOBO Kitchens & Home, un brand dedicat bucătăriilor premium și mobilierului pentru toată casa.",
+  },
+  {
+    year: "2023",
+    title: "Lansarea oficială",
+    text: "MOBO se lansează la începutul anului: atelier propriu, primele proiecte sub noul nume și promisiunea care ne definește de atunci — 5 ani garanție la tot ce iese pe ușa atelierului.",
+  },
+  {
+    year: "Azi",
+    title: "Toată casa, un singur standard",
+    text: "Mobilăm locuințe întregi — bucătării, dressinguri, livinguri, băi — cu proiect 3D, materiale de la parteneri europeni și predare doar după verificarea împreună cu clientul.",
+  },
+];
 
 /* ---------------------------------------------------- Pagina Info clienți -- */
 

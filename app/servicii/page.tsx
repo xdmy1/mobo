@@ -107,8 +107,10 @@ export default function ServiciiPage() {
         <section aria-label="Solicită un calcul" className="relative bg-bone-100 text-fg-invert">
           <div className="mx-auto flex w-full max-w-[88rem] flex-col items-start gap-7 px-5 py-16 sm:px-8 sm:py-20 lg:flex-row lg:items-end lg:justify-between lg:px-12">
             <Reveal>
+              {/* Fără „proiect 3D cadou" — clarificare de client: 3D-ul se
+                  primește după contractare. Gratuită e consultația. */}
               <h2 className="text-h2 text-balance max-w-[20ch]">
-                Începe cu o consultație și un proiect 3D — cadou.
+                Începe cu o consultație gratuită și un calcul estimativ.
               </h2>
             </Reveal>
             <Reveal index={1}>

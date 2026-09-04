@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import SmoothScroll from "@/components/ui/SmoothScroll";
 import PageGrade from "@/components/ui/PageGrade";
 import SocialIsland from "@/components/ui/SocialIsland";
+import CookieConsent from "@/components/ui/CookieConsent";
 import { SITE } from "@/lib/data";
 import "./globals.css";
 
@@ -114,6 +115,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         {/* Quick-contact island — floats on every page, below the nav overlay. */}
         <SocialIsland />
+        {/* Consimțământul de cookie-uri — peste tot chrome-ul (z-[95]), la
+            prima vizită; alegerea trăiește în localStorage. */}
+        <CookieConsent />
       </body>
     </html>
   );

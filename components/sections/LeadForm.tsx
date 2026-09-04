@@ -5,7 +5,6 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { ZodIssue } from "zod";
 import { SocialGlyph } from "@/components/ui/BrandIcon";
 import { Reveal } from "@/components/ui/Reveal";
-import { Select } from "@/components/ui/Select";
 import { leadSchema } from "@/lib/crm/types";
 import { BUDGET_OPTIONS, ROOM_OPTIONS, SITE, SOCIALS } from "@/lib/data";
 import { DUR, EASE_OUT } from "@/lib/motion";
@@ -14,23 +13,29 @@ import { cn } from "@/lib/utils";
 /**
  * Lead capture — the commercial point of the page.
  *
+ * Redus la cererea clientului: „numărul de telefon doar, un nume, buget, ce
+ * mobilăm și gata — prea multe alungă clienții". Email-ul și textarea au
+ * dispărut din UI (schema le păstrează opționale, deci serverul nu s-a mișcat),
+ * iar promisiunea „proiect 3D înainte de orice decizie" a picat: proiectul 3D
+ * se primește după contractare. Vizual, formularul a lăsat cardul cu chenar
+ * pentru un registru editorial: inputuri pe linie de bază, opțiunile ca cipuri
+ * radio, un singur buton mare.
+ *
  * Validation runs through the *same* Zod schema the API route uses, so an error
  * the user sees inline is guaranteed to be the error the server would have
  * raised. The client pass exists only for speed of feedback; the server pass is
  * still the one that decides what reaches the CRM.
  */
 
-type FieldName = "name" | "phone" | "email" | "room" | "budget" | "message" | "consent";
+type FieldName = "name" | "phone" | "room" | "budget" | "consent";
 type Status = "idle" | "submitting" | "success" | "error";
 type Errors = Partial<Record<FieldName, string>>;
 
 type Values = {
   name: string;
   phone: string;
-  email: string;
   room: string;
   budget: string;
-  message: string;
   consent: boolean;
 };
 
@@ -43,23 +48,13 @@ type LeadResponse = {
 const EMPTY: Values = {
   name: "",
   phone: "",
-  email: "",
   room: "",
   budget: "",
-  message: "",
   consent: false,
 };
 
 /** Tab order — also the order errors are reported and focus is restored in. */
-const FIELD_ORDER: FieldName[] = [
-  "name",
-  "phone",
-  "email",
-  "room",
-  "budget",
-  "message",
-  "consent",
-];
+const FIELD_ORDER: FieldName[] = ["name", "phone", "room", "budget", "consent"];
 
 /**
  * Mirrors MIN_DWELL_MS in app/api/lead/route.ts. The route silently drops any
@@ -115,14 +110,18 @@ async function readJson(res: Response): Promise<LeadResponse> {
 
 /* ------------------------------------------------------------------ shell -- */
 
-/* Sober small radius, quiet 1px border. 16px type on every control — anything
-   smaller makes iOS Safari zoom the viewport on focus. */
+/* Input pe linie de bază: fără cutie, doar hairline-ul de jos — aceeași
+   gramatică cu listele de contacte de alături. Focusul îngroașă linia în lime
+   printr-un inset shadow (nu prin border-width, care ar sălta layout-ul).
+   16px+ pe control — anything smaller makes iOS Safari zoom the viewport. */
 const CONTROL = cn(
-  "w-full rounded-md border bg-transparent px-3.5 text-base text-fg",
+  "h-12 w-full rounded-none border-0 border-b bg-transparent px-0 text-[1.0625rem] text-fg",
   "placeholder:text-fg-faint",
-  "transition-[border-color,background-color] duration-150 ease-out-strong",
-  "hover-fine:hover:bg-white/[0.03]",
+  "focus:outline-none focus:border-lime-brand focus:shadow-[inset_0_-1px_0_0_var(--color-lime-brand)]",
+  "transition-[border-color,box-shadow] duration-150 ease-out-strong",
 );
+
+const FIELD_LABEL = "block text-[0.6875rem] font-medium uppercase tracking-[0.075em] text-fg-faint";
 
 function Field({
   id,
@@ -139,16 +138,79 @@ function Field({
 }) {
   return (
     <div className={className}>
-      <label htmlFor={id} className="block text-[0.8125rem] leading-5 text-fg-dim">
+      <label htmlFor={id} className={FIELD_LABEL}>
         {label}
       </label>
-      <div className="mt-1.5">{children}</div>
+      {children}
       {error ? (
         <p id={`${id}-error`} role="alert" className={cn("mt-1.5 text-[0.8125rem]", ERROR_TEXT)}>
           {error}
         </p>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * Opțiunile ca cipuri — radiouri reale (sr-only) sub pastile stilizate, deci
+ * tastatura primește gratis comportamentul nativ: un singur tab stop, săgeți
+ * între opțiuni. Starea aleasă e ivorie pe grafit — lime rămâne rezervat
+ * singurului buton primar din viewport.
+ */
+function ChipGroup({
+  id,
+  name,
+  legend,
+  options,
+  value,
+  onChange,
+  error,
+  className,
+}: {
+  id: string;
+  name: string;
+  legend: string;
+  options: readonly string[];
+  value: string;
+  onChange: (next: string) => void;
+  error?: string;
+  className?: string;
+}) {
+  return (
+    <fieldset id={id} tabIndex={-1} className={cn("min-w-0 outline-none", className)}>
+      <legend className={FIELD_LABEL}>{legend}</legend>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {options.map((option) => (
+          <label key={option} className="relative">
+            <input
+              type="radio"
+              name={name}
+              value={option}
+              checked={value === option}
+              onChange={() => onChange(option)}
+              className="peer sr-only"
+            />
+            <span
+              className={cn(
+                "inline-flex h-9 cursor-pointer select-none items-center rounded-pill border px-4 text-[0.875rem]",
+                "text-fg-dim transition-[background-color,border-color,color] duration-150 ease-out-strong",
+                "hover-fine:hover:text-fg",
+                "peer-checked:border-bone-50 peer-checked:bg-bone-50 peer-checked:font-medium peer-checked:text-fg-invert",
+                "peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-lime-brand",
+                error ? ERROR_BORDER : "border-white/15 hover-fine:hover:border-white/35",
+              )}
+            >
+              {option}
+            </span>
+          </label>
+        ))}
+      </div>
+      {error ? (
+        <p id={`${id}-error`} role="alert" className={cn("mt-1.5 text-[0.8125rem]", ERROR_TEXT)}>
+          {error}
+        </p>
+      ) : null}
+    </fieldset>
   );
 }
 
@@ -291,22 +353,21 @@ export default function LeadForm() {
       className="grain relative overflow-hidden bg-ink-900 py-20 sm:py-24 lg:py-28"
     >
       <div className="relative mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12">
-        <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
+        <div className="grid gap-12 lg:grid-cols-12 lg:gap-0">
           {/* ------------------------------------------------------ pitch -- */}
           <div className="lg:col-span-5">
             <Reveal>
+              {/* Fără „proiect 3D înainte de orice decizie" — clarificare de
+                  client: 3D-ul se primește după contractare. */}
               <h2 id="contact-title" className="text-h2 text-balance text-fg">
-                Spune-ne ce vrei să mobilezi și primești proiectul 3D înainte de orice decizie.
+                Spune-ne ce vrei să mobilezi și primești un calcul estimativ, fără obligații.
               </h2>
             </Reveal>
 
             <Reveal index={1}>
               <p className="text-body text-pretty mt-5 max-w-[46ch] text-fg-dim">
-                Completezi o dată, iar un consultant MOBO revine cu un calcul estimativ și
-                programează măsurătorile la tine acasă. Fără obligații și fără cost.
-              </p>
-              <p className="mt-3 text-[0.9375rem] text-fg">
-                Răspundem în aceeași zi lucrătoare.
+                Patru câmpuri, jumătate de minut. Un consultant MOBO te sună în aceeași zi
+                lucrătoare, ca să discutați proiectul și să programați măsurătorile.
               </p>
             </Reveal>
 
@@ -332,7 +393,9 @@ export default function LeadForm() {
                   </a>
                 </li>
                 <li className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-white/8 py-3.5">
-                  <span className="text-[0.8125rem] text-fg-faint">Atelier & showroom</span>
+                  {/* Doar „Showroom" — atelierul e în altă parte și adresa lui
+                      nu privește vizitatorul (cerință de client). */}
+                  <span className="text-[0.8125rem] text-fg-faint">Showroom</span>
                   <span className="text-right text-[0.9375rem] text-fg-dim">{SITE.address}</span>
                 </li>
               </ul>
@@ -360,9 +423,12 @@ export default function LeadForm() {
           </div>
 
           {/* ------------------------------------------------------- form -- */}
+          {/* Vizual nou (cerință de client): a dispărut cardul cu chenar —
+              formularul stă direct pe bandă, despărțit de pitch printr-un
+              hairline vertical, cu inputuri pe linie de bază și cipuri. */}
           <Reveal
             index={1}
-            className="rounded-lg border border-white/10 bg-white/[0.02] p-5 sm:p-6 lg:col-span-6 lg:col-start-7 lg:p-7"
+            className="lg:col-span-6 lg:col-start-7 lg:border-l lg:border-white/10 lg:pl-12"
           >
             {/* Persistent live region. It must exist BEFORE the success text
                 does — a live region inserted in the same commit as its content
@@ -437,13 +503,8 @@ export default function LeadForm() {
                     />
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <Field
-                      id={fid("name")}
-                      label="Nume"
-                      error={errors.name}
-                      className="sm:col-span-2"
-                    >
+                  <div className="grid gap-8 sm:grid-cols-2 sm:gap-x-8">
+                    <Field id={fid("name")} label="Nume" error={errors.name}>
                       <input
                         id={fid("name")}
                         name="name"
@@ -457,11 +518,7 @@ export default function LeadForm() {
                         onBlur={() => handleBlur("name")}
                         aria-invalid={errors.name ? true : undefined}
                         aria-describedby={errors.name ? `${fid("name")}-error` : undefined}
-                        className={cn(
-                          CONTROL,
-                          "h-11",
-                          errors.name ? ERROR_BORDER : "border-white/10",
-                        )}
+                        className={cn(CONTROL, errors.name ? ERROR_BORDER : "border-white/15")}
                       />
                     </Field>
 
@@ -480,95 +537,37 @@ export default function LeadForm() {
                         onBlur={() => handleBlur("phone")}
                         aria-invalid={errors.phone ? true : undefined}
                         aria-describedby={errors.phone ? `${fid("phone")}-error` : undefined}
-                        className={cn(
-                          CONTROL,
-                          "h-11",
-                          errors.phone ? ERROR_BORDER : "border-white/10",
-                        )}
+                        className={cn(CONTROL, errors.phone ? ERROR_BORDER : "border-white/15")}
                       />
                     </Field>
 
-                    <Field id={fid("email")} label="Email (opțional)" error={errors.email}>
-                      <input
-                        id={fid("email")}
-                        name="email"
-                        type="email"
-                        autoComplete="email"
-                        maxLength={120}
-                        placeholder="nume@exemplu.md"
-                        value={values.email}
-                        onChange={(e) => setField("email", e.target.value)}
-                        onBlur={() => handleBlur("email")}
-                        aria-invalid={errors.email ? true : undefined}
-                        aria-describedby={errors.email ? `${fid("email")}-error` : undefined}
-                        className={cn(
-                          CONTROL,
-                          "h-11",
-                          errors.email ? ERROR_BORDER : "border-white/10",
-                        )}
-                      />
-                    </Field>
-
-                    <Field id={fid("room")} label="Ce mobilăm?" error={errors.room}>
-                      <Select
-                        id={fid("room")}
-                        name="room"
-                        label="Ce mobilăm?"
-                        placeholder="Alege încăperea"
-                        options={ROOM_OPTIONS}
-                        value={values.room}
-                        onChange={(room) => setField("room", room)}
-                        onBlur={() => handleBlur("room")}
-                        aria-invalid={errors.room ? true : undefined}
-                        aria-describedby={errors.room ? `${fid("room")}-error` : undefined}
-                        className={errors.room ? ERROR_BORDER : undefined}
-                      />
-                    </Field>
-
-                    <Field id={fid("budget")} label="Buget estimativ" error={errors.budget}>
-                      <Select
-                        id={fid("budget")}
-                        name="budget"
-                        label="Buget estimativ"
-                        placeholder="Alege intervalul"
-                        options={BUDGET_OPTIONS}
-                        value={values.budget}
-                        onChange={(budget) => setField("budget", budget)}
-                        onBlur={() => handleBlur("budget")}
-                        aria-invalid={errors.budget ? true : undefined}
-                        aria-describedby={errors.budget ? `${fid("budget")}-error` : undefined}
-                        className={errors.budget ? ERROR_BORDER : undefined}
-                      />
-                    </Field>
-
-                    <Field
-                      id={fid("message")}
-                      label="Detalii proiect (opțional)"
-                      error={errors.message}
+                    {/* Cipurile au nevoie de rândul întreg — șapte opțiuni nu
+                        încap într-o jumătate de coloană. */}
+                    <ChipGroup
+                      id={fid("room")}
+                      name="room"
+                      legend="Ce mobilăm?"
+                      options={ROOM_OPTIONS}
+                      value={values.room}
+                      onChange={(room) => setField("room", room)}
+                      error={errors.room}
                       className="sm:col-span-2"
-                    >
-                      <textarea
-                        id={fid("message")}
-                        name="message"
-                        rows={3}
-                        maxLength={2000}
-                        placeholder="Dimensiuni, stil, termen dorit — orice ne ajută să estimăm mai exact."
-                        value={values.message}
-                        onChange={(e) => setField("message", e.target.value)}
-                        onBlur={() => handleBlur("message")}
-                        aria-invalid={errors.message ? true : undefined}
-                        aria-describedby={errors.message ? `${fid("message")}-error` : undefined}
-                        className={cn(
-                          CONTROL,
-                          "resize-y py-2.5 leading-normal",
-                          errors.message ? ERROR_BORDER : "border-white/10",
-                        )}
-                      />
-                    </Field>
+                    />
+
+                    <ChipGroup
+                      id={fid("budget")}
+                      name="budget"
+                      legend="Buget estimativ"
+                      options={BUDGET_OPTIONS}
+                      value={values.budget}
+                      onChange={(budget) => setField("budget", budget)}
+                      error={errors.budget}
+                      className="sm:col-span-2"
+                    />
                   </div>
 
                   {/* ------------------------------------------- consent -- */}
-                  <div className="mt-4">
+                  <div className="mt-7">
                     <label
                       htmlFor={fid("consent")}
                       className="flex cursor-pointer select-none items-start gap-3"
@@ -650,13 +649,13 @@ export default function LeadForm() {
                     ) : null}
                   </div>
 
-                  <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="mt-6">
                     <button
                       type="submit"
                       disabled={busy}
                       aria-busy={busy}
                       className={cn(
-                        "inline-flex h-11 w-full select-none items-center justify-center gap-2 rounded-md px-6 sm:w-auto",
+                        "inline-flex h-[3.25rem] w-full select-none items-center justify-center gap-2 rounded-pill px-7",
                         "btn-3d btn-3d-lime text-[0.9375rem] font-medium text-lime-ink",
                         "transition-[transform,box-shadow,--btn-top,--btn-mid,--btn-bottom] duration-150 ease-out-strong",
                         "active:scale-[0.98]",
@@ -693,7 +692,7 @@ export default function LeadForm() {
                       )}
                     </button>
 
-                    <p className="text-[0.8125rem] text-fg-faint">
+                    <p className="mt-3 text-center text-[0.8125rem] text-fg-faint">
                       Sau sună direct:{" "}
                       <a
                         href={SITE.phoneHref}

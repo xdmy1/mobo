@@ -22,7 +22,7 @@ import { coverUrl, KITCHENS_GALLERY, PARTNERS, PROJECTS_INDEX_HREF, SITE } from 
 export const metadata: Metadata = {
   title: "Bucătării la comandă",
   description:
-    "Bucătării la comandă realizate de MOBO în Chișinău — fotografii din casele clienților, nu randări. Proiect 3D înainte de orice decizie, materiale Egger, AGT și Fundermax, feronerie Blum și Hettich, 5 ani garanție.",
+    "Bucătării la comandă realizate de MOBO în Chișinău — fotografii din casele clienților, nu randări. Proiect 3D detaliat, materiale Egger, AGT și Fundermax, feronerie Blum și Hettich, 5 ani garanție.",
   alternates: { canonical: "/bucatarii" },
   openGraph: { images: [{ url: coverUrl(KITCHENS_GALLERY[0].photos[0].src) }] },
 };

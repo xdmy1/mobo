@@ -23,7 +23,7 @@ export default function ConfidentialitatePage() {
           title="Politica de confidențialitate."
           intro="Îți cerem doar datele de care avem nevoie ca să te contactăm despre proiectul tău — și îți spunem aici, fără limbaj de lemn, ce facem cu ele."
         />
-        <LegalArticle updated="25 august 2026">
+        <LegalArticle updated="4 septembrie 2026">
           <h2>1. Operatorul de date</h2>
           <p>
             Datele tale sunt prelucrate de <strong>{COMPANY.legalName}</strong>, IDNO{" "}
@@ -35,9 +35,8 @@ export default function ConfidentialitatePage() {
           <h2>2. Ce date colectăm</h2>
           <ul>
             <li>
-              <strong>Prin formularul de contact:</strong> nume, telefon, opțional email,
-              încăperea pe care vrei să o mobilezi, bugetul estimativ și detaliile pe care alegi
-              să ni le scrii.
+              <strong>Prin formularul de contact:</strong> nume, telefon și — dacă alegi să ni le
+              spui — încăperea pe care vrei să o mobilezi și bugetul estimativ.
             </li>
             <li>
               <strong>Când ne suni sau ne scrii pe rețelele sociale:</strong> datele pe care ni
@@ -92,11 +91,29 @@ export default function ConfidentialitatePage() {
             limitat la persoanele care au nevoie de el ca să-ți răspundă.
           </p>
 
-          <h2>8. Cookie-uri</h2>
+          {/* id-ul e ținta linkului din bannerul de consimțământ (CookieConsent). */}
+          <h2 id="cookie-uri">8. Cookie-uri</h2>
           <p>
-            Site-ul folosește doar cookie-uri și tehnologii strict necesare funcționării. Dacă
-            vom introduce instrumente de analiză sau marketing, această politică va fi
-            actualizată înainte, iar acolo unde legea o cere îți vom cere acordul.
+            La prima vizită îți cerem acordul printr-un banner, pe trei categorii:
+          </p>
+          <ul>
+            <li>
+              <strong>Strict necesare</strong> — fac site-ul să funcționeze și să rămână sigur.
+              Sunt mereu active și nu cer acord.
+            </li>
+            <li>
+              <strong>Statistică</strong> — ne arată, anonim, cum e folosit site-ul, ca să-l
+              îmbunătățim. Se activează doar cu acordul tău.
+            </li>
+            <li>
+              <strong>Marketing</strong> — ne ajută să-ți arătăm oferte relevante. Se activează
+              doar cu acordul tău.
+            </li>
+          </ul>
+          <p>
+            Alegerea ta este ținută în browserul tău, nu pe serverele noastre. O poți schimba
+            oricând ștergând datele site-ului din browser — bannerul îți va cere din nou acordul
+            la următoarea vizită.
           </p>
 
           <h2>9. Plângeri</h2>

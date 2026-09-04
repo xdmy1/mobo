@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Nav from "@/components/sections/Nav";
 import PageHeader from "@/components/sections/PageHeader";
+import Timeline from "@/components/sections/Timeline";
 import Testimonials from "@/components/sections/Testimonials";
 import Footer from "@/components/sections/Footer";
 import { Reveal } from "@/components/ui/Reveal";
@@ -25,6 +26,11 @@ export default function DespreNoiPage() {
           title={ABOUT_PAGE.headline}
           intro={ABOUT_PAGE.story}
         />
+
+        {/* Istoria — cerință de client (referința parke.md): drumul din 2005
+            până azi. Reperele placeholder se înlocuiesc când sosește istoria
+            reală; vezi HISTORY în lib/data.ts. */}
+        <Timeline />
 
         {/* ------------------------------------------------------- ce oferim */}
         <section aria-labelledby="oferim-titlu" className="relative bg-bone-50 text-fg-invert">
@@ -134,8 +140,11 @@ export default function DespreNoiPage() {
             <div className="grid gap-10 lg:grid-cols-12">
               <Reveal className="lg:col-span-5">
                 <p className="text-eyebrow text-fg-invert-dim">Ofertele MOBO</p>
+                {/* Fostul „proiect 3D — cadou" a picat: clarificare de client,
+                    proiectele 3D nu sunt gratuite (se primesc după contractare).
+                    Gratuite rămân consultația și calculul estimativ. */}
                 <h2 id="oferte-titlu" className="text-h2 text-balance mt-5 max-w-[18ch]">
-                  Consultație &amp; proiect 3D — cadou.
+                  Consultație și calcul estimativ — gratuite.
                 </h2>
                 <div className="mt-8">
                   <Button href="/#contact" size="lg" withArrow>
