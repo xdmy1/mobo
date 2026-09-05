@@ -1,10 +1,11 @@
 "use client";
 
 import { Fragment } from "react";
+import Image from "next/image";
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import { Reveal } from "@/components/ui/Reveal";
 import { Marquee } from "@/components/ui/Marquee";
-import { REVIEWS, type Review } from "@/lib/data";
+import { GOOGLE_RATING, REVIEWS, type Review } from "@/lib/data";
 import { DUR, EASE_OUT, STAGGER, VIEWPORT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -124,12 +125,26 @@ function ReviewCard({
         </blockquote>
 
         <figcaption className="mt-auto flex items-center gap-2 border-t border-white/8 pt-3 sm:gap-3 sm:pt-6">
-          <span
-            aria-hidden="true"
-            className="grid size-7 shrink-0 place-items-center rounded-full bg-lime-brand/12 text-[0.6875rem] font-medium text-lime-brand ring-1 ring-inset ring-lime-brand/25 sm:size-10 sm:text-sm"
-          >
-            {initial}
-          </span>
+          {/* Fotografia reală de pe profilul Google al recenzentului, unde
+              există; altfel cercul cu inițială, exact ca pe Google. */}
+          {review.photo ? (
+            <span className="relative size-7 shrink-0 overflow-hidden rounded-full ring-1 ring-inset ring-white/15 sm:size-10">
+              <Image
+                src={review.photo}
+                alt=""
+                fill
+                sizes="40px"
+                className="object-cover"
+              />
+            </span>
+          ) : (
+            <span
+              aria-hidden="true"
+              className="grid size-7 shrink-0 place-items-center rounded-full bg-lime-brand/12 text-[0.6875rem] font-medium text-lime-brand ring-1 ring-inset ring-lime-brand/25 sm:size-10 sm:text-sm"
+            >
+              {initial}
+            </span>
+          )}
           <span className="min-w-0 truncate text-[0.75rem] font-medium text-fg sm:text-sm">{review.name}</span>
         </figcaption>
       </figure>
@@ -272,12 +287,12 @@ export default function Testimonials() {
         >
           <span className="flex items-center gap-2">
             <StarRow starClassName="size-3" />
-            <span className="text-sm font-medium tabular-nums text-fg">5,0</span>
+            <span className="text-sm font-medium tabular-nums text-fg">{GOOGLE_RATING.value}</span>
           </span>
           <span aria-hidden="true" className="hidden h-4 w-px bg-white/15 sm:block" />
           <span className="text-sm text-fg-dim">
-            <strong className="font-medium tabular-nums text-fg">{REVIEWS.length}</strong> recenzii
-            reale de la clienți MOBO
+            <strong className="font-medium tabular-nums text-fg">{GOOGLE_RATING.count}</strong>{" "}
+            recenzii reale pe Google
           </span>
         </Reveal>
       </div>

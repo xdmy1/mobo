@@ -41,6 +41,11 @@ import antreu03 from "@/assets/proiecte/str-universitatii/antreu-03.jpg";
 import antreu04 from "@/assets/proiecte/str-universitatii/antreu-04.jpg";
 import antreu05 from "@/assets/proiecte/str-universitatii/antreu-05.jpg";
 
+/* Avatarele reale ale recenzenților de pe Google (vezi secțiunea Testimonials). */
+import recTatiana from "@/assets/recenzii/tatiana-ursachi.jpg";
+import recTania from "@/assets/recenzii/tania-burca.jpg";
+import recEverest from "@/assets/recenzii/everest-visuals.jpg";
+
 /* Ședința Strada Miorița — locală. */
 import mioAntreu01 from "@/assets/proiecte/str-miorita/antreu-01.jpg";
 import mioAntreu02 from "@/assets/proiecte/str-miorita/antreu-02.jpg";
@@ -684,50 +689,60 @@ export const ABOUT = {
 
 /* ----------------------------------------------------------- Testimonials -- */
 
-export type Review = { name: string; text: string };
+/**
+ * Recenziile REALE de pe profilul Google al MOBO („Mobo Bucătării", 4,8★,
+ * 21 de note, 8 recenzii cu text — citite de pe Google Maps la 2026-09-05).
+ * Cerință de client: recenziile de pe Google, cu fotografia omului acolo unde
+ * profilul chiar are una.
+ *
+ * Textele sunt VERBATIM, cu ortografia autorului (unele fără diacritice).
+ * Acolo unde Google trunchiază recenzia cu „…", textul e tăiat la ultima
+ * propoziție completă — prefix exact, nimic parafrazat. Doar trei profiluri
+ * au imagine reală (două persoane + un logo de firmă), salvate local în
+ * assets/recenzii/; restul primesc cercul cu inițială, ca pe Google.
+ */
+export type Review = { name: string; text: string; photo?: StaticImageData };
 
 export const REVIEWS: Review[] = [
   {
-    name: "Arcan Svetlana",
-    text: "Echipa Mobo s-a remarcat prin profesionalism, atenție la detalii și o gamă variată de produse de înaltă calitate, adaptate perfect cerințelor și stilului dorit. Recomand cu căldură pentru orice proiect de mobilare sau amenajare interioară.",
+    name: "Tatiana Ursachi",
+    photo: recTatiana,
+    text: "Dupa o experienta neplacuta cu o alta companie, am apelat la Mobo Kitchens and Home prin recomandare si nu am ramas dezamagita :-) Designerul Corina mi-a inteles preferintele din prima.",
   },
   {
-    name: "Iuliana Cerici",
-    text: "Am comandat tot mobilierul din casă de la Mobo și suntem foarte mulțumiți. Utilizăm de câteva luni și toate mecanismele lucrează perfect. Foarte receptivi, creativi și niște specialiști de nota 10 în domeniul lor.",
+    name: "Svetlana Arcan",
+    text: "Compania Mobo crează mobilier de calitate superioară din materiale premium, perfect pentru orice spațiu. Colecțiile dumnealor îmbină funcționalitatea cu estetica, oferind confort și eleganță pentru fiecare casa.",
   },
   {
-    name: "Aliona Berdila",
-    text: "Am fost plăcut surprinsă de calitatea materialelor folosite, atenția la detalii și măiestria execuției fiecărei piese de mobilier. Pe lângă toate acestea, prețul a fost unul foarte accesibil, raportat la nivelul de calitate oferit.",
+    name: "Tania Burca",
+    photo: recTania,
+    text: "Super! Recomand cu drag baietii de la Mobo Bucatarii. Mi-au executat rapid design-ul bucatariei si al camerei copilului si acum deja sunt pe ultima suta de metri in procesul de montare. Operativi, organizati si fara surprize sau alte situatii de forta majora :)",
   },
   {
-    name: "Alexandra",
-    text: "Am fost impresionată de calitatea produselor, de promptitudinea echipei și de modul în care fiecare piesă de mobilier a fost montată cu precizie. Datorită vouă, locuința mea arată minunat.",
+    name: "Everest Visuals",
+    photo: recEverest,
+    text: "Am apelat la echipa Mobo pentru doua proiecte de design interior si am ramas impresionati de profesionalismul si receptiviatea acestora. Am solicitat cateva modificari la proiecte care au fost executate rapid si calitativ.",
   },
   {
-    name: "Natalia Zarea",
-    text: "Sînt foarte mulțumită de calitatea lucrărilor, punctualitate și profesionalismul întregii echipe Mobo Kitchens & Home! Am avut o conlucrare excelentă, fiind pus accent pe fiecare detaliu.",
+    name: "Olesea Corcebas",
+    text: "Am avut o experiență excelentă cu MOBO Kitchens & Home! Dacă sunteți în căutarea unei companii de mobilier de calitate, îi recomand cu încredere. Cu ajutorul designerului Corina, toate ideile mele au devenit realitate.",
   },
   {
-    name: "Acustmed Chișinău",
-    text: "Sincere mulțumiri echipei MOBO. Am avut parte de o colaborare frumoasă. Sunteți foarte bravo, receptivi și punctuali. Recomandăm cu încredere.",
+    name: "Lupu Marius",
+    text: "Am avut o experiență extraordinară cu Mobo! De la prima interacțiune și până la livrarea mobilierului, totul a fost impecabil. Echipa lor este profesionistă, amabilă și foarte bine pregătită.",
   },
   {
-    name: "Evghenia Efimovna",
-    text: "Au depășit așteptările mele în totalitate. Produsele lor sunt de o calitate excepțională, iar serviciul clienți este remarcabil. Recomand cu încredere!",
+    name: "Eugenia Ortoman",
+    text: "Am făcut mobilierul pentru toată casa cu Mobo, o echipă tanara, dar îi recomand cu toată încrederea! Echipa a avut o răbdare incredibilă cu toate modificările și capriciile mele 😊",
   },
   {
-    name: "Artem Vladimirovici",
-    text: "Calitativ și rapid! Comunicare la cel mai înalt nivel!",
-  },
-  {
-    name: "Carina Morari",
-    text: "Profesioniști cu atitudine lăudabilă față de clienți!",
-  },
-  {
-    name: "Puiu Raisa",
-    text: "Am făcut mobila la voi — calitate bună, recomand!",
+    name: "Carolina Stoian",
+    text: "Recomand cu drag Mobo kitchens&home. Am avut o experiență excelentă, de la prima discuție până la livrarea finală.",
   },
 ];
+
+/** Nota și numărul de note de pe profilul Google (snapshot 2026-09-05). */
+export const GOOGLE_RATING = { value: "4,8", count: 21 } as const;
 
 /* ------------------------------------------------------------ Lead form -- */
 
