@@ -69,7 +69,6 @@
 
   /* --- Type ------------------------------------------------------------- */
   --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-instrument), ui-serif, Georgia, serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
   /* --- Motion (mirrors lib/motion.ts; keep the two in sync) ------------- */
@@ -319,13 +318,6 @@
     font-weight: 500;
   }
 
-  /* The one serif accent: italic emphasis inside a sans headline. */
-  .serif-accent {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: -0.01em;
-  }
 
   ::selection {
     background-color: var(--color-lime-brand);

@@ -28,8 +28,7 @@ export default function Timeline() {
         <Reveal>
           <p className="text-eyebrow text-fg-dim">Drumul nostru</p>
           <h2 id="istorie-titlu" className="text-h2 text-balance mt-5 max-w-[24ch] text-fg">
-            Din 2005 până azi, <span className="serif-accent">același meșteșug</span> — doar
-            casele s-au înmulțit.
+            Din 2005 până azi, același meșteșug — doar casele s-au înmulțit.
           </h2>
         </Reveal>
 
@@ -64,7 +63,7 @@ export default function Timeline() {
                 <p
                   className={cn(
                     "text-[clamp(2.2rem,4vw,3.6rem)] font-medium leading-[0.95] tracking-[-0.03em] lg:text-right",
-                    i === last ? "serif-accent text-lime-brand" : "text-fg",
+                    i === last ? "text-lime-brand" : "text-fg",
                   )}
                 >
                   {milestone.year}

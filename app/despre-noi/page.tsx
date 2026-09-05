@@ -111,7 +111,7 @@ export default function DespreNoiPage() {
             {/* ---------------------------------------------------- misiunea */}
             <Reveal className="mt-14 border-t border-white/8 pt-8">
               <blockquote className="text-h2 text-balance max-w-[30ch] text-fg">
-                <span className="serif-accent">Misiunea noastră:</span> să creăm mobilier de
+                Misiunea noastră: să creăm mobilier de
                 calitate premium care transformă casele în adevărate locuințe de vis.
               </blockquote>
             </Reveal>
