@@ -45,6 +45,11 @@ import antreu05 from "@/assets/proiecte/str-universitatii/antreu-05.jpg";
 import recTatiana from "@/assets/recenzii/tatiana-ursachi.jpg";
 import recTania from "@/assets/recenzii/tania-burca.jpg";
 import recEverest from "@/assets/recenzii/everest-visuals.jpg";
+/* Fotografiile pe care clienții le-au atașat recenziilor lor pe Google. */
+import fotoTatiana01 from "@/assets/recenzii/foto-tatiana-01.jpg";
+import fotoTatiana02 from "@/assets/recenzii/foto-tatiana-02.jpg";
+import fotoEverest01 from "@/assets/recenzii/foto-everest-01.jpg";
+import fotoEverest02 from "@/assets/recenzii/foto-everest-02.jpg";
 
 /* Ședința Strada Miorița — locală. */
 import mioAntreu01 from "@/assets/proiecte/str-miorita/antreu-01.jpg";
@@ -703,12 +708,20 @@ export const ABOUT = {
  * au imagine reală (două persoane + un logo de firmă), salvate local în
  * assets/recenzii/; restul primesc cercul cu inițială, ca pe Google.
  */
-export type Review = { name: string; text: string; photo?: StaticImageData };
+export type Review = {
+  name: string;
+  text: string;
+  /** Avatarul real de pe profilul Google, unde există. */
+  photo?: StaticImageData;
+  /** Fotografiile atașate recenziei chiar de client — cel mai puternic trust. */
+  photos?: StaticImageData[];
+};
 
 export const REVIEWS: Review[] = [
   {
     name: "Tatiana Ursachi",
     photo: recTatiana,
+    photos: [fotoTatiana01, fotoTatiana02],
     text: "Dupa o experienta neplacuta cu o alta companie, am apelat la Mobo Kitchens and Home prin recomandare si nu am ramas dezamagita :-) Designerul Corina mi-a inteles preferintele din prima.",
   },
   {
@@ -723,6 +736,7 @@ export const REVIEWS: Review[] = [
   {
     name: "Everest Visuals",
     photo: recEverest,
+    photos: [fotoEverest01, fotoEverest02],
     text: "Am apelat la echipa Mobo pentru doua proiecte de design interior si am ramas impresionati de profesionalismul si receptiviatea acestora. Am solicitat cateva modificari la proiecte care au fost executate rapid si calitativ.",
   },
   {

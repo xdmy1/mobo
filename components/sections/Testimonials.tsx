@@ -124,6 +124,27 @@ function ReviewCard({
           </p>
         </blockquote>
 
+        {/* Fotografiile atașate recenziei chiar de client, ca pe Google —
+            mobilierul lui adevărat, cel mai puternic semnal de încredere. */}
+        {review.photos?.length ? (
+          <div className="mt-3 flex gap-1.5 sm:mt-4 sm:gap-2">
+            {review.photos.map((photo, i) => (
+              <span
+                key={i}
+                className="relative aspect-[4/3] flex-1 overflow-hidden rounded-lg"
+              >
+                <Image
+                  src={photo}
+                  alt={`Fotografie atașată recenziei de ${review.name}`}
+                  fill
+                  sizes="180px"
+                  className="object-cover"
+                />
+              </span>
+            ))}
+          </div>
+        ) : null}
+
         <figcaption className="mt-auto flex items-center gap-2 border-t border-white/8 pt-3 sm:gap-3 sm:pt-6">
           {/* Fotografia reală de pe profilul Google al recenzentului, unde
               există; altfel cercul cu inițială, exact ca pe Google. */}
@@ -261,19 +282,27 @@ export default function Testimonials() {
               ul's vertical padding is headroom inside the marquee's
               overflow-hidden root so the hover lift never clips — it also
               doubles as the visual gap between the rows. */}
+          {/* Cu 4 recenzii pe rând, o singură trecere nu mai acoperă
+              viewportul și bucla se rupea vizibil („nu mai e infinit").
+              Fiecare rând își repetă lista de două ori, deci copia pe care
+              o derulează marquee-ul e mereu mai lată decât ecranul. */}
           <Marquee duration={55} className="group/row motion-reduce:overflow-x-auto">
             <ul className="flex list-none py-2 sm:py-2.5">
-              {ROW_TOP.map((review) => (
-                <ReviewCard key={review.name} review={review} />
-              ))}
+              {[0, 1].flatMap((copy) =>
+                ROW_TOP.map((review) => (
+                  <ReviewCard key={`${review.name}-${copy}`} review={review} />
+                )),
+              )}
             </ul>
           </Marquee>
 
           <Marquee duration={68} reverse className="group/row motion-reduce:overflow-x-auto">
             <ul className="flex list-none py-2 sm:py-2.5">
-              {ROW_BOTTOM.map((review) => (
-                <ReviewCard key={review.name} review={review} plane="far" />
-              ))}
+              {[0, 1].flatMap((copy) =>
+                ROW_BOTTOM.map((review) => (
+                  <ReviewCard key={`${review.name}-${copy}`} review={review} plane="far" />
+                )),
+              )}
             </ul>
           </Marquee>
         </div>
