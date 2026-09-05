@@ -171,10 +171,12 @@ export const SITE = {
 } as const;
 
 /* Entitatea juridică din spatele brandului — apare pe /contacte și în footer,
-   și este operatorul numit în paginile legale. */
+   și este operatorul numit în paginile legale. Corectată de utilizator la
+   2026-09-05, cu extras din registru: „Societatea cu Răspundere Limitată
+   TIMBER INC" (a înlocuit Unlimited Art Unity SRL / 1022600057924). */
 export const COMPANY = {
-  legalName: "Unlimited Art Unity SRL",
-  idno: "1022600057924",
+  legalName: "Timber Inc S.R.L.",
+  idno: "1025600002305",
   mapsHref: "https://maps.google.com/?q=stradela+Studen%C8%9Bilor+15A,+Chi%C8%99in%C4%83u",
 } as const;
 
