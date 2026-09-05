@@ -6,7 +6,7 @@ import type { ZodIssue } from "zod";
 import { SocialGlyph } from "@/components/ui/BrandIcon";
 import { Reveal } from "@/components/ui/Reveal";
 import { leadSchema } from "@/lib/crm/types";
-import { BUDGET_OPTIONS, ROOM_OPTIONS, SITE, SOCIALS } from "@/lib/data";
+import { ROOM_OPTIONS, SITE, SOCIALS } from "@/lib/data";
 import { DUR, EASE_OUT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
  * still the one that decides what reaches the CRM.
  */
 
-type FieldName = "name" | "phone" | "room" | "budget" | "consent";
+type FieldName = "name" | "phone" | "room" | "consent";
 type Status = "idle" | "submitting" | "success" | "error";
 type Errors = Partial<Record<FieldName, string>>;
 
@@ -35,7 +35,6 @@ type Values = {
   name: string;
   phone: string;
   room: string;
-  budget: string;
   consent: boolean;
 };
 
@@ -49,12 +48,11 @@ const EMPTY: Values = {
   name: "",
   phone: "",
   room: "",
-  budget: "",
   consent: false,
 };
 
 /** Tab order — also the order errors are reported and focus is restored in. */
-const FIELD_ORDER: FieldName[] = ["name", "phone", "room", "budget", "consent"];
+const FIELD_ORDER: FieldName[] = ["name", "phone", "room", "consent"];
 
 /**
  * Mirrors MIN_DWELL_MS in app/api/lead/route.ts. The route silently drops any
@@ -366,7 +364,7 @@ export default function LeadForm() {
 
             <Reveal index={1}>
               <p className="text-body text-pretty mt-5 max-w-[46ch] text-fg-dim">
-                Patru câmpuri, jumătate de minut. Un consultant MOBO te sună în aceeași zi
+                Trei câmpuri, jumătate de minut. Un consultant MOBO te sună în aceeași zi
                 lucrătoare, ca să discutați proiectul și să programați măsurătorile.
               </p>
             </Reveal>
@@ -552,16 +550,6 @@ export default function LeadForm() {
                       className="sm:col-span-2"
                     />
 
-                    <ChipGroup
-                      id={fid("budget")}
-                      name="budget"
-                      legend="Buget estimativ"
-                      options={BUDGET_OPTIONS}
-                      value={values.budget}
-                      onChange={(budget) => setField("budget", budget)}
-                      error={errors.budget}
-                      className="sm:col-span-2"
-                    />
                   </div>
 
                   {/* ------------------------------------------- consent -- */}

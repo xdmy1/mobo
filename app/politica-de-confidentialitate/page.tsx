@@ -35,8 +35,8 @@ export default function ConfidentialitatePage() {
           <h2>2. Ce date colectăm</h2>
           <ul>
             <li>
-              <strong>Prin formularul de contact:</strong> nume, telefon și — dacă alegi să ni le
-              spui — încăperea pe care vrei să o mobilezi și bugetul estimativ.
+              <strong>Prin formularul de contact sau calculator:</strong> nume, telefon și — dacă
+              alegi să ne spui — ce vrei să mobilezi, respectiv configurația aleasă în calculator.
             </li>
             <li>
               <strong>Când ne suni sau ne scrii pe rețelele sociale:</strong> datele pe care ni

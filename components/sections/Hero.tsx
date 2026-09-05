@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import { HERO } from "@/lib/data";
+import { HERO, HERO_SLIDES } from "@/lib/data";
 import { DUR, EASE_IN_OUT, EASE_OUT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -58,6 +58,17 @@ export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
 
+  /* Rotația fotografiei — cerință de client: „poza să se schimbe". Crossfade
+     lent între cadre reale din proiecte; sub reduced-motion rămâne primul. */
+  const [slide, setSlide] = useState(0);
+  useEffect(() => {
+    if (reduce) return;
+    const timer = setInterval(() => {
+      setSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [reduce]);
+
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
@@ -99,14 +110,25 @@ export default function Hero() {
           animate={reduce ? { opacity: 1 } : { opacity: 1, scale: 1 }}
           transition={{ duration: reduce ? DUR.micro : DUR.reveal, ease: EASE_OUT }}
         >
-          <Image
-            src={HERO.image}
-            alt={HERO.imageAlt}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
+          {HERO_SLIDES.map((photo, i) => (
+            <div
+              key={i}
+              aria-hidden={i !== slide || undefined}
+              className={cn(
+                "absolute inset-0 transition-opacity duration-[1400ms] ease-out-strong",
+                i === slide ? "opacity-100" : "opacity-0",
+              )}
+            >
+              <Image
+                src={photo.src}
+                alt={i === slide ? photo.alt : ""}
+                fill
+                priority={i === 0}
+                sizes="100vw"
+                className="object-cover"
+              />
+            </div>
+          ))}
         </motion.div>
       </motion.div>
 

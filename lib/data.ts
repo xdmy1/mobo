@@ -304,6 +304,28 @@ export const HERO = {
   location: "Chișinău",
 } as const;
 
+/**
+ * Rotația de hero — cerință de client (2026-09-05): „poza să se schimbe".
+ * Primul cadru rămâne fotografia de hero (LCP, prioritizată); restul sunt
+ * cadre landscape din ședințele locale, încărcate leneș și rotite prin
+ * crossfade în Hero. Sub prefers-reduced-motion rotația nu pornește.
+ */
+export const HERO_SLIDES = [
+  { src: HERO.image, alt: HERO.imageAlt },
+  {
+    src: csBucatarie01,
+    alt: "Bucătărie bej la comandă, deschisă spre zona de luat masa — proiect MOBO",
+  },
+  {
+    src: mioBucatarie01,
+    alt: "Bucătărie în alb și greige cu profil negru — proiect MOBO",
+  },
+  {
+    src: bucBucatarie01,
+    alt: "Bucătărie albă cu insulă neagră și scară din lemn — proiect MOBO",
+  },
+] as const;
+
 /* ------------------------------------------------------------ Categories -- */
 
 export type Category = {
@@ -709,15 +731,11 @@ export const REVIEWS: Review[] = [
 
 /* ------------------------------------------------------------ Lead form -- */
 
-export const ROOM_OPTIONS = [
-  "Bucătărie",
-  "Living",
-  "Dormitor",
-  "Dressing",
-  "Baie",
-  "Cameră copii",
-  "Toată casa",
-] as const;
+/* Client, 2026-09-05: la „Ce mobilăm?" rămân exact aceste două exemple, iar
+   întrebarea despre buget a dispărut din formular („asta ar putea speria").
+   BUDGET_OPTIONS supraviețuiește doar pentru schema serverului — un lead vechi
+   sau un client cu pagina în cache poate încă trimite un buget valid. */
+export const ROOM_OPTIONS = ["Bucătărie", "Întreaga locuință"] as const;
 
 export const BUDGET_OPTIONS = [
   "Sub 30 000 MDL",

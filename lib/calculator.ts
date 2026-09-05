@@ -127,8 +127,9 @@ export const SETTINGS_SNAPSHOT: Record<string, number> = {
 export type Mode = "standart" | "premium";
 export type FurnitureType = "bucatarie" | "garderoba" | "dulap" | "pieseMici";
 export type KitchenShape = "dreapta" | "colt" | "u" | "bar" | "insula";
-export type CorpBrand = "krono" | "egger";
-export type CorpFinish = "alb" | "color" | "lemn";
+/* Client, 2026-09-05: fără Krono și fără pasul de finisaj — corpul e una din
+   două plăci Egger. Valoarea e chiar sufixul cheii de preț price_pal_*. */
+export type CorpChoice = "egger_alb" | "egger_color";
 
 export type PhotoOption<V extends string = string> = {
   value: V;
@@ -188,15 +189,17 @@ export const SHAPE_OPTIONS: { value: KitchenShape; label: string }[] = [
   { value: "insula", label: "Cu insulă" },
 ];
 
-export const CORP_BRAND_OPTIONS: { value: CorpBrand; label: string; blurb: string }[] = [
-  { value: "krono", label: "Krono", blurb: "Plăci verificate, raport corect preț–calitate." },
-  { value: "egger", label: "Egger", blurb: "Plăci austriece, decoruri bogate — partenerul nostru principal." },
-];
-
-export const CORP_FINISH_OPTIONS: { value: CorpFinish; label: string }[] = [
-  { value: "alb", label: "Alb" },
-  { value: "color", label: "Color" },
-  { value: "lemn", label: "Aspect lemn" },
+export const CORP_OPTIONS: { value: CorpChoice; label: string; blurb: string }[] = [
+  {
+    value: "egger_alb",
+    label: "Egger — placă albă standard",
+    blurb: "Plăci austriece Egger, interior alb clasic.",
+  },
+  {
+    value: "egger_color",
+    label: "Egger — placă în culoare premium",
+    blurb: "Aceleași plăci Egger, în decorurile colorate din gama premium.",
+  },
 ];
 
 /** id = sufixul cheii price_front_* din CRM. */
@@ -210,13 +213,13 @@ export const FRONT_OPTIONS: PhotoOption[] = [
   {
     value: "agt_1",
     label: "AGT — fronturi drepte",
-    blurb: "Panouri MDF turcești cu față netedă.",
+    blurb: "Panouri MDF cu suprafață netedă, plăcate pe o parte.",
     image: csBucatarie01,
   },
   {
     value: "agt_2",
-    label: "AGT — fronturi cu formă",
-    blurb: "Aceleași panouri, cu profil frezat.",
+    label: "AGT — plăcat pe ambele părți",
+    blurb: "Aceleași panouri MDF netede, plăcate față-verso.",
     image: vrBirou01,
   },
   {
@@ -227,8 +230,8 @@ export const FRONT_OPTIONS: PhotoOption[] = [
   },
   {
     value: "mdf_2",
-    label: "MDF vopsit, frezat",
-    blurb: "Vopsit, cu frezări și profile la comandă.",
+    label: "MDF vopsit cu freză",
+    blurb: "Vopsit, cu frezări și orice formă la comandă.",
     image: vrDressing01,
   },
   {
@@ -240,19 +243,20 @@ export const FRONT_OPTIONS: PhotoOption[] = [
   {
     value: "front_oglinda",
     label: "Oglindă",
-    blurb: "Uși cu oglindă — vizual dublează camera.",
+    blurb: "Uși cu oglindă în ramă de aluminiu.",
     image: uniAntreu03,
   },
   {
     value: "furnir",
-    label: "Furnir natural",
-    blurb: "Lemn adevărat pe fiecare front.",
+    label: "Furnir",
+    blurb: "Lemn adevărat, placat pe fiecare front.",
     image: uniAntreu01,
   },
   {
+    /* Cheia CRM rămâne furnir_riflat; eticheta e cea dictată de client. */
     value: "furnir_riflat",
-    label: "Furnir riflat",
-    blurb: "Lamele verticale din furnir — semnătura premium.",
+    label: "Furnir frezat",
+    blurb: "Lemn adevărat, placat sub orice formă.",
     image: uniDressing02,
   },
 ];
@@ -278,49 +282,65 @@ export const DRAWER_OPTIONS: {
   icon: CalcIcon;
 }[] = [
   { brand: "blum", type: "lemn", label: "Blum — laterale din lemn", icon: "drawer" },
-  { brand: "blum", type: "metal", label: "Blum — metalic (Tandembox)", icon: "drawer-metal" },
+  { brand: "blum", type: "metal", label: "Blum — laterale metalice", icon: "drawer-metal" },
   { brand: "hettich", type: "lemn", label: "Hettich — laterale din lemn", icon: "drawer" },
-  { brand: "hettich", type: "metal", label: "Hettich — metalic (InnoTech)", icon: "drawer-metal" },
+  { brand: "hettich", type: "metal", label: "Hettich — laterale metalice", icon: "drawer-metal" },
 ];
 
-/** id = sufixul cheii price_mecanism_* din CRM. */
+/**
+ * id = sufixul cheii price_mecanism_* din CRM. `types` = tipurile de mobilier
+ * la care mecanismul are sens — clarificare de client (2026-09-05): sistemele
+ * Aventos și colțurile sunt de bucătărie, nu apar la piese mici; glisarea e a
+ * dulapurilor și garderobelor.
+ */
 export const MECHANISM_OPTIONS: {
   value: string;
   label: string;
   blurb: string;
   icon: CalcIcon;
+  types: FurnitureType[];
 }[] = [
   {
     value: "blum_aventos_hk_xs",
     label: "Blum Aventos HK-XS",
     blurb: "Ridicare pentru fronturi mici.",
     icon: "flap",
+    types: ["bucatarie"],
   },
   {
     value: "blum_piston_gaz",
     label: "Blum Aventos HF",
     blurb: "Front pliant pentru corpurile de sus.",
     icon: "fold",
+    types: ["bucatarie"],
   },
   {
     value: "blum",
     label: "Blum Aventos HS/HL",
     blurb: "Ridicare completă a frontului mare.",
     icon: "lift",
+    types: ["bucatarie"],
   },
   {
     value: "hettich",
     label: "Glisare Hettich",
     blurb: "TopLine / WingLine pentru uși glisante.",
     icon: "slide",
+    types: ["garderoba", "dulap"],
   },
   {
     value: "kesslohmer",
     label: "Colț Kessebohmer",
     blurb: "Sisteme extractibile pentru corpul de colț.",
     icon: "corner",
+    types: ["bucatarie"],
   },
 ];
+
+/** Mecanismele valabile pentru un tip de mobilier; piese mici = niciunul. */
+export function mechanismsFor(type: FurnitureType) {
+  return MECHANISM_OPTIONS.filter((option) => option.types.includes(type));
+}
 
 /** id = sufixul cheii price_storex_* din CRM. */
 export const ORGANIZER_OPTIONS: {
@@ -386,8 +406,7 @@ export type CalcConfig = {
   heightM: number;
   /** Adâncimea corpurilor de bucătărie; 900 scumpește corpul cu 50%. */
   depth: 600 | 900;
-  corpBrand: CorpBrand;
-  corpFinish: CorpFinish;
+  corp: CorpChoice;
   front: string;
   /** brand_tip → bucăți. */
   drawers: Record<string, number>;
@@ -403,8 +422,7 @@ export const DEFAULT_CONFIG: CalcConfig = {
   lengthM: 0,
   heightM: 2.6,
   depth: 600,
-  corpBrand: "egger",
-  corpFinish: "alb",
+  corp: "egger_alb",
   front: "agt_1",
   drawers: {},
   mechanisms: {},
@@ -439,8 +457,8 @@ export function estimatePrice(settings: CalcSettings, cfg: CalcConfig): number {
   let sum = 0;
 
   /* Corpul. */
-  let corpRate = num(settings, `price_pal_${cfg.corpBrand}_${cfg.corpFinish}`);
-  if (cfg.mode === "premium" && cfg.corpFinish !== "alb") corpRate *= 1.8;
+  let corpRate = num(settings, `price_pal_${cfg.corp}`);
+  if (cfg.mode === "premium" && cfg.corp !== "egger_alb") corpRate *= 1.8;
   sum += area * (cfg.type === "bucatarie" && cfg.depth === 900 ? 1.5 : 1) * corpRate;
 
   /* Fațada — aria fronturilor e estimată la 1.5 × aria corpului. */
@@ -515,7 +533,7 @@ export function summarize(cfg: CalcConfig): { label: string; value: string }[] {
 
   rows.push({
     label: "Corp",
-    value: `${CORP_BRAND_OPTIONS.find((o) => o.value === cfg.corpBrand)?.label}, ${CORP_FINISH_OPTIONS.find((o) => o.value === cfg.corpFinish)?.label?.toLowerCase()}`,
+    value: CORP_OPTIONS.find((o) => o.value === cfg.corp)?.label ?? cfg.corp,
   });
 
   rows.push({

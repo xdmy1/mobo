@@ -4,13 +4,11 @@ import { useCallback, useId, useMemo, useRef, useState, type ReactNode } from "r
 import Image, { type StaticImageData } from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
-  CORP_BRAND_OPTIONS,
-  CORP_FINISH_OPTIONS,
+  CORP_OPTIONS,
   COUNTERTOP_OPTIONS,
   DEFAULT_CONFIG,
   DRAWER_OPTIONS,
   FRONT_OPTIONS,
-  MECHANISM_OPTIONS,
   MODE_OPTIONS,
   ORGANIZER_OPTIONS,
   SHAPE_OPTIONS,
@@ -20,6 +18,7 @@ import {
   formatMdl,
   hasCountertop,
   hasOrganizers,
+  mechanismsFor,
   summarize,
   type CalcConfig,
   type CalcIcon,
@@ -93,7 +92,7 @@ function stepsFor(type: FurnitureType): StepId[] {
     "corp",
     "fatada",
     "sertare",
-    "mecanisme",
+    ...(mechanismsFor(type).length > 0 ? (["mecanisme"] as StepId[]) : []),
     ...(hasOrganizers(type) ? (["organizatoare"] as StepId[]) : []),
     ...(hasCountertop(type) ? (["blat"] as StepId[]) : []),
     "rezultat",
@@ -539,20 +538,19 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
     setLeadStatus("submitting");
     setLeadError(null);
 
-    const rows = summarize(cfg)
-      .map((row) => `${row.label}: ${row.value}`)
-      .join("\n");
-    const message = `Configurație din calculator:\n${rows}\nEstimare: ${formatMdl(total)} MDL (≈ ${formatMdl(estimateEur(settings, total))} EUR)`;
-
+    /* Configurația pleacă în CRM ca rânduri etichetate — cerință de client:
+       „să vină info completă", nu doar numele și telefonul. */
     try {
-      const res = await fetch("/api/lead", {
+      const res = await fetch("/api/calculator-lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: lead.name,
           phone: lead.phone,
           consent: lead.consent,
-          message,
+          rows: summarize(cfg),
+          total,
+          totalEur: estimateEur(settings, total),
           _company: "",
           _startedAt: startedAt.current,
         }),
@@ -571,7 +569,12 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
   /* Bonul de configurare din panoul lateral: doar pașii DEJA parcurși — panoul
      crește pe măsură ce alegi, nu divulgă pașii care urmează. */
   const receipt = useMemo(() => {
-    const done = (id: StepId) => steps.indexOf(id) < stepIndex;
+    /* Un pas absent din flux (indexOf -1) nu e „parcurs" — altfel „Mecanisme"
+       apărea în bon la piese mici, unde pasul nici nu există. */
+    const done = (id: StepId) => {
+      const index = steps.indexOf(id);
+      return index !== -1 && index < stepIndex;
+    };
     const rows: { label: string; value: string; image?: StaticImageData }[] = [];
 
     if (done("mod")) {
@@ -596,7 +599,7 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
     if (done("corp")) {
       rows.push({
         label: "Corp",
-        value: `${CORP_BRAND_OPTIONS.find((o) => o.value === cfg.corpBrand)?.label}, ${CORP_FINISH_OPTIONS.find((o) => o.value === cfg.corpFinish)?.label?.toLowerCase()}`,
+        value: CORP_OPTIONS.find((o) => o.value === cfg.corp)?.label ?? cfg.corp,
       });
     }
     if (done("fatada")) {
@@ -682,7 +685,16 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                         blurb={option.blurb}
                         image={option.image}
                         selected={cfg.mode === option.value}
-                        onClick={() => setCfg((prev) => ({ ...prev, mode: option.value }))}
+                        onClick={() =>
+                          setCfg((prev) => ({
+                            ...prev,
+                            mode: option.value,
+                            /* Ca în vechiul calculator: premium pornește pe
+                               placa în culoare, standart pe alb — se poate
+                               schimba la pasul „Corp". */
+                            corp: option.value === "premium" ? "egger_color" : "egger_alb",
+                          }))
+                        }
                       />
                     ))}
                   </div>
@@ -699,7 +711,12 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                         image={option.image}
                         selected={cfg.type === option.value}
                         onClick={() =>
-                          setCfg((prev) => ({ ...prev, type: option.value, organizers: {} }))
+                          setCfg((prev) => ({
+                            ...prev,
+                            type: option.value,
+                            organizers: {},
+                            mechanisms: {},
+                          }))
                         }
                       />
                     ))}
@@ -820,66 +837,46 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
 
                 {/* ---------------------------------------------------- corp */}
                 {step === "corp" ? (
-                  <div className="mt-8">
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {CORP_BRAND_OPTIONS.map((option) => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          aria-pressed={cfg.corpBrand === option.value}
-                          onClick={() => setCfg((prev) => ({ ...prev, corpBrand: option.value }))}
-                          className={cn(
-                            "rounded-card border p-4 text-left transition-[border-color,box-shadow,transform] duration-200 ease-out-strong sm:p-5",
-                            "active:scale-[0.99]",
-                            cfg.corpBrand === option.value
-                              ? "border-lime-brand shadow-[0_0_28px_-6px_rgba(204,223,16,0.35)]"
-                              : "border-white/10 hover-fine:hover:border-white/30",
-                          )}
-                        >
+                  <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                    {CORP_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        aria-pressed={cfg.corp === option.value}
+                        onClick={() => setCfg((prev) => ({ ...prev, corp: option.value }))}
+                        className={cn(
+                          "rounded-card border p-4 text-left transition-[border-color,box-shadow,transform] duration-200 ease-out-strong sm:p-5",
+                          "active:scale-[0.99]",
+                          cfg.corp === option.value
+                            ? "border-lime-brand shadow-[0_0_28px_-6px_rgba(204,223,16,0.35)]"
+                            : "border-white/10 hover-fine:hover:border-white/30",
+                        )}
+                      >
+                        <span className="flex items-center gap-2.5">
+                          {/* Mostra plăcii — alb curat vs. decoruri colorate. */}
+                          <span
+                            aria-hidden="true"
+                            className={cn(
+                              "inline-block size-3.5 shrink-0 rounded-full border border-black/20",
+                              option.value === "egger_alb"
+                                ? "bg-bone-50"
+                                : "bg-[conic-gradient(from_0deg,#8da4c0,#b56a6a,#7d9b76,#c49a6c,#8da4c0)]",
+                            )}
+                          />
                           <span
                             className={cn(
-                              "block text-[0.9375rem] font-medium",
-                              cfg.corpBrand === option.value ? "text-lime-brand" : "text-fg",
+                              "text-[0.9375rem] font-medium",
+                              cfg.corp === option.value ? "text-lime-brand" : "text-fg",
                             )}
                           >
                             {option.label}
                           </span>
-                          <span className="text-pretty mt-1.5 block text-[0.8125rem] leading-[1.55] text-fg-dim">
-                            {option.blurb}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                    <fieldset className="mt-7">
-                      <legend className={FIELD_LABEL}>Finisajul plăcii</legend>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {CORP_FINISH_OPTIONS.map((option) => (
-                          <button
-                            key={option.value}
-                            type="button"
-                            aria-pressed={cfg.corpFinish === option.value}
-                            onClick={() =>
-                              setCfg((prev) => ({ ...prev, corpFinish: option.value }))
-                            }
-                            className={CHIP(cfg.corpFinish === option.value)}
-                          >
-                            {/* Mostra de finisaj — punctul spune culoarea înaintea cuvântului. */}
-                            <span
-                              aria-hidden="true"
-                              className={cn(
-                                "mr-2 inline-block size-3 rounded-full border border-black/20",
-                                option.value === "alb" && "bg-bone-50",
-                                option.value === "color" &&
-                                  "bg-[conic-gradient(from_0deg,#8da4c0,#b56a6a,#7d9b76,#8da4c0)]",
-                                option.value === "lemn" &&
-                                  "bg-[linear-gradient(115deg,#9a6f4b,#c49a6c_55%,#8a5f3f)]",
-                              )}
-                            />
-                            {option.label}
-                          </button>
-                        ))}
-                      </div>
-                    </fieldset>
+                        </span>
+                        <span className="text-pretty mt-1.5 block text-[0.8125rem] leading-[1.55] text-fg-dim">
+                          {option.blurb}
+                        </span>
+                      </button>
+                    ))}
                   </div>
                 ) : null}
 
@@ -921,7 +918,7 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                 {/* ----------------------------------------------- mecanisme */}
                 {step === "mecanisme" ? (
                   <div className="mt-6 border-t border-white/8">
-                    {MECHANISM_OPTIONS.map((option) => (
+                    {mechanismsFor(cfg.type).map((option) => (
                       <CounterRow
                         key={option.value}
                         icon={option.icon}
