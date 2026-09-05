@@ -29,6 +29,30 @@
  * siguranță când CRM-ul nu răspunde.
  */
 
+import type { StaticImageData } from "next/image";
+
+/* Fiecare opțiune vizuală poartă o fotografie REALĂ din ședințele proiectelor —
+   nu stock, nu randări: cardul de „furnir" chiar arată furnirul montat de MOBO
+   într-o casă. Alegerea cadrelor e făcută vizual, material cu material. */
+import mioBucatarie01 from "@/assets/proiecte/str-miorita/bucatarie-01.jpg";
+import ialBucatarie03 from "@/assets/proiecte/str-ialoveni/bucatarie-03.jpg";
+import ialBucatarie01 from "@/assets/proiecte/str-ialoveni/bucatarie-01.jpg";
+import csBucatarie01 from "@/assets/proiecte/str-constantin-stere/bucatarie-01.jpg";
+import csBucatarie02 from "@/assets/proiecte/str-constantin-stere/bucatarie-02.jpg";
+import uniDressing01 from "@/assets/proiecte/str-universitatii/dressing-01.jpg";
+import uniDressing02 from "@/assets/proiecte/str-universitatii/dressing-02.jpg";
+import uniAntreu01 from "@/assets/proiecte/str-universitatii/antreu-01.jpg";
+import uniAntreu03 from "@/assets/proiecte/str-universitatii/antreu-03.jpg";
+import uniAntreu04 from "@/assets/proiecte/str-universitatii/antreu-04.jpg";
+import uniLiving01 from "@/assets/proiecte/str-universitatii/living-01.jpg";
+import mioAntreu01 from "@/assets/proiecte/str-miorita/antreu-01.jpg";
+import mioAntreu02 from "@/assets/proiecte/str-miorita/antreu-02.jpg";
+import bucDressing01 from "@/assets/proiecte/str-bucovina/dressing-01.jpg";
+import bucAntreu01 from "@/assets/proiecte/str-bucovina/antreu-01.jpg";
+import bucBucatarie01 from "@/assets/proiecte/str-bucovina/bucatarie-01.jpg";
+import vrBirou01 from "@/assets/proiecte/str-valentin-rosca/birou-01.jpg";
+import vrDressing01 from "@/assets/proiecte/str-valentin-rosca/dressing-01.jpg";
+
 export const CRM_SETTINGS_URL = "https://crm.mobo.md/api/settings";
 
 /** CRM-ul întoarce numere simple azi; tolerăm și forma {value} din vechiul cod. */
@@ -106,24 +130,54 @@ export type KitchenShape = "dreapta" | "colt" | "u" | "bar" | "insula";
 export type CorpBrand = "krono" | "egger";
 export type CorpFinish = "alb" | "color" | "lemn";
 
-export const MODE_OPTIONS: { value: Mode; label: string; blurb: string }[] = [
+export type PhotoOption<V extends string = string> = {
+  value: V;
+  label: string;
+  blurb: string;
+  /** Cadru real dintr-un proiect MOBO — vezi blocul de importuri de mai sus. */
+  image: StaticImageData;
+};
+
+export const MODE_OPTIONS: PhotoOption<Mode>[] = [
   {
     value: "standart",
     label: "Standart",
     blurb: "Materiale verificate și feronerie de bază — cel mai accesibil punct de pornire.",
+    image: mioBucatarie01,
   },
   {
     value: "premium",
     label: "Premium",
     blurb: "Plăci și mecanisme din gamele înalte, finisaje speciale, execuție de vitrină.",
+    image: ialBucatarie03,
   },
 ];
 
-export const TYPE_OPTIONS: { value: FurnitureType; label: string; blurb: string }[] = [
-  { value: "bucatarie", label: "Bucătărie", blurb: "Corpuri jos și sus, pe forma spațiului tău." },
-  { value: "garderoba", label: "Garderobă", blurb: "Cameră de haine deschisă, organizată la centimetru." },
-  { value: "dulap", label: "Dulap", blurb: "Dulap închis, până în tavan, cu uși batante sau glisante." },
-  { value: "pieseMici", label: "Piese mici", blurb: "Comodă, noptiere, masă TV, corpuri singulare." },
+export const TYPE_OPTIONS: PhotoOption<FurnitureType>[] = [
+  {
+    value: "bucatarie",
+    label: "Bucătărie",
+    blurb: "Corpuri jos și sus, pe forma spațiului tău.",
+    image: csBucatarie02,
+  },
+  {
+    value: "garderoba",
+    label: "Garderobă",
+    blurb: "Cameră de haine deschisă, organizată la centimetru.",
+    image: uniDressing01,
+  },
+  {
+    value: "dulap",
+    label: "Dulap",
+    blurb: "Dulap închis, până în tavan, cu uși batante sau glisante.",
+    image: mioAntreu01,
+  },
+  {
+    value: "pieseMici",
+    label: "Piese mici",
+    blurb: "Comodă, noptiere, masă TV, corpuri singulare.",
+    image: uniLiving01,
+  },
 ];
 
 export const SHAPE_OPTIONS: { value: KitchenShape; label: string }[] = [
@@ -146,50 +200,178 @@ export const CORP_FINISH_OPTIONS: { value: CorpFinish; label: string }[] = [
 ];
 
 /** id = sufixul cheii price_front_* din CRM. */
-export const FRONT_OPTIONS: { value: string; label: string; blurb: string }[] = [
-  { value: "pal", label: "PAL", blurb: "Fronturi din plăci decorate — soluția accesibilă." },
-  { value: "agt_1", label: "AGT — fronturi drepte", blurb: "Panouri MDF turcești cu față netedă." },
-  { value: "agt_2", label: "AGT — fronturi cu formă", blurb: "Aceleași panouri, cu profil frezat." },
-  { value: "mdf_1", label: "MDF vopsit", blurb: "Vopsit în orice culoare, față netedă." },
-  { value: "mdf_2", label: "MDF vopsit, frezat", blurb: "Vopsit, cu frezări și profile la comandă." },
-  { value: "front_sticla", label: "Sticlă", blurb: "Fronturi cu sticlă, în ramă de aluminiu." },
-  { value: "front_oglinda", label: "Oglindă", blurb: "Uși cu oglindă — vizual dublează camera." },
-  { value: "furnir", label: "Furnir natural", blurb: "Lemn adevărat pe fiecare front." },
-  { value: "furnir_riflat", label: "Furnir riflat", blurb: "Lamele verticale din furnir — semnătura premium." },
+export const FRONT_OPTIONS: PhotoOption[] = [
+  {
+    value: "pal",
+    label: "PAL",
+    blurb: "Fronturi din plăci decorate — soluția accesibilă.",
+    image: bucDressing01,
+  },
+  {
+    value: "agt_1",
+    label: "AGT — fronturi drepte",
+    blurb: "Panouri MDF turcești cu față netedă.",
+    image: csBucatarie01,
+  },
+  {
+    value: "agt_2",
+    label: "AGT — fronturi cu formă",
+    blurb: "Aceleași panouri, cu profil frezat.",
+    image: vrBirou01,
+  },
+  {
+    value: "mdf_1",
+    label: "MDF vopsit",
+    blurb: "Vopsit în orice culoare, față netedă.",
+    image: mioAntreu02,
+  },
+  {
+    value: "mdf_2",
+    label: "MDF vopsit, frezat",
+    blurb: "Vopsit, cu frezări și profile la comandă.",
+    image: vrDressing01,
+  },
+  {
+    value: "front_sticla",
+    label: "Sticlă",
+    blurb: "Fronturi cu sticlă fumurie, în ramă de aluminiu.",
+    image: bucAntreu01,
+  },
+  {
+    value: "front_oglinda",
+    label: "Oglindă",
+    blurb: "Uși cu oglindă — vizual dublează camera.",
+    image: uniAntreu03,
+  },
+  {
+    value: "furnir",
+    label: "Furnir natural",
+    blurb: "Lemn adevărat pe fiecare front.",
+    image: uniAntreu01,
+  },
+  {
+    value: "furnir_riflat",
+    label: "Furnir riflat",
+    blurb: "Lamele verticale din furnir — semnătura premium.",
+    image: uniDressing02,
+  },
 ];
 
+/** Id-urile de glife desenate inline în componenta calculatorului. */
+export type CalcIcon =
+  | "drawer"
+  | "drawer-metal"
+  | "flap"
+  | "fold"
+  | "lift"
+  | "slide"
+  | "corner"
+  | "shoe"
+  | "trousers"
+  | "pantograph";
+
 /** Sertare: brand × construcție, prețul per bucată din price_sertar_*. */
-export const DRAWER_OPTIONS: { brand: "blum" | "hettich"; type: "lemn" | "metal"; label: string }[] = [
-  { brand: "blum", type: "lemn", label: "Blum — laterale din lemn" },
-  { brand: "blum", type: "metal", label: "Blum — metalic (Tandembox)" },
-  { brand: "hettich", type: "lemn", label: "Hettich — laterale din lemn" },
-  { brand: "hettich", type: "metal", label: "Hettich — metalic (InnoTech)" },
+export const DRAWER_OPTIONS: {
+  brand: "blum" | "hettich";
+  type: "lemn" | "metal";
+  label: string;
+  icon: CalcIcon;
+}[] = [
+  { brand: "blum", type: "lemn", label: "Blum — laterale din lemn", icon: "drawer" },
+  { brand: "blum", type: "metal", label: "Blum — metalic (Tandembox)", icon: "drawer-metal" },
+  { brand: "hettich", type: "lemn", label: "Hettich — laterale din lemn", icon: "drawer" },
+  { brand: "hettich", type: "metal", label: "Hettich — metalic (InnoTech)", icon: "drawer-metal" },
 ];
 
 /** id = sufixul cheii price_mecanism_* din CRM. */
-export const MECHANISM_OPTIONS: { value: string; label: string; blurb: string }[] = [
-  { value: "blum_aventos_hk_xs", label: "Blum Aventos HK-XS", blurb: "Ridicare pentru fronturi mici." },
-  { value: "blum_piston_gaz", label: "Blum Aventos HF", blurb: "Front pliant pentru corpurile de sus." },
-  { value: "blum", label: "Blum Aventos HS/HL", blurb: "Ridicare completă a frontului mare." },
-  { value: "hettich", label: "Glisare Hettich", blurb: "TopLine / WingLine pentru uși glisante." },
-  { value: "kesslohmer", label: "Colț Kessebohmer", blurb: "Sisteme extractibile pentru corpul de colț." },
+export const MECHANISM_OPTIONS: {
+  value: string;
+  label: string;
+  blurb: string;
+  icon: CalcIcon;
+}[] = [
+  {
+    value: "blum_aventos_hk_xs",
+    label: "Blum Aventos HK-XS",
+    blurb: "Ridicare pentru fronturi mici.",
+    icon: "flap",
+  },
+  {
+    value: "blum_piston_gaz",
+    label: "Blum Aventos HF",
+    blurb: "Front pliant pentru corpurile de sus.",
+    icon: "fold",
+  },
+  {
+    value: "blum",
+    label: "Blum Aventos HS/HL",
+    blurb: "Ridicare completă a frontului mare.",
+    icon: "lift",
+  },
+  {
+    value: "hettich",
+    label: "Glisare Hettich",
+    blurb: "TopLine / WingLine pentru uși glisante.",
+    icon: "slide",
+  },
+  {
+    value: "kesslohmer",
+    label: "Colț Kessebohmer",
+    blurb: "Sisteme extractibile pentru corpul de colț.",
+    icon: "corner",
+  },
 ];
 
 /** id = sufixul cheii price_storex_* din CRM. */
-export const ORGANIZER_OPTIONS: { value: string; label: string; blurb: string }[] = [
-  { value: "incaltaminte_8", label: "Suport încălțăminte", blurb: "8 rafturi extractibile." },
-  { value: "incaltaminte_12", label: "Suport încălțăminte", blurb: "12 rafturi extractibile." },
-  { value: "pantaloni_600", label: "Suport pantaloni", blurb: "Lățime 600 mm." },
-  { value: "pantaloni_800", label: "Suport pantaloni", blurb: "Lățime 800 mm." },
-  { value: "pantaloni_900", label: "Suport pantaloni", blurb: "Lățime 900 mm." },
-  { value: "pantograf", label: "Pantograf", blurb: "Bara de haine coboară la tine." },
+export const ORGANIZER_OPTIONS: {
+  value: string;
+  label: string;
+  blurb: string;
+  icon: CalcIcon;
+}[] = [
+  {
+    value: "incaltaminte_8",
+    label: "Suport încălțăminte",
+    blurb: "8 rafturi extractibile.",
+    icon: "shoe",
+  },
+  {
+    value: "incaltaminte_12",
+    label: "Suport încălțăminte",
+    blurb: "12 rafturi extractibile.",
+    icon: "shoe",
+  },
+  { value: "pantaloni_600", label: "Suport pantaloni", blurb: "Lățime 600 mm.", icon: "trousers" },
+  { value: "pantaloni_800", label: "Suport pantaloni", blurb: "Lățime 800 mm.", icon: "trousers" },
+  { value: "pantaloni_900", label: "Suport pantaloni", blurb: "Lățime 900 mm.", icon: "trousers" },
+  {
+    value: "pantograf",
+    label: "Pantograf",
+    blurb: "Bara de haine coboară la tine.",
+    icon: "pantograph",
+  },
 ];
 
 /** id = sufixul cheii price_blat_* din CRM. */
-export const COUNTERTOP_OPTIONS: { value: string; label: string; blurb: string }[] = [
-  { value: "pal_egger", label: "PAL Egger", blurb: "Blat stratificat, decoruri Egger." },
-  { value: "hpl_negru", label: "HPL compact negru", blurb: "Miez negru, muchie fină — 12 mm." },
-  { value: "hpl_alb", label: "HPL compact alb", blurb: "Miez alb, aspect de piatră — 12 mm." },
+export const COUNTERTOP_OPTIONS: PhotoOption[] = [
+  {
+    value: "pal_egger",
+    label: "PAL Egger",
+    blurb: "Blat stratificat, decoruri Egger.",
+    image: uniAntreu04,
+  },
+  {
+    value: "hpl_negru",
+    label: "HPL compact negru",
+    blurb: "Miez negru, muchie fină — 12 mm.",
+    image: bucBucatarie01,
+  },
+  {
+    value: "hpl_alb",
+    label: "HPL compact alb",
+    blurb: "Miez alb, aspect de piatră — 12 mm.",
+    image: ialBucatarie01,
+  },
 ];
 
 /* ---------------------------------------------------------- configurația -- */
