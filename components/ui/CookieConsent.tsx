@@ -258,7 +258,9 @@ export default function CookieConsent() {
                 type="button"
                 onClick={() => decide(true, true)}
                 className={cn(
-                  "btn-3d btn-3d-lime inline-flex h-12 flex-1 select-none items-center justify-center rounded-pill px-7",
+                  /* flex-1 doar pe rândul orizontal (sm+): în coloana de pe
+                     mobil, flex-basis:0 strivea înălțimea butonului. */
+                  "btn-3d btn-3d-lime inline-flex h-12 w-full select-none items-center justify-center rounded-pill px-7 sm:w-auto sm:flex-1",
                   "text-[0.9375rem] font-medium text-lime-ink",
                   "transition-[transform,box-shadow,--btn-top,--btn-mid,--btn-bottom] duration-150 ease-out-strong",
                   "active:scale-[0.98]",

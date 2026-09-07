@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import SmoothScroll from "@/components/ui/SmoothScroll";
 import PageGrade from "@/components/ui/PageGrade";
 import SocialIsland from "@/components/ui/SocialIsland";
@@ -8,8 +8,9 @@ import { SITE } from "@/lib/data";
 import "./globals.css";
 
 /* Geist is the face navarro.ro uses, and it holds the tight negative tracking
-   the display sizes rely on. Instrument Serif (the italic accent) was cut at
-   the user's demand — „the first AI soulless sign"; nothing serif ships. */
+   the display sizes rely on. Instrument Serif: tăiat la cererea utilizatorului
+   pe 2026-09-05, readus la cererea lui pe 2026-09-07 — varianta „cu șrift
+   italic" a secțiunii de pași e cea aleasă. */
 const geist = Geist({
   subsets: ["latin", "latin-ext"], // latin-ext carries ă â î ș ț
   variable: "--font-geist",
@@ -19,6 +20,14 @@ const geist = Geist({
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
+  display: "swap",
+});
+
+const instrument = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: "italic",
+  variable: "--font-instrument",
   display: "swap",
 });
 
@@ -85,7 +94,7 @@ const jsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ro" className={`${geist.variable} ${geistMono.variable}`}>
+    <html lang="ro" className={`${geist.variable} ${geistMono.variable} ${instrument.variable}`}>
       <body className="bg-ink-850 text-fg antialiased">
         <script
           type="application/ld+json"
