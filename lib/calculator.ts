@@ -35,23 +35,33 @@ import type { StaticImageData } from "next/image";
    nu stock, nu randări: cardul de „furnir" chiar arată furnirul montat de MOBO
    într-o casă. Alegerea cadrelor e făcută vizual, material cu material. */
 import mioBucatarie01 from "@/assets/proiecte/str-miorita/bucatarie-01.jpg";
-import ialBucatarie03 from "@/assets/proiecte/str-ialoveni/bucatarie-03.jpg";
+import mioBaie01 from "@/assets/proiecte/str-miorita/baie-01.jpg";
+import mioLiving02 from "@/assets/proiecte/str-miorita/living-02.jpg";
 import ialBucatarie01 from "@/assets/proiecte/str-ialoveni/bucatarie-01.jpg";
+import ialBucatarie02 from "@/assets/proiecte/str-ialoveni/bucatarie-02.jpg";
 import csBucatarie01 from "@/assets/proiecte/str-constantin-stere/bucatarie-01.jpg";
-import csBucatarie02 from "@/assets/proiecte/str-constantin-stere/bucatarie-02.jpg";
-import uniDressing01 from "@/assets/proiecte/str-universitatii/dressing-01.jpg";
-import uniDressing02 from "@/assets/proiecte/str-universitatii/dressing-02.jpg";
+import csBucatarie04 from "@/assets/proiecte/str-constantin-stere/bucatarie-04.jpg";
+import csBucatarie07 from "@/assets/proiecte/str-constantin-stere/bucatarie-07.jpg";
+import uniBucatarie01 from "@/assets/proiecte/str-universitatii/bucatarie-01.jpg";
+import uniDormitor08 from "@/assets/proiecte/str-universitatii/dormitor-08.jpg";
 import uniAntreu01 from "@/assets/proiecte/str-universitatii/antreu-01.jpg";
-import uniAntreu03 from "@/assets/proiecte/str-universitatii/antreu-03.jpg";
 import uniAntreu04 from "@/assets/proiecte/str-universitatii/antreu-04.jpg";
-import uniLiving01 from "@/assets/proiecte/str-universitatii/living-01.jpg";
-import mioAntreu01 from "@/assets/proiecte/str-miorita/antreu-01.jpg";
-import mioAntreu02 from "@/assets/proiecte/str-miorita/antreu-02.jpg";
 import bucDressing01 from "@/assets/proiecte/str-bucovina/dressing-01.jpg";
 import bucAntreu01 from "@/assets/proiecte/str-bucovina/antreu-01.jpg";
+import bucAntreu04 from "@/assets/proiecte/str-bucovina/antreu-04.jpg";
 import bucBucatarie01 from "@/assets/proiecte/str-bucovina/bucatarie-01.jpg";
 import vrBirou01 from "@/assets/proiecte/str-valentin-rosca/birou-01.jpg";
 import vrDressing01 from "@/assets/proiecte/str-valentin-rosca/dressing-01.jpg";
+/* Feronerie și fronturi fotografiate pe montajele MOBO — trimise de client
+   (2026-09-10) special pentru pașii Sertare / Mecanisme / Furnir frezat. */
+import calcBlumLemn from "@/assets/calculator/blum-lemn.jpg";
+import calcBlumMetal from "@/assets/calculator/blum-metal.jpg";
+import calcHettichLemn from "@/assets/calculator/hettich-lemn.jpg";
+import calcHettichMetal from "@/assets/calculator/hettich-metal.jpg";
+import calcAventosHkXs from "@/assets/calculator/aventos-hk-xs.jpg";
+import calcAventosHf from "@/assets/calculator/aventos-hf.jpg";
+import calcColtKessebohmer from "@/assets/calculator/colt-kessebohmer.jpg";
+import calcFurnirRiflat from "@/assets/calculator/furnir-riflat.jpg";
 
 export const CRM_SETTINGS_URL = "https://crm.mobo.md/api/settings";
 
@@ -137,6 +147,8 @@ export type PhotoOption<V extends string = string> = {
   blurb: string;
   /** Cadru real dintr-un proiect MOBO — vezi blocul de importuri de mai sus. */
   image: StaticImageData;
+  /** Cadru separat pentru bannerul din pasul „Estimarea ta" (dacă diferă de card). */
+  resultImage?: StaticImageData;
 };
 
 export const MODE_OPTIONS: PhotoOption<Mode>[] = [
@@ -150,34 +162,40 @@ export const MODE_OPTIONS: PhotoOption<Mode>[] = [
     value: "premium",
     label: "Premium",
     blurb: "Plăci și mecanisme din gamele înalte, finisaje speciale, execuție de vitrină.",
-    image: ialBucatarie03,
+    /* Client, 2026-09-10: aici stă bucătăria de pe strada Universității. */
+    image: uniBucatarie01,
   },
 ];
 
+/* Cadrele pe tipuri — alese de client (2026-09-10): bucătăria pe un cadru unde
+   se vede mobilierul, nu masa; garderoba e dulapul cu uși de sticlă de la
+   Bucovinei; dulapul e dulapul alb riflat de la Valentin Roșca; piesele mici —
+   masa de machiaj de la Miorița. Bannerul din pasul final are cadru propriu. */
 export const TYPE_OPTIONS: PhotoOption<FurnitureType>[] = [
   {
     value: "bucatarie",
     label: "Bucătărie",
     blurb: "Corpuri jos și sus, pe forma spațiului tău.",
-    image: csBucatarie02,
+    image: csBucatarie01,
+    resultImage: ialBucatarie02,
   },
   {
     value: "garderoba",
     label: "Garderobă",
-    blurb: "Cameră de haine deschisă, organizată la centimetru.",
-    image: uniDressing01,
+    blurb: "Cameră de haine organizată la centimetru, cu uși sau deschisă.",
+    image: bucAntreu01,
   },
   {
     value: "dulap",
     label: "Dulap",
     blurb: "Dulap închis, până în tavan, cu uși batante sau glisante.",
-    image: mioAntreu01,
+    image: vrBirou01,
   },
   {
     value: "pieseMici",
     label: "Piese mici",
-    blurb: "Comodă, noptiere, masă TV, corpuri singulare.",
-    image: uniLiving01,
+    blurb: "Comodă, noptiere, masă de machiaj, corpuri singulare.",
+    image: mioLiving02,
   },
 ];
 
@@ -214,19 +232,20 @@ export const FRONT_OPTIONS: PhotoOption[] = [
     value: "agt_1",
     label: "AGT — fronturi drepte",
     blurb: "Panouri MDF cu suprafață netedă, plăcate pe o parte.",
-    image: csBucatarie01,
+    /* Client, 2026-09-10: un cadru mai apropiat de bucătărie. */
+    image: csBucatarie07,
   },
   {
     value: "agt_2",
     label: "AGT — plăcat pe ambele părți",
     blurb: "Aceleași panouri MDF netede, plăcate față-verso.",
-    image: vrBirou01,
+    image: uniDormitor08,
   },
   {
     value: "mdf_1",
     label: "MDF vopsit",
     blurb: "Vopsit în orice culoare, față netedă.",
-    image: mioAntreu02,
+    image: mioBaie01,
   },
   {
     value: "mdf_2",
@@ -238,13 +257,15 @@ export const FRONT_OPTIONS: PhotoOption[] = [
     value: "front_sticla",
     label: "Sticlă",
     blurb: "Fronturi cu sticlă fumurie, în ramă de aluminiu.",
-    image: bucAntreu01,
+    /* Vitrina fumurie de la Constantin Stere — cadrul de la Bucovinei a plecat
+       pe cardul „Garderobă", la cererea clientului. */
+    image: csBucatarie04,
   },
   {
     value: "front_oglinda",
     label: "Oglindă",
     blurb: "Uși cu oglindă în ramă de aluminiu.",
-    image: uniAntreu03,
+    image: bucAntreu04,
   },
   {
     value: "furnir",
@@ -257,7 +278,7 @@ export const FRONT_OPTIONS: PhotoOption[] = [
     value: "furnir_riflat",
     label: "Furnir frezat",
     blurb: "Lemn adevărat, placat sub orice formă.",
-    image: uniDressing02,
+    image: calcFurnirRiflat,
   },
 ];
 
@@ -267,24 +288,49 @@ export type CalcIcon =
   | "drawer-metal"
   | "flap"
   | "fold"
-  | "lift"
   | "slide"
   | "corner"
   | "shoe"
   | "trousers"
   | "pantograph";
 
-/** Sertare: brand × construcție, prețul per bucată din price_sertar_*. */
+/** Sertare: brand × construcție, prețul per bucată din price_sertar_*.
+    Fotografiile sunt sistemele montate în bucătăriile MOBO (client, 2026-09-10). */
 export const DRAWER_OPTIONS: {
   brand: "blum" | "hettich";
   type: "lemn" | "metal";
   label: string;
   icon: CalcIcon;
+  image: StaticImageData;
 }[] = [
-  { brand: "blum", type: "lemn", label: "Blum — laterale din lemn", icon: "drawer" },
-  { brand: "blum", type: "metal", label: "Blum — laterale metalice", icon: "drawer-metal" },
-  { brand: "hettich", type: "lemn", label: "Hettich — laterale din lemn", icon: "drawer" },
-  { brand: "hettich", type: "metal", label: "Hettich — laterale metalice", icon: "drawer-metal" },
+  {
+    brand: "blum",
+    type: "lemn",
+    label: "Blum — laterale din lemn",
+    icon: "drawer",
+    image: calcBlumLemn,
+  },
+  {
+    brand: "blum",
+    type: "metal",
+    label: "Blum — laterale metalice",
+    icon: "drawer-metal",
+    image: calcBlumMetal,
+  },
+  {
+    brand: "hettich",
+    type: "lemn",
+    label: "Hettich — laterale din lemn",
+    icon: "drawer",
+    image: calcHettichLemn,
+  },
+  {
+    brand: "hettich",
+    type: "metal",
+    label: "Hettich — laterale metalice",
+    icon: "drawer-metal",
+    image: calcHettichMetal,
+  },
 ];
 
 /**
@@ -299,6 +345,8 @@ export const MECHANISM_OPTIONS: {
   blurb: string;
   icon: CalcIcon;
   types: FurnitureType[];
+  /** Sistemul fotografiat pe un montaj MOBO; glisarea rămâne pe glifă. */
+  image?: StaticImageData;
 }[] = [
   {
     value: "blum_aventos_hk_xs",
@@ -306,6 +354,7 @@ export const MECHANISM_OPTIONS: {
     blurb: "Ridicare pentru fronturi mici.",
     icon: "flap",
     types: ["bucatarie"],
+    image: calcAventosHkXs,
   },
   {
     value: "blum_piston_gaz",
@@ -313,14 +362,10 @@ export const MECHANISM_OPTIONS: {
     blurb: "Front pliant pentru corpurile de sus.",
     icon: "fold",
     types: ["bucatarie"],
+    image: calcAventosHf,
   },
-  {
-    value: "blum",
-    label: "Blum Aventos HS/HL",
-    blurb: "Ridicare completă a frontului mare.",
-    icon: "lift",
-    types: ["bucatarie"],
-  },
+  /* Aventos HS/HL (cheia „blum") a ieșit din listă — client, 2026-09-10:
+     „se foloseste rar". Cheia de preț rămâne în CRM, doar nu o mai oferim. */
   {
     value: "hettich",
     label: "Glisare Hettich",
@@ -334,6 +379,7 @@ export const MECHANISM_OPTIONS: {
     blurb: "Sisteme extractibile pentru corpul de colț.",
     icon: "corner",
     types: ["bucatarie"],
+    image: calcColtKessebohmer,
   },
 ];
 

@@ -8,7 +8,7 @@ import { CRM_SETTINGS_URL, SETTINGS_SNAPSHOT, type CalcSettings } from "@/lib/ca
 export const metadata: Metadata = {
   title: "Calculator de preț",
   description:
-    "Calculează orientativ prețul mobilierului tău la comandă: bucătărie, garderobă, dulap sau piese mici. Alegi materialele și dimensiunile, vezi estimarea pe loc — în MDL.",
+    "Calculează orientativ prețul mobilierului tău la comandă: bucătărie, garderobă, dulap sau piese mici. Alegi materialele și dimensiunile, vezi estimarea pe loc — în euro și lei.",
   alternates: { canonical: "/calculator" },
 };
 

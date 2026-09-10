@@ -36,11 +36,13 @@ import { cn } from "@/lib/utils";
  * A doua iterație, după feedbackul clientului („ceva mai complicat, cu poze"):
  * fiecare opțiune de mod / tip / fațadă / blat e un card cu o fotografie REALĂ
  * din proiectele MOBO (aceleași ședințe ca galeriile — materialul de pe card e
- * materialul montat într-o casă adevărată), formele bucătăriei sunt desenate ca
- * schițe din vedere de sus, sertarele și mecanismele au glife de linie, iar pe
- * desktop configurația se adună într-un panou lateral lipicios, ca un bon de
- * configurare. Motorul de preț rămâne cel din lib/calculator.ts — formula și
- * prețurile reale ale MOBO.
+ * materialul montat într-o casă adevărată), iar pe desktop configurația se
+ * adună într-un panou lateral lipicios, ca un bon de configurare. A treia
+ * rundă de feedback (2026-09-10): sertarele și mecanismele au primit și ele
+ * fotografii de pe montaje, formele bucătăriei sunt mici planuri ale camerei
+ * văzute de sus (cu chiuvetă și plită, ca la concurență), prețul se arată în
+ * euro cu leii dedesubt, iar formularul de lead stă lipit de preț. Motorul de
+ * preț rămâne cel din lib/calculator.ts — formula și prețurile reale ale MOBO.
  */
 
 type StepId =
@@ -73,7 +75,8 @@ const STEP_TITLES: Record<StepId, string> = {
 const STEP_HINTS: Partial<Record<StepId, string>> = {
   mod: "Nivelul stabilește gama de materiale și feronerie din care pornim. Fotografiile sunt din proiectele noastre.",
   tip: "Fiecare card e un proiect MOBO real — apasă pe cel care seamănă cu planul tău.",
-  forma: "Schițele sunt văzute de sus: linia verde e mobilierul, conturul e camera.",
+  forma:
+    "Fiecare schiță e planul camerei văzut de sus: banda verde e mobilierul, cu chiuveta și plita marcate pe traseu.",
   dims: "Lungimea desfășurată a mobilierului, în metri. Înălțimea implicită e tavanul standard de 2,6 m.",
   corp: "Placa din care sunt construite corpurile — scheletul mobilierului.",
   fatada: "Fața mobilierului — materialul pe care îl vezi și îl atingi zilnic. Toate cadrele sunt din casele clienților noștri.",
@@ -149,13 +152,6 @@ const GLYPH_PATHS: Record<CalcIcon, ReactNode> = {
       <path d="M14 15.5v-12M14 3.5l-3 3M14 3.5l3 3" />
     </>
   ),
-  lift: (
-    <>
-      <path d="M4.5 22.5h19" />
-      <rect x="7" y="14" width="14" height="8.5" rx="1.8" />
-      <path d="M14 10.5v-7M14 3.5l-3.5 3.5M14 3.5l3.5 3.5" />
-    </>
-  ),
   slide: (
     <>
       <rect x="4" y="6.5" width="11" height="14" rx="1.5" />
@@ -207,22 +203,98 @@ function Glyph({ icon, className }: { icon: CalcIcon; className?: string }) {
   );
 }
 
-/* Schițele formelor de bucătărie — vedere de sus: conturul camerei în alb
-   stins, traseul mobilierului în lime. */
-const SHAPE_RUNS: Record<KitchenShape, ReactNode> = {
-  dreapta: <path d="M16 20h88" />,
-  colt: <path d="M16 64V20h88" />,
-  u: <path d="M16 64V20h88v44" />,
+/* Schițele formelor de bucătărie — redesenate (client, 2026-09-10: liniile
+   simple nu se înțelegeau) ca mici planuri ale camerei văzute de sus, în felul
+   schemelor de la proiectare: conturul e camera, banda verde e corpul de
+   mobilier împărțit în module, iar chiuveta și plita sunt marcate pe traseu. */
+
+const planBand = (x: number, y: number, w: number, h: number) => (
+  <rect
+    x={x}
+    y={y}
+    width={w}
+    height={h}
+    rx="1.5"
+    fill="var(--color-lime-brand)"
+    fillOpacity="0.15"
+    stroke="var(--color-lime-brand)"
+    strokeWidth="1.5"
+  />
+);
+
+/* Rosturile dintre module — liniuțe discrete în interiorul benzii. */
+const planSeps = (d: string) => (
+  <path d={d} stroke="var(--color-lime-brand)" strokeWidth="1" opacity="0.35" />
+);
+
+const planSink = (cx: number, cy = 17.5) => (
+  <g stroke="var(--color-lime-brand)" strokeWidth="1.2" opacity="0.95">
+    <rect x={cx - 6} y={cy - 4.3} width="12" height="8.6" rx="1.5" />
+    <circle cx={cx} cy={cy} r="1.5" />
+  </g>
+);
+
+const planHob = (cx: number, cy = 17.5) => (
+  <g stroke="var(--color-lime-brand)" strokeWidth="1.2" opacity="0.95">
+    <circle cx={cx - 2.7} cy={cy - 2.7} r="1.6" />
+    <circle cx={cx + 2.7} cy={cy - 2.7} r="1.6" />
+    <circle cx={cx - 2.7} cy={cy + 2.7} r="1.6" />
+    <circle cx={cx + 2.7} cy={cy + 2.7} r="1.6" />
+  </g>
+);
+
+const planStool = (cx: number, cy: number) => (
+  <circle cx={cx} cy={cy} r="2.6" stroke="var(--color-lime-brand)" strokeWidth="1.2" opacity="0.6" />
+);
+
+const SHAPE_PLANS: Record<KitchenShape, ReactNode> = {
+  dreapta: (
+    <>
+      {planBand(9, 11, 102, 13)}
+      {planSeps("M43 11v13M77 11v13")}
+      {planSink(26)}
+      {planHob(94)}
+    </>
+  ),
+  colt: (
+    <>
+      {planBand(9, 11, 102, 13)}
+      {planBand(9, 24, 13, 49)}
+      {planSeps("M43 11v13M77 11v13M9 41h13M9 57h13")}
+      {planSink(64)}
+      {planHob(15.5, 49)}
+    </>
+  ),
+  u: (
+    <>
+      {planBand(9, 11, 102, 13)}
+      {planBand(9, 24, 13, 49)}
+      {planBand(98, 24, 13, 49)}
+      {planSeps("M43 11v13M77 11v13M9 41h13M9 57h13M98 41h13M98 57h13")}
+      {planSink(60)}
+      {planHob(104.5, 49)}
+    </>
+  ),
   bar: (
     <>
-      <path d="M16 64V20h88" />
-      <path d="M72 20v30" />
+      {planBand(9, 11, 102, 13)}
+      {planBand(9, 24, 13, 49)}
+      {/* Bar-ul iese perpendicular din linie, cu scaunele alături. */}
+      {planBand(62, 24, 12, 26)}
+      {planSeps("M43 11v13M77 11v13M9 41h13M9 57h13")}
+      {planSink(30)}
+      {planHob(15.5, 49)}
+      {planStool(81, 31)}
+      {planStool(81, 43)}
     </>
   ),
   insula: (
     <>
-      <path d="M16 20h88" />
-      <path d="M46 52h28" strokeWidth="12" />
+      {planBand(9, 11, 102, 13)}
+      {planBand(42, 44, 36, 15)}
+      {planSeps("M43 11v13M77 11v13")}
+      {planSink(26)}
+      {planHob(60, 51.5)}
     </>
   ),
 };
@@ -235,19 +307,11 @@ function ShapeDiagram({ shape }: { shape: KitchenShape }) {
         y="9"
         width="106"
         height="66"
-        rx="5"
+        rx="4"
         stroke="rgb(246 245 238 / 22%)"
         strokeWidth="1.5"
       />
-      <g
-        stroke="var(--color-lime-brand)"
-        strokeWidth="8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        opacity="0.9"
-      >
-        {SHAPE_RUNS[shape]}
-      </g>
+      {SHAPE_PLANS[shape]}
     </svg>
   );
 }
@@ -378,12 +442,15 @@ function DiagramCard({
 
 function CounterRow({
   icon,
+  image,
   label,
   blurb,
   value,
   onChange,
 }: {
   icon: CalcIcon;
+  /** Fotografia sistemului montat de MOBO; fără ea, rândul rămâne pe glifă. */
+  image?: StaticImageData;
   label: string;
   blurb?: string;
   value: number;
@@ -400,11 +467,16 @@ function CounterRow({
       <div className="flex min-w-0 items-center gap-4">
         <span
           className={cn(
-            "grid size-12 shrink-0 place-items-center rounded-xl border transition-colors duration-200 ease-out-strong",
-            value > 0 ? "border-lime-brand/50 text-lime-brand" : "border-white/10 text-fg-dim",
+            "relative grid size-14 shrink-0 place-items-center overflow-hidden rounded-xl border",
+            "transition-colors duration-200 ease-out-strong",
+            value > 0 ? "border-lime-brand/60 text-lime-brand" : "border-white/10 text-fg-dim",
           )}
         >
-          <Glyph icon={icon} className="size-7" />
+          {image ? (
+            <Image src={image} alt="" fill sizes="56px" placeholder="blur" className="object-cover" />
+          ) : (
+            <Glyph icon={icon} className="size-7" />
+          )}
         </span>
         <div className="min-w-0">
           <p className="text-[0.9375rem] text-fg">{label}</p>
@@ -906,6 +978,7 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                         <CounterRow
                           key={key}
                           icon={option.icon}
+                          image={option.image}
                           label={option.label}
                           value={cfg.drawers[key] ?? 0}
                           onChange={(qty) => setQty("drawers", key, qty)}
@@ -922,6 +995,7 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                       <CounterRow
                         key={option.value}
                         icon={option.icon}
+                        image={option.image}
                         label={option.label}
                         blurb={option.blurb}
                         value={cfg.mechanisms[option.value] ?? 0}
@@ -988,11 +1062,12 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                 {/* ------------------------------------------------ rezultat */}
                 {step === "rezultat" ? (
                   <div className="mt-8">
-                    {/* Banner: proiectul real care seamănă cu alegerea. */}
+                    {/* Banner: proiectul real care seamănă cu alegerea — la
+                        bucătărie, cadrul ales de client e proiectul Ialoveni. */}
                     {typeOption ? (
                       <div className="relative aspect-[21/9] overflow-hidden rounded-card">
                         <Image
-                          src={typeOption.image}
+                          src={typeOption.resultImage ?? typeOption.image}
                           alt=""
                           fill
                           sizes="(min-width: 1024px) 60vw, 92vw"
@@ -1011,37 +1086,22 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                     ) : null}
 
                     <p className="text-eyebrow mt-8 text-fg-dim">Estimare orientativă</p>
+                    {/* Client, 2026-09-10: euro pronunțat, leii mai jos și mai mici. */}
                     <p className="mt-3">
-                      <span className="text-display text-lime-brand">{formatMdl(total)}</span>
-                      <span className="text-h3 ml-2 text-fg-dim">MDL</span>
-                      <span className="ml-4 text-[0.9375rem] text-fg-faint">
-                        ≈ {formatMdl(estimateEur(settings, total))} €
+                      <span className="text-display text-lime-brand">
+                        {formatMdl(estimateEur(settings, total))}
                       </span>
+                      <span className="text-h3 ml-2 text-fg-dim">€</span>
+                    </p>
+                    <p className="mt-1 text-[0.9375rem] tabular-nums text-fg-faint">
+                      ≈ {formatMdl(total)} MDL
                     </p>
 
-                    <ul className="mt-8 list-none border-t border-white/8">
-                      {summarize(cfg).map((row) => (
-                        <li
-                          key={row.label}
-                          className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-white/8 py-3"
-                        >
-                          <span className="text-[0.8125rem] text-fg-faint">{row.label}</span>
-                          <span className="max-w-[36ch] text-right text-[0.9375rem] text-fg-dim">
-                            {row.value}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <p className="text-pretty mt-5 max-w-[56ch] text-[0.8125rem] leading-[1.6] text-fg-faint">
-                      Estimarea e orientativă — depinde de configurația exactă, decoruri și
-                      accesorii. Prețul final îl primești după măsurători, împreună cu proiectul,
-                      fără nicio obligație din partea ta.
-                    </p>
-
-                    {/* ------------------------------------------ mini-lead */}
+                    {/* --------------------------------------------- lead --
+                        Formularul stă lipit de preț — client, 2026-09-10:
+                        „este prea jos, și clientul poate să nu ajungă". */}
                     {leadStatus === "success" ? (
-                      <div className="mt-9 rounded-card border border-white/10 bg-white/[0.03] p-6">
+                      <div className="mt-8 rounded-card border border-white/10 bg-white/[0.03] p-6">
                         <h3 className="text-h3 text-fg">Am primit configurația ta.</h3>
                         <p className="text-pretty mt-2 max-w-[44ch] text-[0.9375rem] leading-[1.65] text-fg-dim">
                           Te contactăm la <span className="text-fg">{lead.phone}</span> în aceeași
@@ -1056,7 +1116,11 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                         </button>
                       </div>
                     ) : (
-                      <form onSubmit={submitLead} noValidate className="mt-9">
+                      <form
+                        onSubmit={submitLead}
+                        noValidate
+                        className="mt-8 rounded-card border border-white/10 bg-white/[0.03] p-6 sm:p-7"
+                      >
                         <h3 className="text-h3 text-fg">
                           Vrei calculul exact? Ți-l face un consultant.
                         </h3>
@@ -1159,6 +1223,26 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                         </div>
                       </form>
                     )}
+
+                    <ul className="mt-9 list-none border-t border-white/8">
+                      {summarize(cfg).map((row) => (
+                        <li
+                          key={row.label}
+                          className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-white/8 py-3"
+                        >
+                          <span className="text-[0.8125rem] text-fg-faint">{row.label}</span>
+                          <span className="max-w-[36ch] text-right text-[0.9375rem] text-fg-dim">
+                            {row.value}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <p className="text-pretty mt-5 max-w-[56ch] text-[0.8125rem] leading-[1.6] text-fg-faint">
+                      Estimarea e orientativă — depinde de configurația exactă, decoruri și
+                      accesorii. Prețul final îl primești după măsurători, împreună cu proiectul,
+                      fără nicio obligație din partea ta.
+                    </p>
                   </div>
                 ) : null}
               </motion.div>
@@ -1207,10 +1291,13 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                 <p className="text-[0.8125rem] text-fg-faint">Estimare orientativă</p>
                 {total > 0 ? (
                   <p className="mt-1.5">
-                    <span className="text-h1 tabular-nums text-lime-brand">{formatMdl(total)}</span>
-                    <span className="ml-2 text-[0.9375rem] text-fg-dim">MDL</span>
-                    <span className="mt-0.5 block text-[0.8125rem] text-fg-faint">
-                      ≈ {formatMdl(estimateEur(settings, total))} € · prețul final, după măsurători
+                    {/* Euro mai pronunțat, leii dedesubt — client, 2026-09-10. */}
+                    <span className="text-h1 tabular-nums text-lime-brand">
+                      {formatMdl(estimateEur(settings, total))}
+                    </span>
+                    <span className="ml-2 text-[0.9375rem] text-fg-dim">€</span>
+                    <span className="mt-0.5 block text-[0.8125rem] tabular-nums text-fg-faint">
+                      ≈ {formatMdl(total)} MDL · prețul final, după măsurători
                     </span>
                   </p>
                 ) : (
@@ -1229,11 +1316,16 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
       <div className="fixed inset-x-0 bottom-0 z-[70]">
         <div className="mx-auto w-full max-w-3xl px-5 pb-4 sm:px-8 sm:pb-5">
           <div className="glass flex items-center justify-between gap-4 rounded-pill py-2 pl-6 pr-2">
-            <p className="min-w-0 text-[0.8125rem] text-fg-dim">
+            <p className="min-w-0 truncate text-[0.8125rem] text-fg-dim">
               <span className="hidden sm:inline">Estimare curentă: </span>
               <span className="text-[1.0625rem] font-medium tabular-nums text-fg">
-                {total > 0 ? `${formatMdl(total)} MDL` : "—"}
+                {total > 0 ? `${formatMdl(estimateEur(settings, total))} €` : "—"}
               </span>
+              {total > 0 ? (
+                <span className="ml-2 hidden tabular-nums text-fg-faint sm:inline">
+                  ≈ {formatMdl(total)} MDL
+                </span>
+              ) : null}
             </p>
             <div className="flex shrink-0 items-center gap-2">
               {stepIndex > 0 ? (
