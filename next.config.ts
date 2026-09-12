@@ -8,14 +8,13 @@ const nextConfig: NextConfig = {
     root: __dirname,
   },
   images: {
-    // Preview phase: images are pulled straight from the live mobo.md WordPress
-    // media library + its asset CDN. When the redesign is approved these get
-    // swapped for local files in /public and this block can be deleted.
-    remotePatterns: [
-      { protocol: "https", hostname: "mobo.md", pathname: "/wp-content/uploads/**" },
-      { protocol: "https", hostname: "b4574890.assetcdn.net", pathname: "/**" },
-    ],
+    // 2026-09-12: no remote images left — the old WordPress hosting died and
+    // everything it still served was rescued into /public/wp (see lib/data.ts),
+    // so the remotePatterns allowlist is gone with it.
+    // 100 is on the qualities allowlist for the hero: full-bleed AVIF at the
+    // default 75 visibly smears — Next 16 rejects any quality not listed here.
     formats: ["image/avif", "image/webp"],
+    qualities: [75, 100],
   },
 };
 

@@ -12,32 +12,89 @@ import {
   useEffect,
   useState,
   type PointerEvent as ReactPointerEvent,
+  type ReactNode,
 } from "react";
 import { CATEGORIES, type Category } from "@/lib/data";
 import { Reveal } from "@/components/ui/Reveal";
 import { DUR, EASE_OUT, SPRING, STAGGER, VIEWPORT } from "@/lib/motion";
 
 /**
- * Recoloring the category icons.
+ * Category glyphs, drawn in-house.
  *
- * The PNGs from mobo.md are near-black line art on transparency, which is
- * invisible on a dark card. They have to be driven to the brand lime.
- *
- * This cannot be expressed with Tailwind's filter utilities: v4 composes them
- * in a fixed order (blur → brightness → contrast → grayscale → hue-rotate →
- * invert → saturate → sepia), and this chain needs `brightness` twice, at both
- * ends. So the chain is written out as one declaration.
- *
- * How it lands on #CCDF10:
- *   brightness(0)    → flatten every pixel to black, alpha preserved
- *   invert(1)        → pure white artwork
- *   sepia(1)         → white picks up a faint warm cast, rgb(255,255,239)
- *   saturate(16)     → amplifies that 6% cast into saturated yellow (255,255,15)
- *   hue-rotate(8deg) → yellow (60°) → the brand's yellow-green (65.5°)
- *   brightness(0.9)  → settles at ≈#CBE60D, a hair off --color-lime-brand
+ * These used to be flaticon PNGs hotlinked from the WordPress media library,
+ * recolored to lime through a six-step CSS filter chain. The old hosting died
+ * (509 Bandwidth Limit Exceeded) before those six files were ever cached
+ * anywhere recoverable, so the set is redrawn as inline SVG: one stroke
+ * weight, currentColor, no filter gymnastics.
  */
-const ICON_TO_LIME =
-  "brightness(0) invert(1) sepia(1) saturate(16) hue-rotate(8deg) brightness(0.9)";
+const CATEGORY_GLYPHS: Record<string, ReactNode> = {
+  /* Oală cu capac — bucătăria. */
+  bucatarii: (
+    <>
+      <path d="M5 10h14v5a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4v-5Z" />
+      <path d="M10.5 10V8.5a1.5 1.5 0 0 1 3 0V10" />
+      <path d="M5 12.5H2.75M19 12.5h2.25" />
+    </>
+  ),
+  /* Canapea cu brațe și picioare. */
+  living: (
+    <>
+      <path d="M19 11V8a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3" />
+      <path d="M2.5 13a2 2 0 0 1 4 0v1.5h11V13a2 2 0 0 1 4 0v3a2 2 0 0 1-2 2h-15a2 2 0 0 1-2-2v-3Z" />
+      <path d="M5 18v1.5M19 18v1.5" />
+    </>
+  ),
+  /* Pat cu tăblie și pernă. */
+  dormitor: (
+    <>
+      <path d="M3 18v-7.5A2.5 2.5 0 0 1 5.5 8h13A2.5 2.5 0 0 1 21 10.5V18" />
+      <path d="M3 15.5h18" />
+      <path d="M6.5 11.5h4" />
+      <path d="M3 18v1.5M21 18v1.5" />
+    </>
+  ),
+  /* Dulap în două canaturi. */
+  dressing: (
+    <>
+      <rect x="5.5" y="3.5" width="13" height="17" rx="1" />
+      <path d="M12 3.5v17" />
+      <path d="M9.75 11v2.5M14.25 11v2.5" />
+    </>
+  ),
+  /* Cadă cu robinet. */
+  baie: (
+    <>
+      <path d="M3 12.5h18V14a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-1.5Z" />
+      <path d="M6 12.5V5.75A1.75 1.75 0 0 1 9.4 5.2" />
+      <path d="M6.5 18.5 5.5 20.5M17.5 18.5l1 2" />
+    </>
+  ),
+  /* Pătuț cu gratii. */
+  copii: (
+    <>
+      <path d="M4.5 4v16M19.5 4v16" />
+      <path d="M4.5 6.5h15M4.5 16.5h15" />
+      <path d="M8.25 6.5v10M12 6.5v10M15.75 6.5v10" />
+    </>
+  ),
+};
+
+function CategoryGlyph({ slug, className }: { slug: string; className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={className}
+    >
+      {CATEGORY_GLYPHS[slug]}
+    </svg>
+  );
+}
 
 /**
  * Maximum pointer tilt, in degrees. Deliberately tiny: the card should feel
@@ -358,18 +415,9 @@ function CategoryCard({ cat, delay }: { cat: Category; delay: number }) {
           {/* `relative` so the content paints above the light layer. */}
           <div className="relative flex items-start gap-2.5 sm:gap-3.5">
             <span className="glass glass-thin grid size-8 shrink-0 place-items-center rounded-xl sm:size-11 sm:rounded-2xl">
-              <Image
-                src={cat.icon}
-                /* Decorative: the icon restates the label sitting beside
-                   it, so naming it again only adds noise for screen
-                   readers. */
-                alt=""
-                aria-hidden="true"
-                width={22}
-                height={22}
-                className="size-4 sm:size-[22px]"
-                style={{ filter: ICON_TO_LIME }}
-              />
+              {/* Decorative: the glyph restates the label sitting beside it,
+                  so naming it again only adds noise for screen readers. */}
+              <CategoryGlyph slug={cat.slug} className="size-4 text-lime-brand sm:size-[22px]" />
             </span>
 
             <div className="min-w-0">

@@ -3,9 +3,11 @@
  * names, reviews, contact details and media are lifted from the live site so
  * the redesign can be judged on design rather than on placeholder text.
  *
- * PREVIEW NOTE: image URLs point at the live WordPress media library. On
- * approval these become local files and only this file changes. Toate cele cinci ședințe foto sunt acum locale
- * (static imports din /assets) — nu mai rămâne nimic pe media library.
+ * 2026-09-12: NIMIC nu mai vine de pe media library-ul WordPress — hostingul
+ * vechi a picat (509 Bandwidth Limit Exceeded) chiar când mobo.md a fost mutat
+ * pe Vercel. Ce era încă hotlink-uit (logo, 6 fotografii, iconițele pașilor) a
+ * fost recuperat din cache-ul optimizatorului de imagini Vercel și trăiește în
+ * /public/wp; ședințele foto erau deja locale (static imports din /assets).
  */
 
 import type { StaticImageData } from "next/image";
@@ -162,7 +164,7 @@ export const SITE = {
   name: "MOBO Kitchens & Home",
   shortName: "MOBO",
   tagline: "Mobilier la comandă pentru toată casa",
-  logo: "https://mobo.md/wp-content/uploads/2024/09/logomobo.png",
+  logo: "/wp/logomobo.png",
   logoWidth: 500,
   logoHeight: 172,
   phone: "+373 60 331 331",
@@ -203,33 +205,34 @@ export type FilmShot = {
 
 export const FILM_SHOTS: FilmShot[] = [
   {
-    src: "https://mobo.md/wp-content/uploads/2024/11/Bucatarie-la-comanda-MOBO26.jpg",
+    src: "/wp/Bucatarie-la-comanda-MOBO26.jpg",
     alt: "Bucătărie albă pe colț, cu lumină naturală de la fereastră",
     move: "push-in",
     card: "Bucătării la comandă",
   },
   {
-    src: "https://mobo.md/wp-content/uploads/2024/11/Bucatarie-la-comanda-MOBO-1-2.jpeg",
+    src: "/wp/Bucatarie-la-comanda-MOBO-1-2.jpeg",
     alt: "Bucătărie cu insulă în verde pastel și corpuri din nuc",
     move: "pan-right",
     card: "Proiectate în Chișinău",
   },
   {
-    src: "https://mobo.md/wp-content/uploads/2024/12/IMG_0073.jpg",
+    src: "/wp/IMG_0073.jpg",
     alt: "Living deschis spre bucătărie, cu canapea albă și perete de marmură",
     move: "pull-back",
     card: "Măsurate la fața locului",
   },
   {
-    src: "https://mobo.md/wp-content/uploads/2024/11/Bucatarie-la-comanda-MOBO24-scaled.jpg",
+    src: "/wp/Bucatarie-la-comanda-MOBO24-scaled.jpg",
     alt: "Bucătărie albă cu vitrină iluminată și pardoseală de marmură",
     move: "pan-left",
     card: "Garanție 5 ani",
   },
   {
-    /* The hero frame closes the sequence — the strongest image in the library. */
-    src: "https://mobo.md/wp-content/uploads/2024/11/Bucatarie-la-comanda-MOBO31.jpg",
-    alt: "Bucătărie la comandă în nuanțe de lemn și grafit",
+    /* Cadrul de închidere — din ședința locală Bucovinei; fostul MOBO31 de pe
+       WordPress nu a putut fi recuperat după căderea hostingului vechi. */
+    src: bucBucatarie01.src,
+    alt: "Bucătărie albă cu insulă neagră și scară din lemn — proiect MOBO",
     move: "hold",
   },
 ];
@@ -283,20 +286,20 @@ export const SOCIALS = [
  * room have NO usable photography whatsoever.
  */
 const PHOTO = {
-  /* Wide, evenly lit, wood + graphite. The strongest frame in the library. */
-  kitchenWide: "https://mobo.md/wp-content/uploads/2024/11/Bucatarie-la-comanda-MOBO31.jpg",
+  /* Cadru local (Bucovinei) — a înlocuit MOBO31, pierdut odată cu hostingul. */
+  kitchenWide: bucBucatarie01.src,
   /* White L-shaped kitchen, daylight from the window. */
-  kitchenLight: "https://mobo.md/wp-content/uploads/2024/11/Bucatarie-la-comanda-MOBO26.jpg",
+  kitchenLight: "/wp/Bucatarie-la-comanda-MOBO26.jpg",
   /* Portrait. White + marble with a lit glass cabinet. */
-  kitchenTall: "https://mobo.md/wp-content/uploads/2024/11/Bucatarie-la-comanda-MOBO24-scaled.jpg",
+  kitchenTall: "/wp/Bucatarie-la-comanda-MOBO24-scaled.jpg",
   /* Portrait. Sage green and walnut. */
-  kitchenGreen: "https://mobo.md/wp-content/uploads/2024/11/Bucatarie-la-comanda-MOBO-1-2.jpeg",
+  kitchenGreen: "/wp/Bucatarie-la-comanda-MOBO-1-2.jpeg",
   /* 16:9 living room, open plan onto the kitchen. */
-  living: "https://mobo.md/wp-content/uploads/2024/12/IMG_0073.jpg",
+  living: "/wp/IMG_0073.jpg",
   /* Portrait living corner. */
-  livingTall: "https://mobo.md/wp-content/uploads/2024/12/photo1716799131-5.jpeg",
+  livingTall: "/wp/photo1716799131-5.jpeg",
   /* 3D render — labelled as such wherever it appears. */
-  render: "https://mobo.md/wp-content/uploads/2024/11/proiect-3d-mobila-bucatarie-la-comanda-1.png",
+  render: "/wp/proiect-3d-mobila-bucatarie-la-comanda-1.png",
 } as const;
 
 export const HERO = {
@@ -343,7 +346,6 @@ export const HERO_SLIDES = [
 export type Category = {
   slug: string;
   label: string;
-  icon: string;
   image: string;
   blurb: string;
   /**
@@ -361,21 +363,18 @@ export const CATEGORIES: Category[] = [
   {
     slug: "bucatarii",
     label: "Bucătării",
-    icon: "https://mobo.md/wp-content/uploads/2024/09/kitchen.png",
     image: PHOTO.kitchenLight,
     blurb: "Proiectate în jurul modului în care gătești.",
   },
   {
     slug: "living",
     label: "Mobilier Living",
-    icon: "https://mobo.md/wp-content/uploads/2024/09/sofa.png",
     image: PHOTO.living,
     blurb: "Depozitare generoasă, fără să încarce camera.",
   },
   {
     slug: "dormitor",
     label: "Dormitor",
-    icon: "https://mobo.md/wp-content/uploads/2024/09/double-bed.png",
     image: PHOTO.livingTall,
     blurb: "Finisaje calde, mecanisme silențioase.",
     needsPhoto: true,
@@ -383,7 +382,6 @@ export const CATEGORIES: Category[] = [
   {
     slug: "dressing",
     label: "Dressing",
-    icon: "https://mobo.md/wp-content/uploads/2024/09/closet.png",
     image: PHOTO.kitchenTall,
     blurb: "Organizat la centimetru, până în tavan.",
     needsPhoto: true,
@@ -391,7 +389,6 @@ export const CATEGORIES: Category[] = [
   {
     slug: "baie",
     label: "Mobilier baie",
-    icon: "https://mobo.md/wp-content/uploads/2024/09/bath.png",
     image: PHOTO.kitchenGreen,
     blurb: "Rezistent la umiditate, croit pe loc.",
     needsPhoto: true,
@@ -399,7 +396,6 @@ export const CATEGORIES: Category[] = [
   {
     slug: "copii",
     label: "Cameră copii",
-    icon: "https://mobo.md/wp-content/uploads/2024/09/crib.png",
     image: PHOTO.render,
     blurb: "Crește odată cu copilul.",
     needsPhoto: true,
@@ -599,63 +595,63 @@ export const PROCESS: Step[] = [
     title: "Consultație",
     description:
       "Începutul fiecărui proiect este o discuție personalizată. Scopul este să înțelegem nevoile și dorințele clientului pentru a crea un plan optim.",
-    icon: "https://mobo.md/wp-content/uploads/2024/09/discussion.png",
+    icon: "/wp/discussion.png",
   },
   {
     n: "02",
     title: "Măsurare",
     description:
       "Luăm măsurători exacte pentru a ne asigura că mobilierul se va încadra perfect. Acest pas garantează o utilizare optimă a spațiului.",
-    icon: "https://mobo.md/wp-content/uploads/2024/09/ruler.png",
+    icon: "/wp/ruler.png",
   },
   {
     n: "03",
     title: "Proiect 3D",
     description:
       "Realizăm un design personalizat care reflectă stilul și nevoile clientului. Fiecare proiect combină estetică, funcționalitate și calitate.",
-    icon: "https://mobo.md/wp-content/uploads/2024/09/graphic-design.png",
+    icon: "/wp/graphic-design.png",
   },
   {
     n: "04",
     title: "Prezentare",
     description:
       "Prezentăm clientului proiectul final pentru feedback și ajustări. Este etapa în care toate detaliile sunt stabilite.",
-    icon: "https://mobo.md/wp-content/uploads/2024/09/presentation.png",
+    icon: "/wp/presentation.png",
   },
   {
     n: "05",
     title: "Contractare",
     description:
       "Stabilim toate detaliile proiectului într-un contract clar și transparent. Clientul primește garanția calității.",
-    icon: "https://mobo.md/wp-content/uploads/2024/09/contract.png",
+    icon: "/wp/contract.png",
   },
   {
     n: "06",
     title: "Producere",
     description:
       "Mobilierul este realizat cu precizie și atenție la detalii în atelierul nostru. Materialele premium garantează durabilitatea.",
-    icon: "https://mobo.md/wp-content/uploads/2024/09/production-line.png",
+    icon: "/wp/production-line.png",
   },
   {
     n: "07",
     title: "Livrare",
     description:
       "Mobilierul este livrat în siguranță, respectând termenii stabiliți. Livrarea include verificarea produselor înainte de instalare.",
-    icon: "https://mobo.md/wp-content/uploads/2024/09/fast-delivery-3-1.png",
+    icon: "/wp/fast-delivery-3-1.png",
   },
   {
     n: "08",
     title: "Instalare",
     description:
       "Echipa noastră calificată instalează mobilierul cu profesionalism. Ne asigurăm că totul funcționează perfect.",
-    icon: "https://mobo.md/wp-content/uploads/2024/09/support.png",
+    icon: "/wp/support.png",
   },
   {
     n: "09",
     title: "Garanție",
     description:
       "Bucură-te de 5 ani garanție pentru toate produsele. Ne asigurăm că mobilierul tău va rezista testului timpului.",
-    icon: "https://mobo.md/wp-content/uploads/2024/09/shield.png",
+    icon: "/wp/shield.png",
   },
 ];
 
@@ -691,7 +687,7 @@ export const ABOUT = {
   body: "MOBO Kitchens & Home este un brand creat pentru a transforma fiecare locuință într-un spațiu confortabil, funcțional și plin de stil. Suntem specializați în proiectarea și fabricarea de mobilă la comandă, cu un accent deosebit pe bucătăriile premium, oferind soluții personalizate pentru orice tip de spațiu și preferință.",
   mission:
     "Misiunea noastră: să creăm bucătării și mobilier de calitate premium care transformă casele în adevărate locuințe de vis — funcționale, estetice și adaptate nevoilor tale.",
-  image: "https://mobo.md/wp-content/uploads/2024/11/proiect-3d-mobila-bucatarie-la-comanda-1.png",
+  image: "/wp/proiect-3d-mobila-bucatarie-la-comanda-1.png",
 } as const;
 
 /* ----------------------------------------------------------- Testimonials -- */

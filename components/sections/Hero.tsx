@@ -119,11 +119,14 @@ export default function Hero() {
                 i === slide ? "opacity-100" : "opacity-0",
               )}
             >
+              {/* quality 100 — cerință de client: la full-bleed pe tot ecranul,
+                  AVIF-ul de la q=75 se citea ca un cadru de 360p. */}
               <Image
                 src={photo.src}
                 alt={i === slide ? photo.alt : ""}
                 fill
-                priority={i === 0}
+                preload={i === 0}
+                quality={100}
                 sizes="100vw"
                 className="object-cover"
               />

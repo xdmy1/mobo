@@ -324,7 +324,7 @@ export default function Nav() {
               alt="MOBO Kitchens & Home"
               width={105}
               height={36}
-              priority
+              preload
               className="h-8 w-auto sm:h-9"
             />
           </motion.a>
