@@ -1,10 +1,8 @@
 import "server-only";
 
 import type { CrmProvider, CrmResult, Lead } from "./types";
-import { cf7Provider } from "./providers/cf7";
-import { wordpressProvider } from "./providers/wordpress";
+import { moboCrmProvider } from "./providers/mobo-crm";
 import { telegramProvider } from "./providers/telegram";
-import { consoleProvider } from "./providers/console";
 
 export type { Lead, CrmResult, CrmProvider } from "./types";
 export { leadSchema } from "./types";
@@ -21,11 +19,13 @@ export { leadSchema } from "./types";
  *   NOTIFIERS best-effort pings. A dead Telegram bot must never cost a lead.
  */
 
-const PRIMARY: CrmProvider = process.env.WP_CF7_ENDPOINT
-  ? cf7Provider
-  : process.env.WP_CRM_ENDPOINT
-    ? wordpressProvider
-    : consoleProvider;
+/* 2026-09-12: PRIMARY was Contact Form 7 on the WordPress site, selected via
+   WP_CF7_ENDPOINT. That hosting is dead (509 Bandwidth Limit Exceeded) and the
+   domain now points at this very deployment, so the env var selects a URL that
+   no longer exists — leads go straight to MOBO's own CRM instead, on the same
+   proven endpoint chain the calculator already uses. The cf7/wordpress
+   providers remain in ./providers as dead code should WordPress ever return. */
+const PRIMARY: CrmProvider = moboCrmProvider;
 
 const NOTIFIERS: CrmProvider[] = process.env.TELEGRAM_BOT_TOKEN ? [telegramProvider] : [];
 
