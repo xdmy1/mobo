@@ -321,23 +321,30 @@ export const HERO = {
 
 /**
  * Rotația de hero — cerință de client (2026-09-05): „poza să se schimbe".
- * Primul cadru rămâne fotografia de hero (LCP, prioritizată); restul sunt
- * cadre landscape din ședințele locale, încărcate leneș și rotite prin
- * crossfade în Hero. Sub prefers-reduced-motion rotația nu pornește.
+ * Primul cadru e fotografia de hero (LCP, preîncărcată); restul se încarcă
+ * leneș și se rotesc prin crossfade în Hero. Sub prefers-reduced-motion
+ * rotația nu pornește.
+ *
+ * REZOLUȚIE — cerință de client (2026-09-12): pe hero intră DOAR cadre 4K.
+ * Cadrele din ședințe au în repo maximum 2400px pe latura lungă, deci pe un
+ * ecran 4K se înmoaie; toate patru vin acum din negativele de 3872px ale
+ * ședinței Universității, exportate în /public. Rotația arată patru încăperi
+ * diferite — living, bucătărie, dressing, dormitor — ceea ce spune sublinia
+ * „mobilier de orice tip" mai bine decât trei bucătării la rând.
  */
 export const HERO_SLIDES = [
   { src: HERO.image, alt: HERO.imageAlt },
   {
-    src: csBucatarie01,
-    alt: "Bucătărie bej la comandă, deschisă spre zona de luat masa — proiect MOBO",
+    src: "/hero-bucatarie.jpg",
+    alt: "Bucătărie albă la comandă, deschisă spre masa rotundă din lemn — proiect MOBO",
   },
   {
-    src: mioBucatarie01,
-    alt: "Bucătărie în alb și greige cu profil negru — proiect MOBO",
+    src: "/hero-dressing.jpg",
+    alt: "Dressing cu fronturi din lemn și colț de machiaj cu oglindă rotundă — proiect MOBO",
   },
   {
-    src: bucBucatarie01,
-    alt: "Bucătărie albă cu insulă neagră și scară din lemn — proiect MOBO",
+    src: "/hero-dormitor.jpg",
+    alt: "Dormitor cu mobilier la comandă, draperii până în tavan și pardoseală din lemn deschis — proiect MOBO",
   },
 ] as const;
 
