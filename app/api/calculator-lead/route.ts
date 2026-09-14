@@ -96,6 +96,13 @@ function idFrom(data: Record<string, unknown>, ...keys: string[]): number {
   throw new Error(`CRM response missing id (${keys.join("/")})`);
 }
 
+/**
+ * MESAJELE DE EROARE SUNT CHEI DE DICȚIONAR, NU TEXT.
+ *
+ * Ruta nu știe limba vizitatorului — nu are context React și nici segmentul
+ * [lang] (proxy-ul o exclude din rescriere, fiindcă e JSON, nu pagină). Așa că
+ * întoarce `api.error.*`, iar clientul îl trece prin t() înainte de afișare.
+ */
 export async function POST(req: Request) {
   const ip =
     req.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
@@ -104,7 +111,7 @@ export async function POST(req: Request) {
 
   if (!rateLimit(ip)) {
     return NextResponse.json(
-      { ok: false, error: "Prea multe cereri. Încearcă din nou peste câteva minute." },
+      { ok: false, error: "api.error.rateLimited" },
       { status: 429 },
     );
   }
@@ -113,7 +120,7 @@ export async function POST(req: Request) {
   try {
     raw = await req.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "Cerere invalidă." }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "api.error.invalid" }, { status: 400 });
   }
   const body = raw as Record<string, unknown>;
 
@@ -128,7 +135,7 @@ export async function POST(req: Request) {
 
   const parsed = payloadSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ ok: false, error: "Date incomplete." }, { status: 422 });
+    return NextResponse.json({ ok: false, error: "api.error.incomplete" }, { status: 422 });
   }
   const { name, phone, rows, total } = parsed.data;
 
@@ -185,7 +192,7 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error(`[MOBO calculator-lead] ${err instanceof Error ? err.message : err}`);
     return NextResponse.json(
-      { ok: false, error: "Nu am putut trimite cererea. Sună-ne direct la +373 60 331 331." },
+      { ok: false, error: "api.error.sendFailed" },
       { status: 502 },
     );
   }

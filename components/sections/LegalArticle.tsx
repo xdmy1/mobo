@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { getI18n } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
 /**
@@ -21,7 +22,7 @@ const PROSE = cn(
   "[&_a]:font-medium [&_a]:text-fg-invert [&_a]:underline [&_a]:decoration-ink-850/30 [&_a]:underline-offset-4",
 );
 
-export default function LegalArticle({
+export default async function LegalArticle({
   updated,
   reviewNote = true,
   children,
@@ -32,18 +33,15 @@ export default function LegalArticle({
   reviewNote?: boolean;
   children: ReactNode;
 }) {
+  const { t } = await getI18n();
+
   return (
     <section className="relative bg-bone-50 text-fg-invert">
       <div className="mx-auto w-full max-w-3xl px-5 py-14 sm:px-8 sm:py-16 lg:py-20">
         <article className={PROSE}>{children}</article>
         <footer className="mt-12 border-t border-ink-850/15 pt-5 text-[0.8125rem] leading-relaxed text-fg-invert-dim">
-          <p>Ultima actualizare: {updated}.</p>
-          {reviewNote ? (
-            <p className="mt-1">
-              Document cu caracter informativ; versiunea finală urmează să fie validată de un
-              consilier juridic.
-            </p>
-          ) : null}
+          <p>{t("sections.legal.updated", { date: updated })}</p>
+          {reviewNote ? <p className="mt-1">{t("sections.legal.reviewNote")}</p> : null}
         </footer>
       </div>
     </section>

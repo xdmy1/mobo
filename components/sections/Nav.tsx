@@ -14,8 +14,13 @@ import {
 } from "motion/react";
 import { SocialGlyph } from "@/components/ui/BrandIcon";
 import { Button } from "@/components/ui/Button";
+import { useI18n } from "@/components/ui/LangProvider";
+import LangToggle from "@/components/ui/LangToggle";
 import { Magnetic } from "@/components/ui/Magnetic";
+import QuickContact from "@/components/ui/QuickContact";
 import { NAV_LINKS, SITE, SOCIALS } from "@/lib/data";
+import { parsePath } from "@/lib/i18n/config";
+import type { TranslationKey } from "@/lib/i18n/dictionary";
 import { DUR, EASE_DRAWER, EASE_OUT, SPRING } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -70,20 +75,26 @@ function ChevronRight({ className }: { className?: string }) {
 
 export default function Nav() {
   const reduce = useReducedMotion();
+  const { t, href } = useI18n();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
   const [spyHref, setSpyHref] = useState<string | null>(null);
 
   /* Away from the homepage the current route owns the hairline; the scrollspy
      only ever speaks on "/", where sections stand in for the pages. Prefix
-     matching keeps "Proiecte" lit on /proiecte/[slug]. */
+     matching keeps "Proiecte" lit on /proiecte/[slug].
+
+     Matched on the UNPREFIXED path: NAV_LINKS holds "/proiecte", while the
+     Russian side is visibly at "/ru/proiecte" — comparing the raw pathname
+     would leave every link dark for a Russian reader. */
+  const { path } = parsePath(pathname ?? "/");
   const routeHref =
-    pathname === "/"
+    path === "/"
       ? null
-      : (NAV_LINKS.find((l) => pathname === l.href || pathname.startsWith(`${l.href}/`))?.href ??
-        null);
-  const activeHref = pathname === "/" ? spyHref : routeHref;
+      : (NAV_LINKS.find((l) => path === l.href || path.startsWith(`${l.href}/`))?.href ?? null);
+  const activeHref = path === "/" ? spyHref : routeHref;
 
   const rootRef = useRef<HTMLElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -149,6 +160,14 @@ export default function Nav() {
   const close = useCallback(() => {
     setOpen(false);
     triggerRef.current?.focus();
+  }, []);
+
+  /* The two disclosures in this cluster are mutually exclusive: the contact
+     row hangs off the bar the fullscreen panel would cover. Memoised because
+     QuickContact keys its document listeners on this identity. */
+  const handleContactOpenChange = useCallback((next: boolean) => {
+    setContactOpen(next);
+    if (next) setOpen(false);
   }, []);
 
   /* Scroll lock. The gap compensation stops the page (and this fixed bar) from
@@ -311,8 +330,8 @@ export default function Nav() {
 
           {/* ---------------------------------------------------------- logo -- */}
           <motion.a
-            href="/"
-            aria-label="MOBO Kitchens & Home — pagina principală"
+            href={href("/")}
+            aria-label={t("chrome.nav.home")}
             className="relative flex shrink-0 items-center rounded-md"
             initial={false}
             animate={{ scale: scrolled && !reduce ? 0.92 : 1 }}
@@ -331,7 +350,7 @@ export default function Nav() {
 
           {/* -------------------------------------------------- desktop links -- */}
           <nav
-            aria-label="Navigare principală"
+            aria-label={t("chrome.nav.primary")}
             className="absolute left-1/2 hidden -translate-x-1/2 lg:block"
           >
             <ul className="flex items-center gap-1">
@@ -340,7 +359,7 @@ export default function Nav() {
                 return (
                   <li key={link.href}>
                     <Link
-                      href={link.href}
+                      href={href(link.href)}
                       aria-current={isActive ? "page" : undefined}
                       className={cn(
                         "group relative inline-flex h-10 items-center px-3 text-sm",
@@ -348,7 +367,7 @@ export default function Nav() {
                         isActive ? "text-fg" : "text-fg-dim hover-fine:hover:text-fg",
                       )}
                     >
-                      {link.label}
+                      {t(`nav.${link.href}` as TranslationKey)}
                       {/* Hover hairline: scaleX, never width — width would
                           relayout every frame. Resting origin is RIGHT and only
                           :hover flips it to LEFT, so the wipe enters from the
@@ -390,7 +409,7 @@ export default function Nav() {
           <div className="relative flex shrink-0 items-center gap-2 sm:gap-3">
             <a
               href={SITE.phoneHref}
-              aria-label={`Sună la ${SITE.phone}`}
+              aria-label={t("chrome.nav.call", { phone: SITE.phone })}
               className={cn(
                 "hidden items-center gap-2 rounded-pill px-2 text-[0.8125rem] font-medium tracking-tight text-fg-dim",
                 "transition-colors duration-200 ease-out-strong",
@@ -401,18 +420,26 @@ export default function Nav() {
             </a>
 
             <Magnetic strength={0.25} className="hidden lg:block">
-              <Button href="/#contact" size="md">
-                Solicit Calcul
+              <Button href={`${href("/")}#contact`} size="md">
+                {t("chrome.nav.cta")}
               </Button>
             </Magnetic>
+
+            {/* Contactele rapide — mutate aici din colțul plutitor, la cererea
+                clientului. Stau imediat în stânga burgerului. */}
+            <QuickContact open={contactOpen} onOpenChange={handleContactOpenChange} />
 
             <button
               ref={triggerRef}
               type="button"
-              onClick={() => (open ? close() : setOpen(true))}
+              onClick={() => {
+                setContactOpen(false);
+                if (open) close();
+                else setOpen(true);
+              }}
               aria-expanded={open}
               aria-controls={PANEL_ID}
-              aria-label={open ? "Închide meniul" : "Deschide meniul"}
+              aria-label={open ? t("chrome.nav.closeMenu") : t("chrome.nav.openMenu")}
               className={cn(
                 "glass glass-thin btn-3d-glass grid size-11 shrink-0 place-items-center rounded-full text-fg",
                 "transition-transform duration-[160ms] ease-out-strong active:scale-[0.97] lg:hidden",
@@ -449,7 +476,7 @@ export default function Nav() {
             tabIndex={-1}
             role="dialog"
             aria-modal="true"
-            aria-label="Meniu"
+            aria-label={t("chrome.nav.menu")}
             /* Dark tint for the same reason as the bar — the menu can be opened
                while the ivory bands are behind it. */
             /* Near-opaque, not translucent. At 85% the hero photograph read
@@ -470,21 +497,21 @@ export default function Nav() {
             }}
           >
             <div className="flex h-full flex-col justify-between gap-10 overflow-y-auto overscroll-contain px-5 pb-8 pt-24 sm:px-8">
-              <nav aria-label="Navigare mobilă">
+              <nav aria-label={t("chrome.nav.mobile")}>
                 <ul className="flex flex-col">
                   {NAV_LINKS.map((link, i) => {
                     const isActive = activeHref === link.href;
                     return (
                       <motion.li key={link.href} variants={itemVariants}>
                         <Link
-                          href={link.href}
+                          href={href(link.href)}
                           aria-current={isActive ? "page" : undefined}
                           className="group flex items-center gap-4 border-b border-white/10 py-4 text-fg"
                         >
                           <span className="font-mono text-xs text-lime-brand">
                             {String(i + 1).padStart(2, "0")}
                           </span>
-                          <span className="text-h2">{link.label}</span>
+                          <span className="text-h2">{t(`nav.${link.href}` as TranslationKey)}</span>
                           {/* The chevron doubles as the "you are here" mark —
                               lime on the section currently in view. */}
                           <ChevronRight
@@ -507,14 +534,14 @@ export default function Nav() {
                   <a
                     href={SITE.phoneHref}
                     className="text-h3 text-fg"
-                    aria-label={`Sună la ${SITE.phone}`}
+                    aria-label={t("chrome.nav.call", { phone: SITE.phone })}
                   >
                     {SITE.phone}
                   </a>
                   <a href={`mailto:${SITE.email}`} className="text-sm text-fg-dim">
                     {SITE.email}
                   </a>
-                  <p className="text-sm text-fg-faint">{SITE.address}</p>
+                  <p className="text-sm text-fg-faint">{t("site.address")}</p>
                 </motion.div>
 
                 <motion.ul variants={itemVariants} className="flex flex-wrap gap-2">
@@ -537,9 +564,20 @@ export default function Nav() {
                   ))}
                 </motion.ul>
 
+                {/* Limba stă aici, nu printre secțiuni: e o setare, nu o
+                    destinație — și în bara de sus nu mai încape (cerință de
+                    client: în meniu pe mobil, în footer pe desktop). */}
+                <motion.div
+                  variants={itemVariants}
+                  className="flex items-center justify-between gap-4 border-t border-white/10 pt-5"
+                >
+                  <span className="text-[0.8125rem] text-fg-faint">{t("chrome.nav.language")}</span>
+                  <LangToggle />
+                </motion.div>
+
                 <motion.div variants={itemVariants}>
-                  <Button href="/#contact" size="lg" withArrow className="w-full">
-                    Solicit Calcul
+                  <Button href={`${href("/")}#contact`} size="lg" withArrow className="w-full">
+                    {t("chrome.nav.cta")}
                   </Button>
                 </motion.div>
               </div>

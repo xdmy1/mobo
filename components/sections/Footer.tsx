@@ -1,8 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { SocialGlyph } from "@/components/ui/BrandIcon";
+import LangToggle from "@/components/ui/LangToggle";
 import { Reveal } from "@/components/ui/Reveal";
 import { COMPANY, LEGAL_LINKS, NAV_LINKS, PROJECTS, SITE, SOCIALS } from "@/lib/data";
+import type { TranslationKey } from "@/lib/i18n/dictionary";
+import { getI18n } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
 /**
@@ -36,32 +39,6 @@ type CreditNavBlock = {
   links: CreditLink[];
 };
 
-const NAV_BLOCKS: CreditNavBlock[] = [
-  {
-    id: "footer-informatii",
-    role: "Informații",
-    links: [
-      ...NAV_LINKS.map((link) => ({ label: link.label, href: link.href })),
-      /* WhyMobo a plecat de pe homepage, deci /#avantaje nu mai există;
-         pagina Despre noi are banda echivalentă „Ofertele MOBO". */
-      { label: "Oferte", href: "/despre-noi#oferte" },
-      { label: "Info Clienți", href: "/info-clienti" },
-    ],
-  },
-  {
-    id: "footer-proiecte",
-    role: "Proiecte",
-    /* One link per home — the project-based split the client asked for,
-       restated in the credits. */
-    links: PROJECTS.map((project) => ({ label: project.title, href: project.href })),
-  },
-  {
-    id: "footer-social",
-    role: "Social",
-    links: SOCIALS.map((social) => ({ label: social.label, href: social.href, external: true })),
-  },
-];
-
 /* Colour-only hover, gated to real cursors: on touch a tap fires :hover and
    the link stays stuck until the next tap elsewhere. */
 const LINK_CLASS = cn(
@@ -76,8 +53,42 @@ const LINK_CLASS = cn(
 const ROLE_CLASS =
   "text-[0.6875rem] font-medium uppercase leading-6 tracking-[0.075em] text-fg-dim";
 
-export default function Footer() {
+export default async function Footer() {
+  const { t, href } = await getI18n();
   const year = new Date().getFullYear();
+
+  /* Blocurile se construiesc în componentă, nu la nivel de modul: etichetele
+     vin din dicționarul limbii curente, iar fiecare href intern trece prin
+     href() ca un cititor rus să rămână pe /ru/*. Linkurile externe (socials)
+     pleacă neatinse. */
+  const navBlocks: CreditNavBlock[] = [
+    {
+      id: "footer-informatii",
+      role: t("sections.footer.info"),
+      links: [
+        ...NAV_LINKS.map((link) => ({ label: t(`nav.${link.href}`), href: href(link.href) })),
+        /* WhyMobo a plecat de pe homepage, deci /#avantaje nu mai există;
+           pagina Despre noi are banda echivalentă „Ofertele MOBO". */
+        { label: t("sections.footer.offers"), href: href("/despre-noi#oferte") },
+        { label: t("sections.footer.clientInfo"), href: href("/info-clienti") },
+      ],
+    },
+    {
+      id: "footer-proiecte",
+      role: t("sections.footer.projects"),
+      /* One link per home — the project-based split the client asked for,
+         restated in the credits. */
+      links: PROJECTS.map((project) => ({
+        label: t(`project.${project.slug}.title` as TranslationKey),
+        href: href(project.href),
+      })),
+    },
+    {
+      id: "footer-social",
+      role: t("sections.footer.social"),
+      links: SOCIALS.map((social) => ({ label: social.label, href: social.href, external: true })),
+    },
+  ];
 
   return (
     <footer
@@ -88,7 +99,7 @@ export default function Footer() {
       className="grain relative bg-ink-950 pb-8 pt-16 sm:pb-10 sm:pt-20 lg:pt-24"
     >
       <h2 id="footer-title" className="sr-only">
-        Contacte și navigare MOBO Kitchens &amp; Home
+        {t("sections.footer.title")}
       </h2>
 
       {/* Horizontal on desktop. The centred credit-roll version read as a long
@@ -108,18 +119,18 @@ export default function Footer() {
               className="h-8 w-auto sm:h-9"
             />
             <p className="text-pretty mt-5 max-w-[34ch] text-[0.9375rem] leading-relaxed text-fg-dim">
-              {SITE.tagline}
+              {t("site.tagline")}
             </p>
           </Reveal>
 
           {/* ---------------------------------------------------- contact -- */}
           <Reveal index={1} className="lg:col-span-3">
             <h3 id="footer-contact" className={ROLE_CLASS}>
-              Contact
+              {t("sections.footer.contact")}
             </h3>
             <address className="not-italic">
               <ul className="mt-5 list-none space-y-2.5">
-                <li className="text-[0.9375rem] leading-6 text-fg-dim">{SITE.address}</li>
+                <li className="text-[0.9375rem] leading-6 text-fg-dim">{t("site.address")}</li>
                 <li>
                   <a
                     href={SITE.phoneHref}
@@ -141,7 +152,7 @@ export default function Footer() {
           </Reveal>
 
           {/* ------------------------------------------------ nav columns -- */}
-          {NAV_BLOCKS.map((block, i) => (
+          {navBlocks.map((block, i) => (
             <Reveal key={block.id} index={i + 2} className="lg:col-span-2">
               <h3 id={block.id} className={ROLE_CLASS}>
                 {block.role}
@@ -189,20 +200,26 @@ export default function Footer() {
             </span>
             {COMPANY.legalName} · IDNO {COMPANY.idno}
           </p>
-          {/* The legal tier, restated where every site puts it — the top-bar
-              strip satisfies the client, this row satisfies convention. */}
-          <ul className="flex list-none flex-wrap gap-x-5 gap-y-1">
-            {LEGAL_LINKS.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className="text-[0.8125rem] leading-6 text-fg-dim transition-colors duration-200 ease-out-strong hover-fine:hover:text-fg"
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            {/* The legal tier, restated where every site puts it — the top-bar
+                strip satisfies the client, this row satisfies convention. */}
+            <ul className="flex list-none flex-wrap gap-x-5 gap-y-1">
+              {LEGAL_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={href(link.href)}
+                    className="text-[0.8125rem] leading-6 text-fg-dim transition-colors duration-200 ease-out-strong hover-fine:hover:text-fg"
+                  >
+                    {t(`legal.${link.href}`)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            {/* Language, per the client: in the menu on mobile, down here on
+                desktop. The footer is where a reader looks for the settings a
+                site keeps out of the way, and the nav bar has no room for it. */}
+            <LangToggle size="sm" />
+          </div>
         </Reveal>
       </div>
     </footer>

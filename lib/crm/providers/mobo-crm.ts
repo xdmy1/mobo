@@ -1,3 +1,4 @@
+import { ROOM_CRM_LABEL, type RoomId } from "@/lib/data";
 import type { CrmProvider, CrmResult, Lead } from "../types";
 
 /**
@@ -102,7 +103,13 @@ export const moboCrmProvider: CrmProvider = {
          beyond that gets a quote so the detail is visible in the CRM. */
       const detail: Record<string, string> = {};
       if (lead.email) detail["Email"] = lead.email;
-      if (lead.room) detail["Cameră"] = lead.room;
+      /* Pe fir vine un ID („kitchen"); în CRM intră eticheta românească,
+         fiindcă echipa MOBO citește CRM-ul în română indiferent de limba în
+         care a completat vizitatorul. Un lead vechi trimite direct eticheta. */
+      if (lead.room) {
+        detail["Cameră"] =
+          lead.room in ROOM_CRM_LABEL ? ROOM_CRM_LABEL[lead.room as RoomId] : lead.room;
+      }
       if (lead.budget) detail["Buget"] = lead.budget;
       if (lead.message) detail["Mesaj"] = lead.message;
 

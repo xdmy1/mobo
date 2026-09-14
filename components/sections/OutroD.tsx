@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "motion/react";
+import { useI18n } from "@/components/ui/LangProvider";
 import { HERO, SITE } from "@/lib/data";
 
 /* Same-origin and resized. `href={HERO.image}` pulled the 4032px WordPress
@@ -93,6 +94,7 @@ function CabinetFront({ index, progress }: { index: number; progress: MotionValu
 export default function OutroD() {
   const sectionRef = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
+  const { t } = useI18n();
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -113,13 +115,13 @@ export default function OutroD() {
   if (reduce) {
     return (
       <section
-        aria-label={`${SITE.shortName} — ${SITE.tagline}`}
+        aria-label={`${SITE.shortName} — ${t("site.tagline")}`}
         className="relative isolate w-full overflow-hidden bg-ink-950 py-20 sm:py-24"
       >
         <div className="mx-auto w-full max-w-[100rem] px-5">
           <Wordmark />
           <p className="text-eyebrow mt-6 text-center text-fg-dim">
-            {SITE.tagline} · {HERO.location}
+            {t("site.tagline")} · {t("hero.location")}
           </p>
         </div>
         </section>
@@ -129,7 +131,7 @@ export default function OutroD() {
   return (
     <section
       ref={sectionRef}
-      aria-label={`${SITE.shortName} — ${SITE.tagline}`}
+      aria-label={`${SITE.shortName} — ${t("site.tagline")}`}
       className="relative isolate h-[230svh] w-full bg-ink-950"
     >
       <div className="sticky top-0 flex h-svh w-full items-center justify-center overflow-hidden bg-ink-950">
@@ -141,7 +143,7 @@ export default function OutroD() {
             style={{ opacity: captionOpacity, y: captionY }}
             className="text-eyebrow mt-6 px-5 text-center text-fg-dim sm:mt-8"
           >
-            {SITE.tagline} · {HERO.location}
+            {t("site.tagline")} · {t("hero.location")}
           </motion.p>
         </div>
 

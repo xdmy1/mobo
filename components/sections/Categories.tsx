@@ -15,7 +15,9 @@ import {
   type ReactNode,
 } from "react";
 import { CATEGORIES, type Category } from "@/lib/data";
+import { useI18n } from "@/components/ui/LangProvider";
 import { Reveal } from "@/components/ui/Reveal";
+import type { TranslationKey } from "@/lib/i18n/dictionary";
 import { DUR, EASE_OUT, SPRING, STAGGER, VIEWPORT } from "@/lib/motion";
 
 /**
@@ -163,6 +165,16 @@ function cascadeDelay(index: number, cols: number): number {
   return ((index % cols) + Math.floor(index / cols)) * STAGGER;
 }
 
+/**
+ * Cheia de dicționar a unei categorii, construită din slug.
+ *
+ * `Category.slug` e `string` în date, deci literalul rezultat nu se verifică la
+ * compilare — cheile din content.ro.ts sunt însă generate din aceleași slug-uri.
+ */
+function categoryKey(slug: string, part: "label" | "blurb"): TranslationKey {
+  return `category.${slug}.${part}` as TranslationKey;
+}
+
 /** The arrow glyph, extracted so the chip can hold two of them (see below). */
 function ArrowGlyph({ className }: { className: string }) {
   return (
@@ -208,6 +220,8 @@ function ArrowGlyph({ className }: { className: string }) {
 function CategoryCard({ cat, delay }: { cat: Category; delay: number }) {
   const reduce = useReducedMotion();
   const fine = useFinePointer();
+  const { t } = useI18n();
+  const label = t(categoryKey(cat.slug, "label"));
   /* Coarse pointer or reduced motion → the tilt simply does not exist. */
   const tiltEnabled = fine && !reduce;
 
@@ -309,8 +323,8 @@ function CategoryCard({ cat, delay }: { cat: Category; delay: number }) {
                it is not — it stays generic but truthful. */
             alt={
               cat.needsPhoto
-                ? "Mobilier la comandă realizat de MOBO Kitchens & Home"
-                : `${cat.label} — mobilier la comandă realizat de MOBO Kitchens & Home`
+                ? t("sections.categories.imageAltGeneric")
+                : t("sections.categories.imageAlt", { label })
             }
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
@@ -426,8 +440,8 @@ function CategoryCard({ cat, delay }: { cat: Category; delay: number }) {
                   ellipsis keeps alignment and the full text stays in the
                   accessibility tree. No label wraps at normal sizes. */}
               <h3 className="line-clamp-1 text-[0.9375rem] font-medium tracking-[-0.012em] text-fg sm:text-h3">
-                {cat.label}
-                <span className="sr-only"> — solicită o ofertă</span>
+                {label}
+                <span className="sr-only">{` ${t("sections.categories.cardCta")}`}</span>
               </h3>
               {/* One line, ellipsised — which also solves the ragged panel
                   tops that the previous two-line reserve was there to fix, and
@@ -439,7 +453,7 @@ function CategoryCard({ cat, delay }: { cat: Category; delay: number }) {
                   height back. `truncate` rather than line-clamp-1: it is a
                   single line by definition and gets the ellipsis for free. */}
               <p className="mt-1 truncate text-[0.75rem] leading-relaxed text-fg-dim sm:mt-1.5 sm:text-[0.8125rem]">
-                {cat.blurb}
+                {t(categoryKey(cat.slug, "blurb"))}
               </p>
             </div>
           </div>
@@ -451,6 +465,7 @@ function CategoryCard({ cat, delay }: { cat: Category; delay: number }) {
 
 export default function Categories() {
   const cols = useGridColumns();
+  const { t } = useI18n();
 
   return (
     <section
@@ -461,12 +476,11 @@ export default function Categories() {
       <div className="mx-auto w-full max-w-[84rem] px-5 sm:px-8 lg:px-12">
         <header className="max-w-3xl">
           <Reveal>
-            <p className="text-eyebrow text-fg-faint">Ce producem</p>
+            <p className="text-eyebrow text-fg-faint">{t("sections.categories.eyebrow")}</p>
           </Reveal>
           <Reveal index={1}>
             <h2 id="categorii-title" className="text-h2 text-balance mt-5 text-fg">
-              Mobilier la comandă pentru{" "}
-              fiecare încăpere a casei.
+              {t("sections.categories.title")}
             </h2>
           </Reveal>
         </header>

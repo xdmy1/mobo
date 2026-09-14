@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useI18n } from "@/components/ui/LangProvider";
+import { pushConsentUpdate } from "@/lib/gtm";
 import { DUR, EASE_DRAWER } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -16,9 +18,10 @@ import { cn } from "@/lib/utils";
  * hidratare. Ștergerea datelor site-ului readuce bannerul — exact ce promite
  * politica de confidențialitate.
  *
- * Deocamdată site-ul nu încarcă niciun script de statistică sau marketing;
- * alegerea e înregistrată ca ele să poată fi condiționate de ea în ziua în
- * care apar. Cine le adaugă citește consimțământul cu readConsent().
+ * 2026-09-14: site-ul încarcă Google Tag Manager. Containerul pornește cu
+ * toate categoriile de stocare pe „denied" (Consent Mode v2, vezi lib/gtm.ts);
+ * decizia de aici o promovează prin pushConsentUpdate(). Orice alt script de
+ * statistică sau marketing adăugat ulterior citește alegerea cu readConsent().
  */
 
 export type CookieConsent = {
@@ -119,6 +122,7 @@ function Toggle({
 export default function CookieConsent() {
   const uid = useId();
   const reduce = useReducedMotion();
+  const { t, href } = useI18n();
 
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -141,6 +145,9 @@ export default function CookieConsent() {
 
   const decide = useCallback((withAnalytics: boolean, withMarketing: boolean) => {
     writeConsent(withAnalytics, withMarketing);
+    /* Google Tag Manager boots with every storage category denied; this is the
+       moment it learns what the visitor actually allowed. */
+    pushConsentUpdate({ analytics: withAnalytics, marketing: withMarketing });
     setOpen(false);
   }, []);
 
@@ -208,19 +215,20 @@ export default function CookieConsent() {
             )}
           >
             <h2 id={`${uid}-titlu`} className="text-h3 text-fg">
-              Respectăm datele tale.
+              {t("chrome.cookies.title")}
             </h2>
             <p
               id={`${uid}-text`}
               className="text-pretty mt-2.5 text-[0.875rem] leading-[1.65] text-fg-dim"
             >
-              Folosim cookie-uri și tehnologii similare ca site-ul să funcționeze, iar cu acordul
-              tău — ca să înțelegem cum e folosit și să ne promovăm mai eficient. Detalii în{" "}
+              {t("chrome.cookies.body")}{" "}
               <a
-                href="/politica-de-confidentialitate#cookie-uri"
+                /* Ancora rămâne slug-ul românesc: id-ul secțiunii din pagina
+                   legală e același în ambele limbi. */
+                href={`${href("/politica-de-confidentialitate")}#cookie-uri`}
                 className="text-fg underline decoration-white/30 underline-offset-2 transition-colors duration-200 ease-out-strong hover-fine:hover:decoration-lime-brand"
               >
-                Politica de confidențialitate
+                {t("chrome.cookies.policyLink")}
               </a>
               .
             </p>
@@ -229,22 +237,22 @@ export default function CookieConsent() {
               <div className="mt-4 divide-y divide-white/8 border-y border-white/8">
                 <Toggle
                   id={`${uid}-necesare`}
-                  label="Strict necesare"
-                  hint="Funcționarea și securitatea site-ului. Mereu active."
+                  label={t("chrome.cookies.necessary")}
+                  hint={t("chrome.cookies.necessaryHint")}
                   checked
                   disabled
                 />
                 <Toggle
                   id={`${uid}-statistica`}
-                  label="Statistică"
-                  hint="Ne arată anonim cum e folosit site-ul, ca să-l îmbunătățim."
+                  label={t("chrome.cookies.statistics")}
+                  hint={t("chrome.cookies.statisticsHint")}
                   checked={analytics}
                   onChange={setAnalytics}
                 />
                 <Toggle
                   id={`${uid}-marketing`}
-                  label="Marketing"
-                  hint="Ne ajută să-ți arătăm oferte relevante, nu reclame la nimereală."
+                  label={t("chrome.cookies.marketing")}
+                  hint={t("chrome.cookies.marketingHint")}
                   checked={marketing}
                   onChange={setMarketing}
                 />
@@ -266,7 +274,7 @@ export default function CookieConsent() {
                   "active:scale-[0.98]",
                 )}
               >
-                De acord
+                {t("chrome.cookies.accept")}
               </button>
 
               {expanded ? (
@@ -275,7 +283,7 @@ export default function CookieConsent() {
                   onClick={() => decide(analytics, marketing)}
                   className="glass glass-thin btn-3d-glass inline-flex h-12 select-none items-center justify-center rounded-pill px-6 text-[0.875rem] font-medium text-fg transition-transform duration-150 ease-out-strong active:scale-[0.98]"
                 >
-                  Salvează alegerea
+                  {t("chrome.cookies.save")}
                 </button>
               ) : (
                 <button
@@ -283,7 +291,7 @@ export default function CookieConsent() {
                   onClick={() => decide(false, false)}
                   className="glass glass-thin btn-3d-glass inline-flex h-12 select-none items-center justify-center rounded-pill px-6 text-[0.875rem] font-medium text-fg transition-transform duration-150 ease-out-strong active:scale-[0.98]"
                 >
-                  Doar necesare
+                  {t("chrome.cookies.necessaryOnly")}
                 </button>
               )}
 
@@ -293,7 +301,7 @@ export default function CookieConsent() {
                 aria-expanded={expanded}
                 className="inline-flex h-12 select-none items-center justify-center px-2 text-[0.875rem] text-fg-dim underline decoration-white/30 underline-offset-4 transition-colors duration-200 ease-out-strong hover-fine:hover:text-fg"
               >
-                {expanded ? "Ascunde opțiunile" : "Personalizează"}
+                {expanded ? t("chrome.cookies.hideOptions") : t("chrome.cookies.customize")}
               </button>
             </div>
           </motion.div>

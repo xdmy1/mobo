@@ -58,12 +58,19 @@ function clientIp(req: Request): string {
   return req.headers.get("x-real-ip") ?? "unknown";
 }
 
+/**
+ * MESAJELE DE EROARE SUNT CHEI DE DICȚIONAR, NU TEXT.
+ *
+ * Ruta nu știe limba vizitatorului — nu are context React și nici segmentul
+ * [lang] (proxy-ul o exclude din rescriere, fiindcă e JSON, nu pagină). Așa că
+ * întoarce `api.error.*`, iar clientul îl trece prin t() înainte de afișare.
+ */
 export async function POST(req: Request) {
   const ip = clientIp(req);
 
   if (!rateLimit(ip)) {
     return NextResponse.json(
-      { ok: false, error: "Prea multe cereri. Încearcă din nou peste câteva minute." },
+      { ok: false, error: "api.error.rateLimited" },
       { status: 429 },
     );
   }
@@ -71,14 +78,14 @@ export async function POST(req: Request) {
   /* Reject oversized bodies before parsing them. */
   const declared = Number(req.headers.get("content-length") ?? 0);
   if (declared > MAX_BODY_BYTES) {
-    return NextResponse.json({ ok: false, error: "Cerere prea mare." }, { status: 413 });
+    return NextResponse.json({ ok: false, error: "api.error.tooLarge" }, { status: 413 });
   }
 
   let raw: unknown;
   try {
     raw = await req.json();
   } catch {
-    return NextResponse.json({ ok: false, error: "Cerere invalidă." }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "api.error.invalid" }, { status: 400 });
   }
 
   const body = raw as Record<string, unknown>;
@@ -114,7 +121,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: "Nu am putut trimite cererea. Sună-ne direct la +373 60 331 331.",
+        error: "api.error.sendFailed",
       },
       { status: 502 },
     );

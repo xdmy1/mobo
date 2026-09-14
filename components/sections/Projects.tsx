@@ -2,9 +2,22 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useI18n } from "@/components/ui/LangProvider";
 import { Reveal } from "@/components/ui/Reveal";
 import { PROJECTS, PROJECTS_INDEX_HREF } from "@/lib/data";
+import type { TranslationKey } from "@/lib/i18n/dictionary";
 import { cn } from "@/lib/utils";
+
+/**
+ * Cheia de dicționar a unui proiect, construită din slug.
+ *
+ * `Project.slug` e `string` în date, deci literalul rezultat nu se poate
+ * verifica la compilare — cheile („project.str-miorita.title") sunt însă
+ * generate din aceleași slug-uri, în content.ro.ts / content.ru.ts.
+ */
+function projectKey(slug: string, part: "title" | "blurb"): TranslationKey {
+  return `project.${slug}.${part}` as TranslationKey;
+}
 
 /**
  * Proiecte realizate — împărțite pe case, nu pe încăperi.
@@ -32,11 +45,13 @@ export default function Projects({
    */
   variant?: "home" | "page";
 }) {
+  const { t, href } = useI18n();
+
   return (
     <section
       id="proiecte"
       aria-labelledby={variant === "home" ? "proiecte-titlu" : undefined}
-      aria-label={variant === "page" ? "Proiecte realizate" : undefined}
+      aria-label={variant === "page" ? t("sections.projects.ariaLabel") : undefined}
       className="relative bg-bone-50 text-fg-invert"
     >
       <div
@@ -49,14 +64,13 @@ export default function Projects({
           <header className="flex flex-col gap-6 border-b border-ink-850/15 pb-7 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
             <Reveal>
               <h2 id="proiecte-titlu" className="text-h2 text-balance max-w-[20ch]">
-                Proiecte realizate, casă cu casă.
+                {t("sections.projects.title")}
               </h2>
             </Reveal>
 
             <Reveal index={1} className="lg:max-w-sm lg:pb-1">
               <p className="text-pretty text-[0.9375rem] leading-[1.7] text-fg-invert-dim">
-                Fiecare proiect e o adresă reală din Chișinău: tot mobilierul unei locuințe,
-                măsurat, fabricat și montat de aceeași echipă.
+                {t("sections.projects.lead")}
               </p>
             </Reveal>
           </header>
@@ -70,60 +84,64 @@ export default function Projects({
             variant === "home" ? "mt-10 lg:mt-12" : "mt-2",
           )}
         >
-          {PROJECTS.map((proiect, i) => (
-            <Reveal key={proiect.slug} as="li" index={i % 3}>
-              <Link href={proiect.href} className="group block">
-                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[3px] bg-bone-200">
-                  <Image
-                    src={proiect.cover}
-                    alt={`${proiect.title} — ${proiect.blurb}`}
-                    fill
-                    placeholder={typeof proiect.cover === "string" ? "empty" : "blur"}
-                    sizes="(min-width: 1024px) 30vw, (min-width: 640px) 46vw, 92vw"
-                    className={cn(
-                      "object-cover",
-                      "transition-[scale] duration-[600ms] ease-out-strong",
-                      "hover-fine-motion:group-hover:scale-[1.03]",
-                    )}
-                  />
-                </div>
-
-                {/* Placa de catalog: adresa și creditul foto pe o baseline. */}
-                <div className="mt-4 flex items-baseline justify-between gap-4">
-                  <h3 className="text-h3 relative text-balance">
-                    {proiect.title}
-                    <span
-                      aria-hidden="true"
+          {PROJECTS.map((proiect, i) => {
+            const titlu = t(projectKey(proiect.slug, "title"));
+            const blurb = t(projectKey(proiect.slug, "blurb"));
+            return (
+              <Reveal key={proiect.slug} as="li" index={i % 3}>
+                <Link href={href(proiect.href)} className="group block">
+                  <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[3px] bg-bone-200">
+                    <Image
+                      src={proiect.cover}
+                      alt={t("sections.projects.coverAlt", { title: titlu, blurb })}
+                      fill
+                      placeholder={typeof proiect.cover === "string" ? "empty" : "blur"}
+                      sizes="(min-width: 1024px) 30vw, (min-width: 640px) 46vw, 92vw"
                       className={cn(
-                        "absolute inset-x-0 -bottom-1 h-px origin-left scale-x-0 bg-fg-invert",
-                        "transition-transform duration-[240ms] ease-out-strong",
-                        "group-focus-visible:scale-x-100 hover-fine-motion:group-hover:scale-x-100",
+                        "object-cover",
+                        "transition-[scale] duration-[600ms] ease-out-strong",
+                        "hover-fine-motion:group-hover:scale-[1.03]",
                       )}
                     />
-                  </h3>
-                  <span className="text-eyebrow shrink-0 text-fg-invert-dim">
-                    {proiect.photoCount} foto
-                  </span>
-                </div>
-
-                <p className="mt-2 text-pretty text-sm leading-[1.65] text-fg-invert-dim">
-                  {proiect.blurb}
-                </p>
-              </Link>
-            </Reveal>
-          ))}
+                  </div>
+  
+                  {/* Placa de catalog: adresa și creditul foto pe o baseline. */}
+                  <div className="mt-4 flex items-baseline justify-between gap-4">
+                    <h3 className="text-h3 relative text-balance">
+                      {titlu}
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "absolute inset-x-0 -bottom-1 h-px origin-left scale-x-0 bg-fg-invert",
+                          "transition-transform duration-[240ms] ease-out-strong",
+                          "group-focus-visible:scale-x-100 hover-fine-motion:group-hover:scale-x-100",
+                        )}
+                      />
+                    </h3>
+                    <span className="text-eyebrow shrink-0 text-fg-invert-dim">
+                      {t("sections.projects.photoCount", { count: proiect.photoCount })}
+                    </span>
+                  </div>
+  
+                  <p className="mt-2 text-pretty text-sm leading-[1.65] text-fg-invert-dim">
+                    {blurb}
+                  </p>
+                </Link>
+              </Reveal>
+            );
+          })}
         </ul>
 
         {variant === "home" && (
           <Reveal className="mt-14 border-t border-ink-850/15 pt-7">
             <Link
-              href={PROJECTS_INDEX_HREF}
+              href={href(PROJECTS_INDEX_HREF)}
               className={cn(
                 "group inline-flex items-baseline gap-2 text-[0.9375rem] font-medium",
                 "transition-colors duration-200 ease-out-strong hover-fine:hover:text-lime-on-light",
               )}
             >
-              Vezi toate proiectele
+              {t("sections.projects.viewAll")}
               <span
                 aria-hidden="true"
                 className="transition-transform duration-200 ease-out-strong hover-fine:group-hover:translate-x-1"

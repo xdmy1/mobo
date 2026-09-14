@@ -1,7 +1,28 @@
 /**
- * All content on this page is the real content of mobo.md — copy, project
- * names, reviews, contact details and media are lifted from the live site so
- * the redesign can be judged on design rather than on placeholder text.
+ * Structura conținutului: slug-uri, imagini, ID-uri, numere, href-uri.
+ *
+ * ⚠️ TEXTUL AFIȘAT NU MAI STĂ AICI. De la 2026-09-14 site-ul e bilingv (RO/RU),
+ * iar tot ce citește vizitatorul vine din `lib/i18n/dictionaries/*`, legat de
+ * datele de mai jos prin slug sau prin cheie:
+ *
+ *   PROJECTS[].slug      → project.<slug>.title / .blurb
+ *   CATEGORIES[].slug    → category.<slug>.label / .blurb
+ *   spatiu(<key>)        → space.<key>
+ *   PROCESS[].n          → process.<n>.title / .description, service.<n>.detail
+ *   PARTNERS[].name      → partner.<name>.origin / .role
+ *   MATERIAL_TIERS[].name→ tier.<name>.name / .blurb
+ *   ROOM_IDS[]           → room.<id>
+ *   STATS index          → stat.<i>.label / .suffix
+ *
+ * Câteva exporturi (HERO, ABOUT, ADVANTAGES, HISTORY, REVIEWS, SITE.tagline…)
+ * își păstrează câmpurile de text: le mai citesc componentele ARHIVATE, ținute
+ * „pentru referință" (Outro*, Sequence*, Categories, WhyMobo). Pe site nu se
+ * mai vede niciunul — a edita textul acolo NU schimbă nimic. Editează
+ * dicționarul.
+ *
+ * Ce pleacă spre CRM nu se traduce niciodată: vezi ROOM_CRM_LABEL mai jos și
+ * `summarize()` din lib/calculator.ts — echipa MOBO citește CRM-ul în română
+ * indiferent de limba în care a completat vizitatorul.
  *
  * 2026-09-12: NIMIC nu mai vine de pe media library-ul WordPress — hostingul
  * vechi a picat (509 Bandwidth Limit Exceeded) chiar când mobo.md a fost mutat
@@ -440,23 +461,64 @@ export type ProjectPhoto = {
   wide?: boolean;
 };
 
+/**
+ * Încăperile pe care le poate conține o ședință foto.
+ *
+ * Sunt CHEI, nu etichete: eticheta afișată vine din dicționarul de limbă
+ * (`dict.spaces`). Până la 2026-09-14 aici stătea textul românesc, iar galeria
+ * de bucătării îl filtra cu `label.includes("ucătărie")` — o potrivire pe
+ * fragment care s-ar fi rupt tăcut la prima traducere, lăsând /bucatarii gol.
+ */
+export const SPACE_KEYS = [
+  "antreu",
+  "baie",
+  "bar-bucatarie",
+  "birou",
+  "bucatarie",
+  "bucatarie-dining",
+  "camera-copilului",
+  "dormitor",
+  "dormitor-doi",
+  "dormitor-matrimonial",
+  "dressing",
+  "living",
+  "lounge",
+  "sala-de-mese",
+  "scara",
+] as const;
+
+export type SpaceKey = (typeof SPACE_KEYS)[number];
+
+/** Ce spații intră în galeria transversală de bucătării. */
+const KITCHEN_SPACE_KEYS: ReadonlySet<SpaceKey> = new Set<SpaceKey>([
+  "bucatarie",
+  "bucatarie-dining",
+  "bar-bucatarie",
+]);
+
+/** Cum stau spațiile în date: cheie + cadre. */
+export type ProjectSpaceData = {
+  key: SpaceKey;
+  photos: ProjectPhoto[];
+};
+
+/**
+ * Ce consumă galeria: etichetă gata tradusă. Paginile fac traducerea cheii
+ * înainte de a da mai departe, ca ProjectGallery să rămână fără limbă.
+ */
 export type ProjectSpace = {
-  /** Eticheta spațiului („Bucătărie", „Antreu"). Lipsește la galeriile negrupate. */
   label?: string;
   photos: ProjectPhoto[];
 };
 
 export type Project = {
   slug: string;
-  title: string;
-  /** O propoziție despre ce arată coperta — legenda cardului. */
-  blurb: string;
   /** Numărul de cadre din galerie — selecția reală, nu inventat. */
   photoCount: number;
   href: string;
   cover: string | StaticImageData;
   /** Galeria, în ordinea în care parcurgi casa: spațiu după spațiu. */
-  spaces: ProjectSpace[];
+  spaces: ProjectSpaceData[];
 };
 
 /** URL-ul unei coperți pentru contexte care cer string (og:image). */
@@ -465,9 +527,9 @@ export function coverUrl(cover: Project["cover"]): string {
 }
 
 /** Un spațiu din ședința locală — orientarea vine din dimensiunile reale. */
-function spatiu(label: string, ...images: StaticImageData[]): ProjectSpace {
+function spatiu(key: SpaceKey, ...images: StaticImageData[]): ProjectSpaceData {
   return {
-    label,
+    key,
     photos: images.map((img) => ({ src: img, ...(img.width > img.height ? { wide: true } : {}) })),
   };
 }
@@ -477,56 +539,48 @@ export const PROJECTS: Project[] = [
      prin casă; în fiecare spațiu, cadrul de ansamblu întâi, detaliile după. */
   {
     slug: "str-universitatii",
-    title: "Strada Universității",
-    blurb: "Dressing cu fronturi din furnir de nuc și uși glisante din sticlă riflată.",
     photoCount: 30,
     href: "/proiecte/str-universitatii",
     cover: dressing01,
     spaces: [
-      spatiu("Dressing", dressing01, dressing02, dressing03),
-      spatiu("Bucătărie", bucatarie01, bucatarie02, bucatarie03, bucatarie04, bucatarie05, bucatarie06, bucatarie07),
-      spatiu("Living", living01, living02, living03, living04),
-      spatiu("Dormitor matrimonial", dormitor01, dormitor02, dormitor03, dormitor04, dormitor05, dormitor06, dormitor07, dormitor08),
-      spatiu("Al doilea dormitor", dormitorDoi01, dormitorDoi02),
-      spatiu("Baie", baie01),
-      spatiu("Antreu", antreu01, antreu02, antreu03, antreu04, antreu05),
+      spatiu("dressing", dressing01, dressing02, dressing03),
+      spatiu("bucatarie", bucatarie01, bucatarie02, bucatarie03, bucatarie04, bucatarie05, bucatarie06, bucatarie07),
+      spatiu("living", living01, living02, living03, living04),
+      spatiu("dormitor-matrimonial", dormitor01, dormitor02, dormitor03, dormitor04, dormitor05, dormitor06, dormitor07, dormitor08),
+      spatiu("dormitor-doi", dormitorDoi01, dormitorDoi02),
+      spatiu("baie", baie01),
+      spatiu("antreu", antreu01, antreu02, antreu03, antreu04, antreu05),
     ],
   },
   {
     slug: "str-bucovina",
-    title: "Strada Bucovinei",
-    blurb: "Baie cu lavoar din piatră cu aspect de marmură și corp suspendat negru mat.",
     photoCount: 20,
     href: "/proiecte/str-bucovina",
     cover: bucBaie01,
     spaces: [
-      spatiu("Antreu", bucAntreu01, bucAntreu02, bucAntreu03, bucAntreu04),
-      spatiu("Scară", bucScara01, bucScara02, bucScara03, bucScara04, bucScara05),
-      spatiu("Bucătărie", bucBucatarie01, bucBucatarie02, bucBucatarie03, bucBucatarie04, bucBucatarie05, bucBucatarie06),
-      spatiu("Baie", bucBaie01, bucBaie02),
-      spatiu("Dressing", bucDressing01, bucDressing02, bucDressing03),
+      spatiu("antreu", bucAntreu01, bucAntreu02, bucAntreu03, bucAntreu04),
+      spatiu("scara", bucScara01, bucScara02, bucScara03, bucScara04, bucScara05),
+      spatiu("bucatarie", bucBucatarie01, bucBucatarie02, bucBucatarie03, bucBucatarie04, bucBucatarie05, bucBucatarie06),
+      spatiu("baie", bucBaie01, bucBaie02),
+      spatiu("dressing", bucDressing01, bucDressing02, bucDressing03),
     ],
   },
   {
     slug: "str-miorita",
-    title: "Strada Miorița",
-    blurb: "Antreu alb cu dulap până în tavan și mânere profil din lemn.",
     photoCount: 21,
     href: "/proiecte/str-miorita",
     cover: mioAntreu01,
     spaces: [
-      spatiu("Antreu", mioAntreu01, mioAntreu02, mioAntreu03),
-      spatiu("Living", mioLiving01, mioLiving02, mioLiving03, mioLiving04, mioLiving05, mioLiving06),
-      spatiu("Bucătărie", mioBucatarie01, mioBucatarie02, mioBucatarie03, mioBucatarie04),
-      spatiu("Dormitor", mioDormitor01, mioDormitor02, mioDormitor03, mioDormitor04),
-      spatiu("Dressing", mioDressing01),
-      spatiu("Baie", mioBaie01, mioBaie02, mioBaie03),
+      spatiu("antreu", mioAntreu01, mioAntreu02, mioAntreu03),
+      spatiu("living", mioLiving01, mioLiving02, mioLiving03, mioLiving04, mioLiving05, mioLiving06),
+      spatiu("bucatarie", mioBucatarie01, mioBucatarie02, mioBucatarie03, mioBucatarie04),
+      spatiu("dormitor", mioDormitor01, mioDormitor02, mioDormitor03, mioDormitor04),
+      spatiu("dressing", mioDressing01),
+      spatiu("baie", mioBaie01, mioBaie02, mioBaie03),
     ],
   },
   {
     slug: "str-ialoveni",
-    title: "Strada Ialoveni",
-    blurb: "Bar din stejar afumat cu blat alb, sub tavan din lamele negre — lounge și sală de mese.",
     photoCount: 12,
     /* Coperta e un cadru VERTICAL — cerință de client: cardul taie la 3:4, iar
        cadrul landscape de lounge ieșea mărit și moale. bucatarie-03 e portret
@@ -534,42 +588,38 @@ export const PROJECTS: Project[] = [
     href: "/proiecte/str-ialoveni",
     cover: ialBucatarie03,
     spaces: [
-      spatiu("Lounge", ialLiving01),
-      spatiu("Bar și bucătărie", ialBucatarie01, ialBucatarie02, ialBucatarie03, ialBucatarie04, ialBucatarie05, ialBucatarie06, ialBucatarie07),
-      spatiu("Sală de mese", ialSala01, ialSala02, ialSala03, ialDetaliu01),
+      spatiu("lounge", ialLiving01),
+      spatiu("bar-bucatarie", ialBucatarie01, ialBucatarie02, ialBucatarie03, ialBucatarie04, ialBucatarie05, ialBucatarie06, ialBucatarie07),
+      spatiu("sala-de-mese", ialSala01, ialSala02, ialSala03, ialDetaliu01),
     ],
   },
   {
     slug: "str-valentin-rosca",
-    title: "Strada Valentin Roșca",
-    blurb: "Birou acasă — dulap alb cu fronturi riflate și masă de lucru din nuc.",
     photoCount: 23,
     href: "/proiecte/str-valentin-rosca",
     cover: vrBirou01,
     spaces: [
-      spatiu("Birou", vrBirou01),
-      spatiu("Dressing", vrDressing01, vrDressing02),
-      spatiu("Dormitor matrimonial", vrDormitor01, vrDormitor02, vrDormitor03, vrDormitor04, vrDormitor05, vrDormitor06, vrDormitor07),
-      spatiu("Al doilea dormitor", vrDormitorDoi01),
-      spatiu("Bucătărie", vrBucatarie01, vrBucatarie02, vrBucatarie03, vrBucatarie04, vrBucatarie05),
-      spatiu("Baie", vrBaie01, vrBaie02, vrBaie03, vrBaie04, vrBaie05, vrBaie06, vrBaie07),
+      spatiu("birou", vrBirou01),
+      spatiu("dressing", vrDressing01, vrDressing02),
+      spatiu("dormitor-matrimonial", vrDormitor01, vrDormitor02, vrDormitor03, vrDormitor04, vrDormitor05, vrDormitor06, vrDormitor07),
+      spatiu("dormitor-doi", vrDormitorDoi01),
+      spatiu("bucatarie", vrBucatarie01, vrBucatarie02, vrBucatarie03, vrBucatarie04, vrBucatarie05),
+      spatiu("baie", vrBaie01, vrBaie02, vrBaie03, vrBaie04, vrBaie05, vrBaie06, vrBaie07),
     ],
   },
   {
     slug: "str-constantin-stere",
-    title: "Strada Constantin Stere",
-    blurb: "Bucătărie bej cu vitrină din sticlă fumurie, deschisă spre zona de luat masa.",
     photoCount: 21,
     href: "/proiecte/str-constantin-stere",
     /* Copertă VERTICALĂ (regula stabilită la Ialoveni: cardul taie la 3:4,
        cadrele landscape ies moi) — 02 e portret nativ și chiar scena din blurb. */
     cover: csBucatarie02,
     spaces: [
-      spatiu("Antreu", csAntreu01, csAntreu02, csAntreu03, csAntreu04),
-      spatiu("Bucătărie și dining", csBucatarie01, csBucatarie02, csBucatarie03, csBucatarie04, csBucatarie05, csBucatarie06, csBucatarie07),
-      spatiu("Living", csLiving01, csLiving02, csLiving03, csLiving04),
-      spatiu("Birou", csBirou01, csBirou02),
-      spatiu("Camera copilului", csCopii01, csCopii02, csCopii03, csCopii04),
+      spatiu("antreu", csAntreu01, csAntreu02, csAntreu03, csAntreu04),
+      spatiu("bucatarie-dining", csBucatarie01, csBucatarie02, csBucatarie03, csBucatarie04, csBucatarie05, csBucatarie06, csBucatarie07),
+      spatiu("living", csLiving01, csLiving02, csLiving03, csLiving04),
+      spatiu("birou", csBirou01, csBirou02),
+      spatiu("camera-copilului", csCopii01, csCopii02, csCopii03, csCopii04),
     ],
   },
 ];
@@ -585,10 +635,12 @@ export const PROJECTS_INDEX_HREF = "/proiecte";
  * proiect, etichetat cu adresa lui, în aceeași galerie pe spații de pe
  * paginile proiectelor. Un proiect nou cu bucătărie intră aici de la sine.
  */
-export const KITCHENS_GALLERY: ProjectSpace[] = PROJECTS.flatMap((project) => {
-  const kitchen = project.spaces.find((space) => space.label?.includes("ucătărie"));
-  return kitchen ? [{ label: project.title, photos: kitchen.photos }] : [];
-});
+export const KITCHENS_GALLERY: { slug: string; photos: ProjectPhoto[] }[] = PROJECTS.flatMap(
+  (project) => {
+    const kitchen = project.spaces.find((space) => KITCHEN_SPACE_KEYS.has(space.key));
+    return kitchen ? [{ slug: project.slug, photos: kitchen.photos }] : [];
+  },
+);
 
 export const KITCHENS_HREF = "/bucatarii";
 
@@ -684,7 +736,6 @@ export const STATS = [
   { value: 9, suffix: " etape", label: "De la consultație la montaj" },
 ] as const;
 
-export const MATERIALS = ["Standard", "Optim", "Premium"] as const;
 
 /* ----------------------------------------------------------------- About -- */
 
@@ -769,7 +820,33 @@ export const GOOGLE_RATING = { value: "4,8", count: 21 } as const;
    întrebarea despre buget a dispărut din formular („asta ar putea speria").
    BUDGET_OPTIONS supraviețuiește doar pentru schema serverului — un lead vechi
    sau un client cu pagina în cache poate încă trimite un buget valid. */
-export const ROOM_OPTIONS = ["Bucătărie", "Întreaga locuință"] as const;
+
+/**
+ * Ce mobilăm — ID-uri, nu etichete.
+ *
+ * Până la 2026-09-14 textul românesc era simultan eticheta afișată, valoarea
+ * trimisă pe fir și enum-ul Zod de pe server. Cu site-ul în două limbi asta
+ * s-ar fi rupt imediat: un vizitator rus ar fi trimis „Кухня", iar enum-ul
+ * l-ar fi respins cu 422. Acum pe fir circulă ID-ul, iar eticheta vine din
+ * dicționar.
+ */
+export const ROOM_IDS = ["kitchen", "whole-home"] as const;
+
+export type RoomId = (typeof ROOM_IDS)[number];
+
+/**
+ * Valorile românești trimise de formular ÎNAINTE de 2026-09-14. Serverul le
+ * acceptă în continuare: o pagină rămasă deschisă într-un tab sau servită din
+ * cache încă postează textul vechi, și n-are de ce să piardă lead-ul.
+ */
+export const LEGACY_ROOM_VALUES = ["Bucătărie", "Întreaga locuință"] as const;
+
+/** Ce scrie în CRM, indiferent de limba în care a completat vizitatorul —
+    echipa MOBO citește CRM-ul în română. */
+export const ROOM_CRM_LABEL: Record<RoomId, string> = {
+  kitchen: "Bucătărie",
+  "whole-home": "Întreaga locuință",
+};
 
 export const BUDGET_OPTIONS = [
   "Sub 30 000 MDL",
@@ -780,23 +857,6 @@ export const BUDGET_OPTIONS = [
 ] as const;
 
 /* ------------------------------------------------------- Pagina Servicii -- */
-
-/**
- * Descrierile extinse ale celor 9 etape, pentru pagina /servicii. Aliniate prin
- * index cu PROCESS — conținutul e preluat de pe mobo.md/servicii, unde fiecare
- * etapă are un paragraf întreg, nu doar rezumatul de pe homepage.
- */
-export const SERVICE_DETAILS: string[] = [
-  "Fiecare proiect începe cu o discuție personalizată, la showroom sau la telefon. Analizăm împreună spațiul, stilul dorit și bugetul disponibil, ca să identificăm din start materialele și soluțiile potrivite pentru tine.",
-  "Echipa noastră vine la fața locului și ia măsurători exacte cu echipament modern. Fiecare centimetru contează: corpurile, blaturile și spațiile de depozitare trebuie să se integreze perfect în încăpere.",
-  "Designerii noștri transformă măsurătorile într-un proiect 3D detaliat, cu randări realiste. Vezi mobilierul în spațiul tău înainte de producție — configurație, culori, sisteme de depozitare inteligente.",
-  "Îți prezentăm proiectul final și discutăm fiecare detaliu: scheme de culori, calitatea materialelor, feronerie. Feedback-ul tău este implementat înainte ca proiectul să plece în producție.",
-  "Toate detaliile convenite intră într-un contract clar și transparent: termene de livrare, specificații tehnice, condiții de garanție. Știi exact ce primești și când.",
-  "Mobilierul este fabricat în atelierul nostru, cu tehnologie avansată și materiale certificate — plăci stratificate, MDF de înaltă calitate, accesorii premium — sub un control riguros al calității.",
-  "Livrăm mobilierul în siguranță, în ambalaje de protecție, respectând termenii stabiliți în contract. Fiecare componentă este verificată înainte de instalare.",
-  "Montatorii noștri cu experiență asamblează mobilierul rapid și precis, inclusiv sistemele soft-close și sertarele cu mecanisme inteligente Blum. Totul este reglat și verificat împreună cu tine.",
-  "Beneficiezi de 5 ani garanție pentru toate produsele — reflectă încrederea noastră în materialele folosite și în execuție. Deservire la un singur apel, cu posibilitate de prelungire.",
-];
 
 /**
  * Cele trei categorii de materiale dintre care alege clientul. Denumirile sunt

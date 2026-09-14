@@ -2,8 +2,10 @@
 
 import { motion, useReducedMotion, type Variants } from "motion/react";
 import { Counter } from "@/components/ui/Counter";
+import { useI18n } from "@/components/ui/LangProvider";
 import { Reveal } from "@/components/ui/Reveal";
-import { ADVANTAGES, MATERIALS, STATS } from "@/lib/data";
+import { STATS } from "@/lib/data";
+import type { TranslationKey } from "@/lib/i18n/dictionary";
 import { DUR, EASE_OUT, VIEWPORT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -71,8 +73,36 @@ function riseVariants(reduce: boolean, delay: number): Variants {
  *  encodes Standard → Optim → Premium, so no badge or pill is needed. */
 const TIER_RULE = ["border-white/15", "border-white/35", "border-white/60"];
 
+/* Cele trei trepte, în ordinea în care urcă. Numele lor se traduc (Standard →
+   Стандарт), deci vin din dicționar, nu din constanta de date. */
+const TIER_NAME_KEYS = [
+  "tier.standard.name",
+  "tier.optim.name",
+  "tier.premium.name",
+] as const satisfies readonly TranslationKey[];
+
+/* Cele șapte angajamente, în ordinea din listă. */
+const ADVANTAGE_KEYS = [
+  "advantage.0",
+  "advantage.1",
+  "advantage.2",
+  "advantage.3",
+  "advantage.4",
+  "advantage.5",
+  "advantage.6",
+] as const satisfies readonly TranslationKey[];
+
+/* Sufixul și eticheta fiecărei cifre de probă; valoarea rămâne în STATS. */
+const STAT_KEYS = [
+  { suffix: "stat.0.suffix", label: "stat.0.label" },
+  { suffix: "stat.1.suffix", label: "stat.1.label" },
+  { suffix: "stat.2.suffix", label: "stat.2.label" },
+  { suffix: "stat.3.suffix", label: "stat.3.label" },
+] as const satisfies readonly { suffix: TranslationKey; label: TranslationKey }[];
+
 export default function WhyMobo() {
   const reduce = useReducedMotion() ?? false;
+  const { t } = useI18n();
 
   return (
     <section
@@ -85,31 +115,30 @@ export default function WhyMobo() {
           {/* ------------------------------------------------------ pitch -- */}
           <div className="lg:col-span-5">
             <Reveal>
-              <p className="text-eyebrow text-fg-faint">De ce MOBO</p>
+              <p className="text-eyebrow text-fg-faint">{t("sections.why.eyebrow")}</p>
             </Reveal>
 
             <Reveal index={1}>
               <h2 id="avantaje-title" className="text-h2 mt-6 text-balance text-fg">
-                Fiecare detaliu este gândit, nu improvizat.
+                {t("sections.why.title")}
               </h2>
             </Reveal>
 
             <Reveal index={2}>
               <p className="text-body mt-6 max-w-[46ch] text-pretty text-fg-dim">
-                De la primul proiect 3D până la verificarea finală făcută împreună cu tine, fiecare
-                etapă are un termen clar și un contract transparent în spate.
+                {t("sections.why.lead")}
               </p>
             </Reveal>
 
             <Reveal index={3}>
               <div className="mt-14">
-                <p className="text-eyebrow text-fg-faint">Trei categorii de materiale</p>
+                <p className="text-eyebrow text-fg-faint">{t("sections.why.materials")}</p>
                 {/* Three short columns, each standing on its own hairline — the
                     same "content on a rule" language as the stats below. */}
                 <ul role="list" className="mt-5 grid max-w-sm list-none grid-cols-3 gap-x-4">
-                  {MATERIALS.map((material, i) => (
-                    <li key={material} className={cn("border-t pt-3", TIER_RULE[i])}>
-                      <span className="text-[0.9375rem] font-medium text-fg">{material}</span>
+                  {TIER_NAME_KEYS.map((key, i) => (
+                    <li key={key} className={cn("border-t pt-3", TIER_RULE[i])}>
+                      <span className="text-[0.9375rem] font-medium text-fg">{t(key)}</span>
                     </li>
                   ))}
                 </ul>
@@ -128,7 +157,7 @@ export default function WhyMobo() {
               whileInView="visible"
               viewport={VIEWPORT}
             >
-              {ADVANTAGES.map((advantage, i) => (
+              {ADVANTAGE_KEYS.map((advantage, i) => (
                 <li key={advantage} className="relative py-5 sm:py-6">
                   {i > 0 && (
                     <motion.span
@@ -150,7 +179,7 @@ export default function WhyMobo() {
                     >
                       {String(i + 1).padStart(2, "0")}
                     </span>
-                    <p className="text-h3 text-pretty text-fg">{advantage}</p>
+                    <p className="text-h3 text-pretty text-fg">{t(advantage)}</p>
                   </motion.div>
                 </li>
               ))}
@@ -179,7 +208,7 @@ export default function WhyMobo() {
           >
             {STATS.map((stat, i) => (
               <motion.li
-                key={stat.label}
+                key={STAT_KEYS[i].label}
                 variants={riseVariants(reduce, 0.1 + i * 0.08)}
                 className={cn(
                   i === 1 && "border-l border-white/8 pl-6 lg:pl-10",
@@ -189,7 +218,7 @@ export default function WhyMobo() {
               >
                 <Counter
                   value={stat.value}
-                  suffix={stat.suffix}
+                  suffix={t(STAT_KEYS[i].suffix)}
                   className={cn(
                     "block text-[clamp(2.5rem,5vw,4rem)] leading-none font-medium tracking-[-0.02em] tabular-nums",
                     /* Lime lands on the warranty alone — the core promise. */
@@ -197,7 +226,7 @@ export default function WhyMobo() {
                   )}
                 />
                 <span className="text-eyebrow mt-4 block leading-[1.6] text-balance text-fg-dim">
-                  {stat.label}
+                  {t(STAT_KEYS[i].label)}
                 </span>
               </motion.li>
             ))}

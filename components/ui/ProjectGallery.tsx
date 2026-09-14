@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
+import { useI18n } from "@/components/ui/LangProvider";
 import { cn } from "@/lib/utils";
 import type { ProjectSpace } from "@/lib/data";
 
@@ -49,6 +50,7 @@ export default function ProjectGallery({
   className?: string;
 }) {
   const reduce = useReducedMotion();
+  const { t } = useI18n();
   const trackRef = useRef<HTMLUListElement>(null);
   const [index, setIndex] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -166,11 +168,11 @@ export default function ProjectGallery({
   const counter = `${String(index + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
 
   return (
-    <figure className={className} role="group" aria-label={`Galerie foto — ${title}`}>
+    <figure className={className} role="group" aria-label={t("chrome.gallery.figure", { title })}>
       {/* -------------------------------------------------- bara de spații */}
       {labeled && (
         <nav
-          aria-label="Spațiile casei, în ordinea galeriei"
+          aria-label={t("chrome.gallery.spaces")}
           className="mx-auto mb-6 flex w-full max-w-[88rem] flex-wrap gap-x-6 gap-y-2 px-5 sm:px-8 lg:px-12"
         >
           {spaces.map((space, i) => (
@@ -196,7 +198,7 @@ export default function ProjectGallery({
       <ul
         ref={trackRef}
         tabIndex={0}
-        aria-label={`Fotografiile proiectului ${title}, spațiu după spațiu. Folosește săgețile pentru a naviga.`}
+        aria-label={t("chrome.gallery.track", { title })}
         onScroll={onScroll}
         onKeyDown={(e) => {
           if (e.key === "ArrowRight") {
@@ -255,8 +257,13 @@ export default function ProjectGallery({
                 src={slide.src}
                 alt={
                   labeled
-                    ? `${title} — ${spaceLabel}, fotografia ${i + 1} din ${slides.length}`
-                    : `${title} — fotografia ${i + 1} din ${slides.length}`
+                    ? t("chrome.gallery.altSpace", {
+                        title,
+                        space: spaceLabel ?? "",
+                        n: i + 1,
+                        total: slides.length,
+                      })
+                    : t("chrome.gallery.alt", { title, n: i + 1, total: slides.length })
                 }
                 fill
                 sizes={
@@ -313,7 +320,7 @@ export default function ProjectGallery({
             type="button"
             onClick={() => step(-1)}
             disabled={index === 0}
-            aria-label="Fotografia precedentă"
+            aria-label={t("chrome.gallery.prev")}
             className={cn(
               "glass glass-invert btn-3d-glass grid size-10 place-items-center rounded-full",
               "transition-[transform,opacity] duration-[160ms] ease-out-strong active:scale-[0.94]",
@@ -328,7 +335,7 @@ export default function ProjectGallery({
             type="button"
             onClick={() => step(1)}
             disabled={index === slides.length - 1}
-            aria-label="Fotografia următoare"
+            aria-label={t("chrome.gallery.next")}
             className={cn(
               "glass glass-invert btn-3d-glass grid size-10 place-items-center rounded-full",
               "transition-[transform,opacity] duration-[160ms] ease-out-strong active:scale-[0.94]",

@@ -30,6 +30,20 @@
  */
 
 import type { StaticImageData } from "next/image";
+import type { Lang } from "@/lib/i18n/config";
+import type { TranslationKey } from "@/lib/i18n/dictionary";
+
+/**
+ * Bilingv: fiecare opțiune poartă DOUĂ etichete.
+ *
+ * `label` / `blurb` sunt textele ROMÂNEȘTI și rămân sursa pentru `summarize()`,
+ * adică pentru `_wizardQuote`-ul din CRM — echipa MOBO citește CRM-ul în
+ * română, indiferent în ce limbă a configurat vizitatorul. Nu le traduce.
+ *
+ * `labelKey` / `blurbKey` sunt cheile de dicționar pentru ECRAN; componenta
+ * (client, are context) face `t(option.labelKey)`. Modulul ăsta nu importă
+ * dicționarul — doar tipul cheilor, ca o cheie greșită să pice la compilare.
+ */
 
 /* Fiecare opțiune vizuală poartă o fotografie REALĂ din ședințele proiectelor —
    nu stock, nu randări: cardul de „furnir" chiar arată furnirul montat de MOBO
@@ -143,8 +157,12 @@ export type CorpChoice = "egger_alb" | "egger_color";
 
 export type PhotoOption<V extends string = string> = {
   value: V;
+  /** Română — pleacă spre CRM prin `summarize()`. */
   label: string;
+  /** Cheia de dicționar pentru afișare. */
+  labelKey: TranslationKey;
   blurb: string;
+  blurbKey: TranslationKey;
   /** Cadru real dintr-un proiect MOBO — vezi blocul de importuri de mai sus. */
   image: StaticImageData;
   /** Cadru separat pentru bannerul din pasul „Estimarea ta" (dacă diferă de card). */
@@ -155,13 +173,17 @@ export const MODE_OPTIONS: PhotoOption<Mode>[] = [
   {
     value: "standart",
     label: "Standart",
+    labelKey: "calc.mode.standart",
     blurb: "Materiale verificate și feronerie de bază — cel mai accesibil punct de pornire.",
+    blurbKey: "calc.mode.standart.blurb",
     image: mioBucatarie01,
   },
   {
     value: "premium",
     label: "Premium",
+    labelKey: "calc.mode.premium",
     blurb: "Plăci și mecanisme din gamele înalte, finisaje speciale, execuție de vitrină.",
+    blurbKey: "calc.mode.premium.blurb",
     /* Client, 2026-09-10: aici stă bucătăria de pe strada Universității. */
     image: uniBucatarie01,
   },
@@ -171,52 +193,77 @@ export const MODE_OPTIONS: PhotoOption<Mode>[] = [
    se vede mobilierul, nu masa; garderoba e dulapul cu uși de sticlă de la
    Bucovinei; dulapul e dulapul alb riflat de la Valentin Roșca; piesele mici —
    masa de machiaj de la Miorița. Bannerul din pasul final are cadru propriu. */
-export const TYPE_OPTIONS: PhotoOption<FurnitureType>[] = [
+export const TYPE_OPTIONS: (PhotoOption<FurnitureType> & {
+  /** Forma de mic, pentru fraza „… la comandă" de sub bannerul final. */
+  lowerKey: TranslationKey;
+})[] = [
   {
     value: "bucatarie",
     label: "Bucătărie",
+    labelKey: "calc.type.bucatarie",
+    lowerKey: "calc.type.bucatarie.lower",
     blurb: "Corpuri jos și sus, pe forma spațiului tău.",
+    blurbKey: "calc.type.bucatarie.blurb",
     image: csBucatarie01,
     resultImage: ialBucatarie02,
   },
   {
     value: "garderoba",
     label: "Garderobă",
+    labelKey: "calc.type.garderoba",
+    lowerKey: "calc.type.garderoba.lower",
     blurb: "Cameră de haine organizată la centimetru, cu uși sau deschisă.",
+    blurbKey: "calc.type.garderoba.blurb",
     image: bucAntreu01,
   },
   {
     value: "dulap",
     label: "Dulap",
+    labelKey: "calc.type.dulap",
+    lowerKey: "calc.type.dulap.lower",
     blurb: "Dulap închis, până în tavan, cu uși batante sau glisante.",
+    blurbKey: "calc.type.dulap.blurb",
     image: vrBirou01,
   },
   {
     value: "pieseMici",
     label: "Piese mici",
+    labelKey: "calc.type.pieseMici",
+    lowerKey: "calc.type.pieseMici.lower",
     blurb: "Comodă, noptiere, masă de machiaj, corpuri singulare.",
+    blurbKey: "calc.type.pieseMici.blurb",
     image: mioLiving02,
   },
 ];
 
-export const SHAPE_OPTIONS: { value: KitchenShape; label: string }[] = [
-  { value: "dreapta", label: "În linie dreaptă" },
-  { value: "colt", label: "Pe colț" },
-  { value: "u", label: "În formă de U" },
-  { value: "bar", label: "Cu masă de bar" },
-  { value: "insula", label: "Cu insulă" },
+export const SHAPE_OPTIONS: { value: KitchenShape; label: string; labelKey: TranslationKey }[] = [
+  { value: "dreapta", label: "În linie dreaptă", labelKey: "calc.shape.dreapta" },
+  { value: "colt", label: "Pe colț", labelKey: "calc.shape.colt" },
+  { value: "u", label: "În formă de U", labelKey: "calc.shape.u" },
+  { value: "bar", label: "Cu masă de bar", labelKey: "calc.shape.bar" },
+  { value: "insula", label: "Cu insulă", labelKey: "calc.shape.insula" },
 ];
 
-export const CORP_OPTIONS: { value: CorpChoice; label: string; blurb: string }[] = [
+export const CORP_OPTIONS: {
+  value: CorpChoice;
+  label: string;
+  labelKey: TranslationKey;
+  blurb: string;
+  blurbKey: TranslationKey;
+}[] = [
   {
     value: "egger_alb",
     label: "Egger — placă albă standard",
+    labelKey: "calc.corp.egger_alb",
     blurb: "Plăci austriece Egger, interior alb clasic.",
+    blurbKey: "calc.corp.egger_alb.blurb",
   },
   {
     value: "egger_color",
     label: "Egger — placă în culoare premium",
+    labelKey: "calc.corp.egger_color",
     blurb: "Aceleași plăci Egger, în decorurile colorate din gama premium.",
+    blurbKey: "calc.corp.egger_color.blurb",
   },
 ];
 
@@ -225,38 +272,50 @@ export const FRONT_OPTIONS: PhotoOption[] = [
   {
     value: "pal",
     label: "PAL",
+    labelKey: "calc.front.pal",
     blurb: "Fronturi din plăci decorate — soluția accesibilă.",
+    blurbKey: "calc.front.pal.blurb",
     image: bucDressing01,
   },
   {
     value: "agt_1",
     label: "AGT — fronturi drepte",
+    labelKey: "calc.front.agt_1",
     blurb: "Panouri MDF cu suprafață netedă, plăcate pe o parte.",
+    blurbKey: "calc.front.agt_1.blurb",
     /* Client, 2026-09-10: un cadru mai apropiat de bucătărie. */
     image: csBucatarie07,
   },
   {
     value: "agt_2",
     label: "AGT — plăcat pe ambele părți",
+    labelKey: "calc.front.agt_2",
     blurb: "Aceleași panouri MDF netede, plăcate față-verso.",
+    blurbKey: "calc.front.agt_2.blurb",
     image: uniDormitor08,
   },
   {
     value: "mdf_1",
     label: "MDF vopsit",
+    labelKey: "calc.front.mdf_1",
     blurb: "Vopsit în orice culoare, față netedă.",
+    blurbKey: "calc.front.mdf_1.blurb",
     image: mioBaie01,
   },
   {
     value: "mdf_2",
     label: "MDF vopsit cu freză",
+    labelKey: "calc.front.mdf_2",
     blurb: "Vopsit, cu frezări și orice formă la comandă.",
+    blurbKey: "calc.front.mdf_2.blurb",
     image: vrDressing01,
   },
   {
     value: "front_sticla",
     label: "Sticlă",
+    labelKey: "calc.front.front_sticla",
     blurb: "Fronturi cu sticlă fumurie, în ramă de aluminiu.",
+    blurbKey: "calc.front.front_sticla.blurb",
     /* Vitrina fumurie de la Constantin Stere — cadrul de la Bucovinei a plecat
        pe cardul „Garderobă", la cererea clientului. */
     image: csBucatarie04,
@@ -264,20 +323,26 @@ export const FRONT_OPTIONS: PhotoOption[] = [
   {
     value: "front_oglinda",
     label: "Oglindă",
+    labelKey: "calc.front.front_oglinda",
     blurb: "Uși cu oglindă în ramă de aluminiu.",
+    blurbKey: "calc.front.front_oglinda.blurb",
     image: bucAntreu04,
   },
   {
     value: "furnir",
     label: "Furnir",
+    labelKey: "calc.front.furnir",
     blurb: "Lemn adevărat, placat pe fiecare front.",
+    blurbKey: "calc.front.furnir.blurb",
     image: uniAntreu01,
   },
   {
     /* Cheia CRM rămâne furnir_riflat; eticheta e cea dictată de client. */
     value: "furnir_riflat",
     label: "Furnir frezat",
+    labelKey: "calc.front.furnir_riflat",
     blurb: "Lemn adevărat, placat sub orice formă.",
+    blurbKey: "calc.front.furnir_riflat.blurb",
     image: calcFurnirRiflat,
   },
 ];
@@ -300,6 +365,7 @@ export const DRAWER_OPTIONS: {
   brand: "blum" | "hettich";
   type: "lemn" | "metal";
   label: string;
+  labelKey: TranslationKey;
   icon: CalcIcon;
   image: StaticImageData;
 }[] = [
@@ -307,6 +373,7 @@ export const DRAWER_OPTIONS: {
     brand: "blum",
     type: "lemn",
     label: "Blum — laterale din lemn",
+    labelKey: "calc.drawer.blum_lemn",
     icon: "drawer",
     image: calcBlumLemn,
   },
@@ -314,6 +381,7 @@ export const DRAWER_OPTIONS: {
     brand: "blum",
     type: "metal",
     label: "Blum — laterale metalice",
+    labelKey: "calc.drawer.blum_metal",
     icon: "drawer-metal",
     image: calcBlumMetal,
   },
@@ -321,6 +389,7 @@ export const DRAWER_OPTIONS: {
     brand: "hettich",
     type: "lemn",
     label: "Hettich — laterale din lemn",
+    labelKey: "calc.drawer.hettich_lemn",
     icon: "drawer",
     image: calcHettichLemn,
   },
@@ -328,6 +397,7 @@ export const DRAWER_OPTIONS: {
     brand: "hettich",
     type: "metal",
     label: "Hettich — laterale metalice",
+    labelKey: "calc.drawer.hettich_metal",
     icon: "drawer-metal",
     image: calcHettichMetal,
   },
@@ -342,7 +412,9 @@ export const DRAWER_OPTIONS: {
 export const MECHANISM_OPTIONS: {
   value: string;
   label: string;
+  labelKey: TranslationKey;
   blurb: string;
+  blurbKey: TranslationKey;
   icon: CalcIcon;
   types: FurnitureType[];
   /** Sistemul fotografiat pe un montaj MOBO; glisarea rămâne pe glifă. */
@@ -351,7 +423,9 @@ export const MECHANISM_OPTIONS: {
   {
     value: "blum_aventos_hk_xs",
     label: "Blum Aventos HK-XS",
+    labelKey: "calc.mech.blum_aventos_hk_xs",
     blurb: "Ridicare pentru fronturi mici.",
+    blurbKey: "calc.mech.blum_aventos_hk_xs.blurb",
     icon: "flap",
     types: ["bucatarie"],
     image: calcAventosHkXs,
@@ -359,7 +433,9 @@ export const MECHANISM_OPTIONS: {
   {
     value: "blum_piston_gaz",
     label: "Blum Aventos HF",
+    labelKey: "calc.mech.blum_piston_gaz",
     blurb: "Front pliant pentru corpurile de sus.",
+    blurbKey: "calc.mech.blum_piston_gaz.blurb",
     icon: "fold",
     types: ["bucatarie"],
     image: calcAventosHf,
@@ -369,14 +445,18 @@ export const MECHANISM_OPTIONS: {
   {
     value: "hettich",
     label: "Glisare Hettich",
+    labelKey: "calc.mech.hettich",
     blurb: "TopLine / WingLine pentru uși glisante.",
+    blurbKey: "calc.mech.hettich.blurb",
     icon: "slide",
     types: ["garderoba", "dulap"],
   },
   {
     value: "kesslohmer",
     label: "Colț Kessebohmer",
+    labelKey: "calc.mech.kesslohmer",
     blurb: "Sisteme extractibile pentru corpul de colț.",
+    blurbKey: "calc.mech.kesslohmer.blurb",
     icon: "corner",
     types: ["bucatarie"],
     image: calcColtKessebohmer,
@@ -392,28 +472,57 @@ export function mechanismsFor(type: FurnitureType) {
 export const ORGANIZER_OPTIONS: {
   value: string;
   label: string;
+  labelKey: TranslationKey;
   blurb: string;
+  blurbKey: TranslationKey;
   icon: CalcIcon;
 }[] = [
   {
     value: "incaltaminte_8",
     label: "Suport încălțăminte",
+    labelKey: "calc.organizer.incaltaminte_8",
     blurb: "8 rafturi extractibile.",
+    blurbKey: "calc.organizer.incaltaminte_8.blurb",
     icon: "shoe",
   },
   {
     value: "incaltaminte_12",
     label: "Suport încălțăminte",
+    labelKey: "calc.organizer.incaltaminte_12",
     blurb: "12 rafturi extractibile.",
+    blurbKey: "calc.organizer.incaltaminte_12.blurb",
     icon: "shoe",
   },
-  { value: "pantaloni_600", label: "Suport pantaloni", blurb: "Lățime 600 mm.", icon: "trousers" },
-  { value: "pantaloni_800", label: "Suport pantaloni", blurb: "Lățime 800 mm.", icon: "trousers" },
-  { value: "pantaloni_900", label: "Suport pantaloni", blurb: "Lățime 900 mm.", icon: "trousers" },
+  {
+    value: "pantaloni_600",
+    label: "Suport pantaloni",
+    labelKey: "calc.organizer.pantaloni_600",
+    blurb: "Lățime 600 mm.",
+    blurbKey: "calc.organizer.pantaloni_600.blurb",
+    icon: "trousers",
+  },
+  {
+    value: "pantaloni_800",
+    label: "Suport pantaloni",
+    labelKey: "calc.organizer.pantaloni_800",
+    blurb: "Lățime 800 mm.",
+    blurbKey: "calc.organizer.pantaloni_800.blurb",
+    icon: "trousers",
+  },
+  {
+    value: "pantaloni_900",
+    label: "Suport pantaloni",
+    labelKey: "calc.organizer.pantaloni_900",
+    blurb: "Lățime 900 mm.",
+    blurbKey: "calc.organizer.pantaloni_900.blurb",
+    icon: "trousers",
+  },
   {
     value: "pantograf",
     label: "Pantograf",
+    labelKey: "calc.organizer.pantograf",
     blurb: "Bara de haine coboară la tine.",
+    blurbKey: "calc.organizer.pantograf.blurb",
     icon: "pantograph",
   },
 ];
@@ -423,19 +532,25 @@ export const COUNTERTOP_OPTIONS: PhotoOption[] = [
   {
     value: "pal_egger",
     label: "PAL Egger",
+    labelKey: "calc.top.pal_egger",
     blurb: "Blat stratificat, decoruri Egger.",
+    blurbKey: "calc.top.pal_egger.blurb",
     image: uniAntreu04,
   },
   {
     value: "hpl_negru",
     label: "HPL compact negru",
+    labelKey: "calc.top.hpl_negru",
     blurb: "Miez negru, muchie fină — 12 mm.",
+    blurbKey: "calc.top.hpl_negru.blurb",
     image: bucBucatarie01,
   },
   {
     value: "hpl_alb",
     label: "HPL compact alb",
+    labelKey: "calc.top.hpl_alb",
     blurb: "Miez alb, aspect de piatră — 12 mm.",
+    blurbKey: "calc.top.hpl_alb.blurb",
     image: ialBucatarie01,
   },
 ];
@@ -552,11 +667,27 @@ export function estimateEur(settings: CalcSettings, mdl: number): number {
   return Math.round(mdl / rate);
 }
 
-export function formatMdl(value: number): string {
-  return new Intl.NumberFormat("ro-RO").format(value);
+/** Locala de numere pentru fiecare limbă a site-ului. */
+const NUMBER_LOCALE: Record<Lang, string> = { ro: "ro-RO", ru: "ru-RU" };
+
+/**
+ * Formatarea sumelor PENTRU ECRAN.
+ *
+ * Ambele locale grupează miile cu spațiu, deci azi ieșirea e practic identică —
+ * dar cifrele rămân corecte dacă vreuna dintre convenții se schimbă. Ce pleacă
+ * spre CRM nu trece pe aici: acolo suma e un număr, formatat în română pe
+ * server (`app/api/calculator-lead/route.ts`).
+ */
+export function formatMdl(value: number, lang: Lang = "ro"): string {
+  return new Intl.NumberFormat(NUMBER_LOCALE[lang]).format(value);
 }
 
-/* Rezumatul configurației — pentru pasul final și pentru mesajul din lead. */
+/**
+ * Rezumatul configurației PENTRU CRM — rândurile astea ajung în `_wizardQuote`
+ * și le citește echipa MOBO, care lucrează în română. Rămâne românesc chiar
+ * dacă vizitatorul a configurat în rusă; varianta de pe ecran se construiește
+ * separat, din dicționar, în `components/sections/Calculator.tsx`.
+ */
 export function summarize(cfg: CalcConfig): { label: string; value: string }[] {
   const rows: { label: string; value: string }[] = [
     { label: "Mod", value: MODE_OPTIONS.find((o) => o.value === cfg.mode)?.label ?? cfg.mode },

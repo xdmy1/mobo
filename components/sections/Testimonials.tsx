@@ -3,9 +3,11 @@
 import { Fragment } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion, type Variants } from "motion/react";
+import { useI18n } from "@/components/ui/LangProvider";
 import { Reveal } from "@/components/ui/Reveal";
 import { Marquee } from "@/components/ui/Marquee";
 import { GOOGLE_RATING, REVIEWS, type Review } from "@/lib/data";
+import type { TranslationKey } from "@/lib/i18n/dictionary";
 import { DUR, EASE_OUT, STAGGER, VIEWPORT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +45,22 @@ import { cn } from "@/lib/utils";
 const STAR_PATH =
   "M8 1.75l1.79 3.63 4.01.58-2.9 2.83.68 3.99L8 10.9l-3.58 1.88.68-3.99-2.9-2.83 4.01-.58L8 1.75Z";
 
+/* Textul recenziei, pe poziția din REVIEWS. Numele, avatarul și fotografiile
+   atașate rămân în date (nu se traduc); doar textul vine din dicționar. */
+const REVIEW_TEXT_KEYS = [
+  "review.0.text",
+  "review.1.text",
+  "review.2.text",
+  "review.3.text",
+  "review.4.text",
+  "review.5.text",
+  "review.6.text",
+  "review.7.text",
+] as const satisfies readonly TranslationKey[];
+
 function StarRow({ starClassName }: { starClassName?: string }) {
+  const { t } = useI18n();
+
   return (
     <p className="flex items-center gap-1">
       {Array.from({ length: 5 }, (_, i) => (
@@ -56,19 +73,23 @@ function StarRow({ starClassName }: { starClassName?: string }) {
           <path d={STAR_PATH} />
         </svg>
       ))}
-      <span className="sr-only">Evaluare 5 din 5 stele</span>
+      <span className="sr-only">{t("sections.reviews.stars")}</span>
     </p>
   );
 }
 
 function ReviewCard({
   review,
+  index,
   plane = "near",
 }: {
   review: Review;
+  /** Poziția în REVIEWS — cheia textului din dicționar se ia după ea. */
+  index: number;
   /** Depth plane. The far row's cards are narrower; its track is also slower. */
   plane?: "near" | "far";
 }) {
+  const { t } = useI18n();
   const initial = review.name.trim().charAt(0).toUpperCase();
   const far = plane === "far";
 
@@ -120,7 +141,7 @@ function ReviewCard({
 
         <blockquote className="mt-3.5 sm:mt-5">
           <p className="text-pretty line-clamp-4 text-[0.75rem] leading-[1.55] text-fg-dim sm:line-clamp-6 sm:text-[0.9375rem]">
-            {review.text}
+            {t(REVIEW_TEXT_KEYS[index])}
           </p>
         </blockquote>
 
@@ -135,7 +156,7 @@ function ReviewCard({
               >
                 <Image
                   src={photo}
-                  alt={`Fotografie atașată recenziei de ${review.name}`}
+                  alt={t("sections.reviews.photoAlt", { name: review.name })}
                   fill
                   sizes="180px"
                   className="object-cover"
@@ -173,8 +194,6 @@ function ReviewCard({
   );
 }
 
-const HEADLINE = "Cel mai bun argument sunt clienții noștri.";
-
 /**
  * Header arrival: the eyebrow rises first, then the headline's words rise out
  * of their own line boxes, staggered left to right. Opacity stays at 1 on the
@@ -187,6 +206,8 @@ const HEADLINE = "Cel mai bun argument sunt clienții noștri.";
  */
 function WallHeader() {
   const reduce = useReducedMotion();
+  const { t } = useI18n();
+  const headline = t("sections.reviews.title");
 
   /* Eyebrow — and the whole headline under reduced motion, where the travel
      goes but the cross-fade stays (gentler feedback, not the absence of it). */
@@ -215,19 +236,19 @@ function WallHeader() {
       viewport={VIEWPORT}
     >
       <motion.p variants={rise} className="text-eyebrow text-fg-faint">
-        Ce spun clienții
+        {t("sections.reviews.eyebrow")}
       </motion.p>
 
       <h2 id="recenzii-title" className="text-h2 text-balance mt-5 text-fg">
         {reduce ? (
           <motion.span variants={rise} className="block">
-            {HEADLINE}
+            {headline}
           </motion.span>
         ) : (
           <>
-            <span className="sr-only">{HEADLINE}</span>
+            <span className="sr-only">{headline}</span>
             <span aria-hidden="true">
-              {HEADLINE.split(" ").map((word, i) => (
+              {headline.split(" ").map((word, i) => (
                 <Fragment key={`${word}-${i}`}>
                   {i > 0 ? " " : null}
                   {/* 0.15em bottom padding keeps descenders (ș, ț) and the
@@ -249,10 +270,15 @@ function WallHeader() {
 
 /* Alternating rather than slicing in half: the long reviews sit at the start of
    the array, so a straight split would give one very tall row and one squat one. */
-const ROW_TOP = REVIEWS.filter((_, i) => i % 2 === 0);
-const ROW_BOTTOM = REVIEWS.filter((_, i) => i % 2 === 1);
+/* Poziția călătorește cu recenzia: textul ei stă în dicționar sub indexul din
+   REVIEWS, iar rândurile de mai jos rup ordinea originală. */
+const INDEXED = REVIEWS.map((review, index) => ({ review, index }));
+const ROW_TOP = INDEXED.filter(({ index }) => index % 2 === 0);
+const ROW_BOTTOM = INDEXED.filter(({ index }) => index % 2 === 1);
 
 export default function Testimonials() {
+  const { t } = useI18n();
+
   return (
     <section
       id="recenzii"
@@ -289,8 +315,8 @@ export default function Testimonials() {
           <Marquee duration={55} className="group/row motion-reduce:overflow-x-auto">
             <ul className="flex list-none py-2 sm:py-2.5">
               {[0, 1].flatMap((copy) =>
-                ROW_TOP.map((review) => (
-                  <ReviewCard key={`${review.name}-${copy}`} review={review} />
+                ROW_TOP.map(({ review, index }) => (
+                  <ReviewCard key={`${review.name}-${copy}`} review={review} index={index} />
                 )),
               )}
             </ul>
@@ -299,8 +325,13 @@ export default function Testimonials() {
           <Marquee duration={68} reverse className="group/row motion-reduce:overflow-x-auto">
             <ul className="flex list-none py-2 sm:py-2.5">
               {[0, 1].flatMap((copy) =>
-                ROW_BOTTOM.map((review) => (
-                  <ReviewCard key={`${review.name}-${copy}`} review={review} plane="far" />
+                ROW_BOTTOM.map(({ review, index }) => (
+                  <ReviewCard
+                    key={`${review.name}-${copy}`}
+                    review={review}
+                    index={index}
+                    plane="far"
+                  />
                 )),
               )}
             </ul>
@@ -319,9 +350,11 @@ export default function Testimonials() {
             <span className="text-sm font-medium tabular-nums text-fg">{GOOGLE_RATING.value}</span>
           </span>
           <span aria-hidden="true" className="hidden h-4 w-px bg-white/15 sm:block" />
-          <span className="text-sm text-fg-dim">
-            <strong className="font-medium tabular-nums text-fg">{GOOGLE_RATING.count}</strong>{" "}
-            recenzii reale pe Google
+          {/* Numărul stă în frază, nu îngroșat lângă ea: în rusă „21" cere alt
+              caz al substantivului, iar fraza întreagă lasă traducerea să-și
+              aleagă singură construcția. */}
+          <span className="text-sm tabular-nums text-fg-dim">
+            {t("sections.reviews.googleCount", { count: GOOGLE_RATING.count })}
           </span>
         </Reveal>
       </div>

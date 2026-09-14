@@ -1,6 +1,8 @@
 import Image, { type StaticImageData } from "next/image";
 import { Reveal } from "@/components/ui/Reveal";
 import { PROCESS } from "@/lib/data";
+import type { TranslationKey } from "@/lib/i18n/dictionary";
+import { getI18n } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
 /* Fotografiile care ancorează capitolele — cadre reale din proiecte, folosite
@@ -28,47 +30,61 @@ import fotoMontaj from "@/assets/proiecte/str-bucovina/bucatarie-01.jpg";
  */
 
 type Chapter = {
+  /** Numeral de folio — aceleași trei semne în orice limbă. */
   numeral: string;
-  title: string;
-  blurb: string;
+  title: TranslationKey;
+  blurb: TranslationKey;
   /** Interval [de la, până la) în PROCESS. */
   steps: [number, number];
   image: StaticImageData;
-  alt: string;
-  credit: string;
+  alt: TranslationKey;
+  /** Casa din care vine cadrul — aceeași cheie ca titlul proiectului. */
+  credit: TranslationKey;
 };
 
 const CHAPTERS: Chapter[] = [
   {
     numeral: "I",
-    title: "Proiectăm împreună",
-    blurb: "Patru întâlniri în care planul prinde contur — nimic nu pleacă spre atelier până nu-l aprobi.",
+    title: "sections.process.chapter.1.title",
+    blurb: "sections.process.chapter.1.blurb",
     steps: [0, 4],
     image: fotoProiectare,
-    alt: "Antreu cu pereți frezați, consolă suspendată și oglindă, dintr-un proiect MOBO",
-    credit: "Strada Miorița",
+    alt: "sections.process.chapter.1.imageAlt",
+    credit: "project.str-miorita.title",
   },
   {
     numeral: "II",
-    title: "Construim în atelier",
-    blurb: "Contractul fixează totul, apoi mobilierul se fabrică sub controlul nostru, nu al furnizorilor.",
+    title: "sections.process.chapter.2.title",
+    blurb: "sections.process.chapter.2.blurb",
     steps: [4, 6],
     image: fotoAtelier,
-    alt: "Fronturi frezate vopsite alb și corp din lemn, detaliu dintr-un proiect MOBO",
-    credit: "Strada Valentin Roșca",
+    alt: "sections.process.chapter.2.imageAlt",
+    credit: "project.str-valentin-rosca.title",
   },
   {
     numeral: "III",
-    title: "Montăm și garantăm",
-    blurb: "Livrare, montaj cu reglaj fin și predare doar după verificarea împreună — apoi 5 ani de liniște.",
+    title: "sections.process.chapter.3.title",
+    blurb: "sections.process.chapter.3.blurb",
     steps: [6, 9],
     image: fotoMontaj,
-    alt: "Bucătărie albă cu insulă neagră, montată într-o casă din Chișinău",
-    credit: "Strada Bucovinei",
+    alt: "sections.process.chapter.3.imageAlt",
+    credit: "project.str-bucovina.title",
   },
 ];
 
-export default function Process() {
+/**
+ * Cheia unei etape, construită din numărul ei („01"…„09").
+ *
+ * `Step.n` e `string` în date, deci literalul nu se poate verifica la
+ * compilare; cheile din content.ro.ts sunt generate din aceleași numere.
+ */
+function stepKey(n: string, part: "title" | "description"): TranslationKey {
+  return `process.${n}.${part}` as TranslationKey;
+}
+
+export default async function Process() {
+  const { t } = await getI18n();
+
   return (
     <section
       id="servicii"
@@ -78,16 +94,18 @@ export default function Process() {
       <div className="mx-auto w-full max-w-[88rem] px-5 sm:px-8 lg:px-12">
         <header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
           <Reveal>
-            <p className="text-eyebrow text-fg-invert-dim">Cum lucrăm</p>
+            <p className="text-eyebrow text-fg-invert-dim">{t("sections.process.eyebrow")}</p>
+            {/* Titlul e rupt în trei ca accentul serif să cadă pe mijlocul
+                frazei în ambele limbi, fără să presupună ordinea cuvintelor. */}
             <h2 id="servicii-title" className="text-h2 text-balance mt-5 max-w-[22ch]">
-              Nouă etape clare, <span className="serif-accent">de la prima discuție</span> până
-              la montajul final.
+              {t("sections.process.title.lead")}{" "}
+              <span className="serif-accent">{t("sections.process.title.accent")}</span>{" "}
+              {t("sections.process.title.tail")}
             </h2>
           </Reveal>
           <Reveal index={1} className="lg:max-w-sm lg:pb-1">
             <p className="text-pretty text-[0.9375rem] leading-[1.7] text-fg-invert-dim">
-              Fiecare proiect trece prin același traseu, fără improvizații. Știi tot timpul la ce
-              etapă ești — iar la capăt rămâne garanția de 5 ani.
+              {t("sections.process.lead")}
             </p>
           </Reveal>
         </header>
@@ -112,7 +130,7 @@ export default function Process() {
                     <div className="relative aspect-[4/3] overflow-hidden rounded-card bg-bone-200 lg:aspect-[4/5]">
                       <Image
                         src={chapter.image}
-                        alt={chapter.alt}
+                        alt={t(chapter.alt)}
                         fill
                         sizes="(min-width: 1024px) 38vw, 92vw"
                         placeholder="blur"
@@ -120,7 +138,7 @@ export default function Process() {
                       />
                     </div>
                     <figcaption className="mt-3 text-[0.8125rem] text-fg-invert-dim">
-                      Din proiectul „{chapter.credit}".
+                      {t("sections.process.credit", { project: t(chapter.credit) })}
                     </figcaption>
                   </figure>
                 </Reveal>
@@ -137,10 +155,10 @@ export default function Process() {
                       <span aria-hidden="true" className="serif-accent mr-3 text-lime-on-light">
                         {chapter.numeral}.
                       </span>
-                      {chapter.title}
+                      {t(chapter.title)}
                     </h3>
                     <p className="text-pretty mt-3 max-w-[52ch] text-[0.9375rem] leading-[1.7] text-fg-invert-dim">
-                      {chapter.blurb}
+                      {t(chapter.blurb)}
                     </p>
                   </Reveal>
 
@@ -161,10 +179,10 @@ export default function Process() {
                         </span>
                         <span>
                           <span className="block text-[1.0625rem] font-medium leading-snug">
-                            {step.title}
+                            {t(stepKey(step.n, "title"))}
                           </span>
                           <span className="text-pretty mt-1.5 block max-w-[54ch] text-[0.9375rem] leading-[1.65] text-fg-invert-dim">
-                            {step.description}
+                            {t(stepKey(step.n, "description"))}
                           </span>
                         </span>
                       </Reveal>

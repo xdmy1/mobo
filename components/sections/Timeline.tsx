@@ -1,5 +1,7 @@
 import { Reveal } from "@/components/ui/Reveal";
 import { HISTORY } from "@/lib/data";
+import type { TranslationKey } from "@/lib/i18n/dictionary";
+import { getI18n } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
 /**
@@ -19,16 +21,27 @@ import { cn } from "@/lib/utils";
  * Cele trei valori arbitrare de mai jos derivă una din alta — se schimbă
  * împreună.
  */
-export default function Timeline() {
+/**
+ * Cheia unui reper, construită din anul lui („2005"…„Azi").
+ *
+ * Anul e și el o cheie, nu doar o etichetă: ultimul reper se numește „Azi" în
+ * română și „Сегодня" în rusă, deci nici măcar el nu se poate tipări din date.
+ */
+function milestoneKey(year: string, part: "year" | "title" | "text"): TranslationKey {
+  return `history.${year}.${part}` as TranslationKey;
+}
+
+export default async function Timeline() {
+  const { t } = await getI18n();
   const last = HISTORY.length - 1;
 
   return (
     <section aria-labelledby="istorie-titlu" className="grain relative bg-ink-900">
       <div className="mx-auto w-full max-w-[88rem] px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
         <Reveal>
-          <p className="text-eyebrow text-fg-dim">Drumul nostru</p>
+          <p className="text-eyebrow text-fg-dim">{t("sections.timeline.eyebrow")}</p>
           <h2 id="istorie-titlu" className="text-h2 text-balance mt-5 max-w-[24ch] text-fg">
-            Din 2005 până azi, același meșteșug — doar casele s-au înmulțit.
+            {t("sections.timeline.title")}
           </h2>
         </Reveal>
 
@@ -66,13 +79,13 @@ export default function Timeline() {
                     i === last ? "text-lime-brand" : "text-fg",
                   )}
                 >
-                  {milestone.year}
+                  {t(milestoneKey(milestone.year, "year"))}
                 </p>
 
                 <div className="mt-3 lg:mt-[0.4em]">
-                  <h3 className="text-h3 text-fg">{milestone.title}</h3>
+                  <h3 className="text-h3 text-fg">{t(milestoneKey(milestone.year, "title"))}</h3>
                   <p className="text-pretty mt-2 max-w-[54ch] text-[0.9375rem] leading-[1.7] text-fg-dim">
-                    {milestone.text}
+                    {t(milestoneKey(milestone.year, "text"))}
                   </p>
                 </div>
               </Reveal>

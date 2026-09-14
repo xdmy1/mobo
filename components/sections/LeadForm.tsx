@@ -4,9 +4,11 @@ import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { ZodIssue } from "zod";
 import { SocialGlyph } from "@/components/ui/BrandIcon";
+import { useI18n } from "@/components/ui/LangProvider";
 import { Reveal } from "@/components/ui/Reveal";
 import { leadSchema } from "@/lib/crm/types";
-import { ROOM_OPTIONS, SITE, SOCIALS } from "@/lib/data";
+import { ROOM_IDS, SITE, SOCIALS, type RoomId } from "@/lib/data";
+import type { Translate, TranslationKey } from "@/lib/i18n/dictionary";
 import { DUR, EASE_OUT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -71,8 +73,8 @@ const ERROR_BORDER = "border-[#f0937a]/55";
 /**
  * `optional().or(literal(""))` wraps every optional rule in a ZodUnion, and a
  * union reports its own untranslated "Invalid input" rather than the branch
- * message. Reach through to the branch so the user gets the Romanian text the
- * schema actually author'd.
+ * message. Reach through to the branch so the user gets the message the schema
+ * actually author'd.
  */
 function messageFor(issue: ZodIssue): string {
   if (issue.code === "invalid_union") {
@@ -82,18 +84,56 @@ function messageFor(issue: ZodIssue): string {
   return issue.message;
 }
 
+/**
+ * Everything /api/lead can say, as dictionary KEYS rather than prose.
+ *
+ * The schema runs on the server too, where there is no locale to translate
+ * into (see lib/crm/types.ts), and the route answers the same way — so both
+ * the per-field messages and the top-level `error` cross the wire as keys and
+ * are translated here, at the last possible moment, where the visitor's
+ * language finally exists.
+ *
+ * The list is explicit on purpose. Anything else — Zod's own English fallback
+ * for a tampered `room`, or an HTML error page from a proxy that never reached
+ * the route — is passed through instead of indexing the dictionary with a
+ * string that is not in it, which would blow up on interpolation.
+ */
+const ERROR_KEYS: readonly TranslationKey[] = [
+  "api.error.invalid",
+  "api.error.rateLimited",
+  "api.error.sendFailed",
+  "api.error.tooLarge",
+  "chrome.form.error.consentRequired",
+  "chrome.form.error.emailInvalid",
+  "chrome.form.error.messageLong",
+  "chrome.form.error.nameLong",
+  "chrome.form.error.nameShort",
+  "chrome.form.error.phoneInvalid",
+  "chrome.form.error.phoneLong",
+];
+
+function isErrorKey(value: string): value is TranslationKey {
+  return (ERROR_KEYS as readonly string[]).includes(value);
+}
+
+function translateMessage(t: Translate, message: string, vars?: Record<string, string>): string {
+  return isErrorKey(message) ? t(message, vars) : message;
+}
+
 function isFieldName(value: unknown): value is FieldName {
   return typeof value === "string" && (FIELD_ORDER as string[]).includes(value);
 }
 
-function validate(values: Values): Errors {
+function validate(values: Values, t: Translate): Errors {
   const parsed = leadSchema.safeParse(values);
   if (parsed.success) return {};
 
   const out: Errors = {};
   for (const issue of parsed.error.issues) {
     const key = issue.path[0];
-    if (isFieldName(key) && out[key] === undefined) out[key] = messageFor(issue);
+    if (isFieldName(key) && out[key] === undefined) {
+      out[key] = translateMessage(t, messageFor(issue));
+    }
   }
   return out;
 }
@@ -154,7 +194,13 @@ function Field({
  * tastatura primește gratis comportamentul nativ: un singur tab stop, săgeți
  * între opțiuni. Starea aleasă e ivorie pe grafit — lime rămâne rezervat
  * singurului buton primar din viewport.
+ *
+ * ID și etichetă sunt lucruri diferite: pe fir pleacă `id` (mereu „kitchen"),
+ * pe ecran se vede `label` (tradusă). Până la 2026-09-14 erau același șir
+ * românesc, ceea ce ar fi trimis „Кухня" spre enum-ul Zod și l-ar fi respins.
  */
+type ChipOption = { id: string; label: string };
+
 function ChipGroup({
   id,
   name,
@@ -168,7 +214,7 @@ function ChipGroup({
   id: string;
   name: string;
   legend: string;
-  options: readonly string[];
+  options: readonly ChipOption[];
   value: string;
   onChange: (next: string) => void;
   error?: string;
@@ -179,13 +225,13 @@ function ChipGroup({
       <legend className={FIELD_LABEL}>{legend}</legend>
       <div className="mt-3 flex flex-wrap gap-2">
         {options.map((option) => (
-          <label key={option} className="relative">
+          <label key={option.id} className="relative">
             <input
               type="radio"
               name={name}
-              value={option}
-              checked={value === option}
-              onChange={() => onChange(option)}
+              value={option.id}
+              checked={value === option.id}
+              onChange={() => onChange(option.id)}
               className="peer sr-only"
             />
             <span
@@ -198,7 +244,7 @@ function ChipGroup({
                 error ? ERROR_BORDER : "border-white/15 hover-fine:hover:border-white/35",
               )}
             >
-              {option}
+              {option.label}
             </span>
           </label>
         ))}
@@ -217,6 +263,10 @@ function ChipGroup({
 export default function LeadForm() {
   const uid = useId();
   const reduce = useReducedMotion();
+  const { t, href } = useI18n();
+
+  /* Ce mobilăm: ID-ul rămâne valoarea, eticheta vine din dicționar. */
+  const roomOptions = ROOM_IDS.map((id: RoomId) => ({ id, label: t(`room.${id}`) }));
 
   const [values, setValues] = useState<Values>(EMPTY);
   const [errors, setErrors] = useState<Errors>({});
@@ -245,10 +295,10 @@ export default function LeadForm() {
       /* Tabbing past an untouched field is not a mistake yet — only an attempted
          submit turns an empty required field into an error. */
       if (!attempted && !values[key]) return;
-      const all = validate(values);
+      const all = validate(values, t);
       setErrors((prev) => ({ ...prev, [key]: all[key] }));
     },
-    [attempted, values],
+    [attempted, values, t],
   );
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -256,12 +306,12 @@ export default function LeadForm() {
     if (status === "submitting") return;
 
     setAttempted(true);
-    const found = validate(values);
+    const found = validate(values, t);
 
     if (Object.keys(found).length > 0) {
       setErrors(found);
       setStatus("error");
-      setFormError("Verifică câmpurile marcate mai jos.");
+      setFormError(t("chrome.form.checkFields"));
       const first = FIELD_ORDER.find((name) => found[name]);
       if (first) document.getElementById(fid(first))?.focus();
       return;
@@ -289,9 +339,7 @@ export default function LeadForm() {
       });
     } catch {
       setStatus("error");
-      setFormError(
-        `Conexiunea a eșuat. Verifică internetul și încearcă din nou, sau sună-ne la ${SITE.phone}.`,
-      );
+      setFormError(t("chrome.form.networkError", { phone: SITE.phone }));
       return;
     }
 
@@ -306,23 +354,32 @@ export default function LeadForm() {
     if (res.status === 422) {
       const mapped: Errors = {};
       for (const name of FIELD_ORDER) {
+        /* What comes back is the schema's KEY, not prose — translate it here,
+           where the visitor's locale finally exists. */
         const message = data.fieldErrors?.[name]?.[0];
-        if (message) mapped[name] = message;
+        if (message) mapped[name] = translateMessage(t, message);
       }
       setErrors(mapped);
       setStatus("error");
-      setFormError("Câteva câmpuri trebuie corectate.");
+      setFormError(t("chrome.form.fixFields"));
       const first = FIELD_ORDER.find((name) => mapped[name]);
       if (first) document.getElementById(fid(first))?.focus();
       return;
     }
 
     setStatus("error");
+    /* The route answers with a key too ("api.error.rateLimited" and friends).
+       Anything that is not one of them never came from the route — a proxy or
+       CDN page on a 502 — so it is replaced rather than shown raw. */
+    const fallback =
+      res.status === 429
+        ? t("chrome.form.tooMany")
+        : t("chrome.form.sendFailed", { phone: SITE.phone });
+    const fromServer = data.error;
     setFormError(
-      data.error ??
-        (res.status === 429
-          ? "Ai trimis prea multe cereri. Încearcă din nou peste câteva minute."
-          : `Nu am putut trimite cererea. Sună-ne direct la ${SITE.phone}.`),
+      fromServer && isErrorKey(fromServer)
+        ? translateMessage(t, fromServer, { phone: SITE.phone })
+        : fallback,
     );
   }
 
@@ -358,14 +415,13 @@ export default function LeadForm() {
               {/* Fără „proiect 3D înainte de orice decizie" — clarificare de
                   client: 3D-ul se primește după contractare. */}
               <h2 id="contact-title" className="text-h2 text-balance text-fg">
-                Spune-ne ce vrei să mobilezi și primești un calcul estimativ, fără obligații.
+                {t("chrome.form.title")}
               </h2>
             </Reveal>
 
             <Reveal index={1}>
               <p className="text-body text-pretty mt-5 max-w-[46ch] text-fg-dim">
-                Trei câmpuri, jumătate de minut. Un consultant MOBO te sună în aceeași zi
-                lucrătoare, ca să discutați proiectul și să programați măsurătorile.
+                {t("chrome.form.lede")}
               </p>
             </Reveal>
 
@@ -373,7 +429,7 @@ export default function LeadForm() {
             <Reveal index={2}>
               <ul className="mt-10 list-none border-t border-white/8">
                 <li className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-white/8 py-3.5">
-                  <span className="text-[0.8125rem] text-fg-faint">Telefon</span>
+                  <span className="text-[0.8125rem] text-fg-faint">{t("chrome.form.phone")}</span>
                   <a
                     href={SITE.phoneHref}
                     className="text-[1.0625rem] font-medium text-fg transition-colors duration-200 ease-out-strong hover-fine:hover:text-lime-brand"
@@ -382,7 +438,7 @@ export default function LeadForm() {
                   </a>
                 </li>
                 <li className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-white/8 py-3.5">
-                  <span className="text-[0.8125rem] text-fg-faint">Email</span>
+                  <span className="text-[0.8125rem] text-fg-faint">{t("chrome.form.email")}</span>
                   <a
                     href={`mailto:${SITE.email}`}
                     className="text-[0.9375rem] text-fg transition-colors duration-200 ease-out-strong hover-fine:hover:text-lime-brand"
@@ -393,15 +449,19 @@ export default function LeadForm() {
                 <li className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-white/8 py-3.5">
                   {/* Doar „Showroom" — atelierul e în altă parte și adresa lui
                       nu privește vizitatorul (cerință de client). */}
-                  <span className="text-[0.8125rem] text-fg-faint">Showroom</span>
-                  <span className="text-right text-[0.9375rem] text-fg-dim">{SITE.address}</span>
+                  <span className="text-[0.8125rem] text-fg-faint">
+                    {t("chrome.form.showroom")}
+                  </span>
+                  <span className="text-right text-[0.9375rem] text-fg-dim">
+                    {t("site.address")}
+                  </span>
                 </li>
               </ul>
             </Reveal>
 
             {/* -------------------------------------------------- socials -- */}
             <Reveal index={3}>
-              <p className="mt-6 text-[0.8125rem] text-fg-faint">Scrie-ne pe</p>
+              <p className="mt-6 text-[0.8125rem] text-fg-faint">{t("chrome.form.writeUs")}</p>
               <ul className="mt-2 flex list-none flex-wrap gap-x-5 gap-y-2">
                 {SOCIALS.map((social) => (
                   <li key={social.label}>
@@ -432,9 +492,7 @@ export default function LeadForm() {
                 does — a live region inserted in the same commit as its content
                 is never announced by screen readers. */}
             <div aria-live="polite" role="status" className="sr-only">
-              {status === "success"
-                ? "Am primit cererea ta. Te contactăm în aceeași zi lucrătoare."
-                : null}
+              {status === "success" ? t("chrome.form.successLive") : null}
             </div>
 
             <AnimatePresence mode="wait" initial={false}>
@@ -446,18 +504,21 @@ export default function LeadForm() {
                   exit={{ ...swap.exit, transition: leave }}
                   className="py-2"
                 >
-                  <h3 className="text-h3 text-fg">Am primit cererea ta.</h3>
+                  <h3 className="text-h3 text-fg">{t("chrome.form.successTitle")}</h3>
+                  {/* Fraza e ruptă în două chei în jurul numărului: el rămâne
+                      evidențiat, iar fiecare limbă își aranjează ordinea. */}
                   <p className="text-body text-pretty mt-3 max-w-[42ch] text-fg-dim">
-                    Te contactăm la <span className="text-fg">{values.phone}</span> în aceeași zi
-                    lucrătoare, ca să stabilim consultația și măsurătorile.
+                    {t("chrome.form.successToPhone")}{" "}
+                    <span className="text-fg">{values.phone}</span>{" "}
+                    {t("chrome.form.successTail")}
                   </p>
 
                   <div className="mt-6 flex flex-wrap items-baseline gap-x-6 gap-y-2 text-[0.9375rem]">
                     <a
-                      href={SITE.calculator}
+                      href={href(SITE.calculator)}
                       className="text-fg underline decoration-white/30 underline-offset-4 transition-colors duration-200 ease-out-strong hover-fine:hover:decoration-lime-brand"
                     >
-                      Între timp, calculator online
+                      {t("chrome.form.meanwhileCalculator")}
                     </a>
                     <a
                       href={SITE.phoneHref}
@@ -487,7 +548,7 @@ export default function LeadForm() {
                     {/* Deliberately not labelled "Companie" — Chrome ignores
                         autocomplete="off" on fields it recognises, and an
                         autofilled honeypot would reject a real customer. */}
-                    <label htmlFor={fid("company")}>Lasă acest câmp gol</label>
+                    <label htmlFor={fid("company")}>{t("chrome.form.honeypot")}</label>
                     <input
                       ref={honeypot}
                       id={fid("company")}
@@ -500,7 +561,7 @@ export default function LeadForm() {
                   </div>
 
                   <div className="grid gap-8 sm:grid-cols-2 sm:gap-x-8">
-                    <Field id={fid("name")} label="Nume" error={errors.name}>
+                    <Field id={fid("name")} label={t("chrome.form.name")} error={errors.name}>
                       <input
                         id={fid("name")}
                         name="name"
@@ -508,7 +569,7 @@ export default function LeadForm() {
                         required
                         autoComplete="name"
                         maxLength={80}
-                        placeholder="Numele tău"
+                        placeholder={t("chrome.form.namePlaceholder")}
                         value={values.name}
                         onChange={(e) => setField("name", e.target.value)}
                         onBlur={() => handleBlur("name")}
@@ -518,7 +579,7 @@ export default function LeadForm() {
                       />
                     </Field>
 
-                    <Field id={fid("phone")} label="Telefon" error={errors.phone}>
+                    <Field id={fid("phone")} label={t("chrome.form.phone")} error={errors.phone}>
                       <input
                         id={fid("phone")}
                         name="phone"
@@ -542,8 +603,8 @@ export default function LeadForm() {
                     <ChipGroup
                       id={fid("room")}
                       name="room"
-                      legend="Ce mobilăm?"
-                      options={ROOM_OPTIONS}
+                      legend={t("chrome.form.roomLegend")}
+                      options={roomOptions}
                       value={values.room}
                       onChange={(room) => setField("room", room)}
                       error={errors.room}
@@ -597,15 +658,14 @@ export default function LeadForm() {
                         </svg>
                       </span>
                       <span className="text-[0.8125rem] leading-normal text-fg-dim">
-                        Sunt de acord cu prelucrarea datelor personale pentru a fi contactat în
-                        legătură cu această solicitare, conform{" "}
+                        {t("chrome.form.consentBefore")}{" "}
                         <a
-                          href="/politica-de-confidentialitate"
+                          href={href("/politica-de-confidentialitate")}
                           className="underline decoration-white/30 underline-offset-2 transition-colors duration-200 ease-out-strong hover-fine:hover:text-fg"
                         >
-                          Politicii de confidențialitate
+                          {t("chrome.form.consentLink")}
                         </a>
-                        . Datele nu sunt transmise terților.
+                        . {t("chrome.form.consentAfter")}
                       </span>
                     </label>
                     {errors.consent ? (
@@ -671,15 +731,15 @@ export default function LeadForm() {
                               strokeLinecap="round"
                             />
                           </svg>
-                          Se trimite…
+                          {t("chrome.form.submitting")}
                         </>
                       ) : (
-                        "Trimite cererea"
+                        t("chrome.form.submit")
                       )}
                     </button>
 
                     <p className="mt-3 text-center text-[0.8125rem] text-fg-faint">
-                      Sau sună direct:{" "}
+                      {t("chrome.form.orCall")}{" "}
                       <a
                         href={SITE.phoneHref}
                         className="text-fg-dim transition-colors duration-200 ease-out-strong hover-fine:hover:text-lime-brand"

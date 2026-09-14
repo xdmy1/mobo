@@ -3,7 +3,9 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import { HERO, HERO_SLIDES } from "@/lib/data";
+import { useI18n } from "@/components/ui/LangProvider";
+import { HERO_SLIDES, SITE } from "@/lib/data";
+import type { TranslationKey } from "@/lib/i18n/dictionary";
 import { DUR, EASE_IN_OUT, EASE_OUT } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -33,10 +35,15 @@ import { cn } from "@/lib/utils";
  * brighter pulse grows across the rule, holds, and dissolves. No chevron.
  */
 
-/* First clause of HERO.subtitle. The full explanatory paragraph belongs
-   further down the page, not on the photograph. Client-approved wording — the
-   brand does every kind of furniture, not kitchens alone. */
-const SUBLINE = "Realizăm mobilier de orice tip, creat pentru casa ta.";
+/* Alt-ul fiecărui cadru din rotație, în ordinea din HERO_SLIDES. Primul cadru
+   E fotografia de hero, deci împarte cheia cu ea. Lista e verificată la
+   compilare (`satisfies`), ca o cheie scrisă greșit să nu ajungă pe ecran. */
+const SLIDE_ALT_KEYS = [
+  "hero.imageAlt",
+  "heroSlide.1.alt",
+  "heroSlide.2.alt",
+  "heroSlide.3.alt",
+] as const satisfies readonly TranslationKey[];
 
 /* The CTA arrow, twice: on hover the first copy exits right as the second
    slides in from the left through an overflow-hidden viewport. */
@@ -57,6 +64,7 @@ function ArrowGlyph({ className }: { className?: string }) {
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
+  const { t, href } = useI18n();
 
   /* Rotația fotografiei — cerință de client: „poza să se schimbe". Crossfade
      lent între cadre reale din proiecte; sub reduced-motion rămâne primul. */
@@ -123,7 +131,7 @@ export default function Hero() {
                   AVIF-ul de la q=75 se citea ca un cadru de 360p. */}
               <Image
                 src={photo.src}
-                alt={i === slide ? photo.alt : ""}
+                alt={i === slide ? t(SLIDE_ALT_KEYS[i]) : ""}
                 fill
                 preload={i === 0}
                 quality={100}
@@ -167,7 +175,7 @@ export default function Hero() {
                 delay: reduce ? 0 : 0.18,
               }}
             >
-              {HERO.title}
+              {t("hero.title")}
             </motion.h1>
           </div>
 
@@ -183,8 +191,12 @@ export default function Hero() {
               delay: reduce ? 0.05 : 0.42,
             }}
           >
+            {/* Prima propoziție din hero.subtitle. Paragraful explicativ
+                întreg stă mai jos în pagină, nu peste fotografie — formulare
+                aprobată de client: brandul face mobilier de orice tip, nu doar
+                bucătării. */}
             <p className="mt-5 max-w-[36rem] text-[0.9375rem] leading-relaxed text-fg-dim">
-              {SUBLINE}
+              {t("sections.hero.subline")}
             </p>
 
             <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-3">
@@ -194,7 +206,7 @@ export default function Hero() {
                   the arrow swaps through an overflow mask on hover. */}
               {/* Calculatorul e acum pagină internă — fără target blank. */}
               <a
-                href={HERO.primaryCta.href}
+                href={href(SITE.calculator)}
                 className={cn(
                   "group inline-flex h-[3.25rem] items-center gap-2.5 rounded-pill px-7",
                   "btn-3d btn-3d-lime text-[0.9375rem] font-medium whitespace-nowrap text-lime-ink select-none",
@@ -202,7 +214,7 @@ export default function Hero() {
                   "active:scale-[0.97]",
                 )}
               >
-                {HERO.primaryCta.label}
+                {t("hero.cta.primary")}
                 <span aria-hidden="true" className="relative size-4 shrink-0 overflow-hidden">
                   <ArrowGlyph
                     className={cn(
@@ -223,15 +235,17 @@ export default function Hero() {
 
               {/* Clearly subordinate: a quiet text link on a hairline rule that
                   brightens by a second hairline scaling in over it. */}
+              {/* Ancoră în pagină (#contact) — rămâne neprefixată: trăiește pe
+                  homepage-ul limbii curente, oricare ar fi ea. */}
               <a
-                href={HERO.secondaryCta.href}
+                href="#contact"
                 className={cn(
                   "group relative inline-flex h-11 items-center text-[0.9375rem] font-medium text-fg-dim",
                   "transition-colors duration-200 ease-out-strong",
                   "hover-fine:hover:text-fg",
                 )}
               >
-                {HERO.secondaryCta.label}
+                {t("hero.cta.secondary")}
                 <span
                   aria-hidden="true"
                   className="absolute inset-x-0 bottom-1.5 h-px bg-white/30"
@@ -290,7 +304,7 @@ export default function Hero() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, ease: EASE_OUT, delay: reduce ? 0.1 : 0.7 }}
             >
-              {HERO.location}
+              {t("hero.location")}
             </motion.span>
           </div>
         </div>

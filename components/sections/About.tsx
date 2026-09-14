@@ -9,6 +9,7 @@ import {
   useTransform,
   type Variants,
 } from "motion/react";
+import { useI18n } from "@/components/ui/LangProvider";
 import { Reveal } from "@/components/ui/Reveal";
 import { ABOUT, SITE } from "@/lib/data";
 import { DUR, EASE_OUT, STAGGER, VIEWPORT } from "@/lib/motion";
@@ -35,6 +36,7 @@ const QUOTE_AT = HANDOFF + STAGGER * 3 + 0.02;
 export default function About() {
   const frameRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
+  const { t } = useI18n();
 
   const { scrollYProgress } = useScroll({
     target: frameRef,
@@ -117,7 +119,7 @@ export default function About() {
                   >
                     <Image
                       src={ABOUT.image}
-                      alt="Proiect 3D al unei bucătării la comandă deschise spre zona de dining, realizat de MOBO Kitchens & Home"
+                      alt={t("sections.about.imageAlt")}
                       fill
                       sizes="(min-width: 1024px) 44vw, (min-width: 640px) 92vw, 100vw"
                       className="object-cover"
@@ -160,7 +162,7 @@ export default function About() {
                   quietly, as a drawing annotation, not a badge. The left
                   padding keeps wrapped lines clear of the stamp plate. */}
               <figcaption className="mt-4 pl-40 text-right font-mono text-[0.6875rem] leading-relaxed tracking-[0.12em] uppercase text-fg-invert-dim sm:pl-56">
-                Randare 3D — proiectul, înainte de execuție
+                {t("sections.about.renderNote")}
               </figcaption>
             </figure>
           </Reveal>
@@ -169,19 +171,19 @@ export default function About() {
           <div>
             <Reveal from="right" delay={HANDOFF}>
               <p className="text-eyebrow text-fg-invert-dim">
-                {ABOUT.eyebrow}
+                {t("about.eyebrow")}
               </p>
             </Reveal>
 
             <Reveal from="right" delay={HANDOFF} index={1}>
               <h2 id="despre-title" className="text-h2 text-balance mt-6 text-fg-invert">
-                {ABOUT.title}
+                {t("about.title")}
               </h2>
             </Reveal>
 
             <Reveal from="right" delay={HANDOFF} index={2}>
               <p className="text-body text-pretty mt-7 max-w-[52ch] text-fg-invert-dim">
-                {ABOUT.body}
+                {t("about.body")}
               </p>
             </Reveal>
 
@@ -206,7 +208,7 @@ export default function About() {
                 className="text-body text-pretty font-medium text-fg-invert"
                 variants={quoteText}
               >
-                {ABOUT.mission}
+                {t("about.mission")}
               </motion.p>
             </motion.blockquote>
           </div>

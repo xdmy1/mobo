@@ -1,14 +1,17 @@
 "use client";
 
-import { useCallback, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, useCallback, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import Image, { type StaticImageData } from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useI18n } from "@/components/ui/LangProvider";
+import type { TranslationKey } from "@/lib/i18n/dictionary";
 import {
   CORP_OPTIONS,
   COUNTERTOP_OPTIONS,
   DEFAULT_CONFIG,
   DRAWER_OPTIONS,
   FRONT_OPTIONS,
+  MECHANISM_OPTIONS,
   MODE_OPTIONS,
   ORGANIZER_OPTIONS,
   SHAPE_OPTIONS,
@@ -43,6 +46,12 @@ import { cn } from "@/lib/utils";
  * văzute de sus (cu chiuvetă și plită, ca la concurență), prețul se arată în
  * euro cu leii dedesubt, iar formularul de lead stă lipit de preț. Motorul de
  * preț rămâne cel din lib/calculator.ts — formula și prețurile reale ale MOBO.
+ *
+ * Bilingv (RO/RU): tot ce se vede pe ecran vine din dicționar — opțiunile
+ * poartă `labelKey`/`blurbKey`, iar rezumatul afișat se construiește aici, din
+ * chei. Ce pleacă spre CRM NU trece pe aici: `summarize(cfg)` întoarce rânduri
+ * românești și ele urcă neatinse în payload, fiindcă echipa MOBO citește
+ * CRM-ul în română oricare ar fi limba vizitatorului.
  */
 
 type StepId =
@@ -58,33 +67,54 @@ type StepId =
   | "blat"
   | "rezultat";
 
-const STEP_TITLES: Record<StepId, string> = {
-  mod: "Alege nivelul",
-  tip: "Ce mobilăm?",
-  forma: "Forma bucătăriei",
-  dims: "Dimensiunile spațiului",
-  corp: "Corpul mobilierului",
-  fatada: "Fațada",
-  sertare: "Sertare",
-  mecanisme: "Mecanisme",
-  organizatoare: "Organizatoare",
-  blat: "Suprafața de lucru",
-  rezultat: "Estimarea ta",
+const STEP_TITLES: Record<StepId, TranslationKey> = {
+  mod: "calc.step.mod.title",
+  tip: "calc.step.tip.title",
+  forma: "calc.step.forma.title",
+  dims: "calc.step.dims.title",
+  corp: "calc.step.corp.title",
+  fatada: "calc.step.fatada.title",
+  sertare: "calc.step.sertare.title",
+  mecanisme: "calc.step.mecanisme.title",
+  organizatoare: "calc.step.organizatoare.title",
+  blat: "calc.step.blat.title",
+  rezultat: "calc.step.rezultat.title",
 };
 
-const STEP_HINTS: Partial<Record<StepId, string>> = {
-  mod: "Nivelul stabilește gama de materiale și feronerie din care pornim. Fotografiile sunt din proiectele noastre.",
-  tip: "Fiecare card e un proiect MOBO real — apasă pe cel care seamănă cu planul tău.",
-  forma:
-    "Fiecare schiță e planul camerei văzut de sus: banda verde e mobilierul, cu chiuveta și plita marcate pe traseu.",
-  dims: "Lungimea desfășurată a mobilierului, în metri. Înălțimea implicită e tavanul standard de 2,6 m.",
-  corp: "Placa din care sunt construite corpurile — scheletul mobilierului.",
-  fatada: "Fața mobilierului — materialul pe care îl vezi și îl atingi zilnic. Toate cadrele sunt din casele clienților noștri.",
-  sertare: "Adaugă numărul aproximativ de sertare. Poți lăsa zero — le stabilim la proiectare.",
-  mecanisme: "Sisteme de ridicare, glisare și colț. Opționale.",
-  organizatoare: "Accesorii interioare pentru haine și încălțăminte. Opționale.",
-  blat: "Doar dacă vrei blat în calcul — alege materialul și introdu suprafața aproximativă.",
+/** Pasul „rezultat" n-are subtitlu — prețul vorbește singur. */
+const STEP_HINTS: Partial<Record<StepId, TranslationKey>> = {
+  mod: "calc.step.mod.hint",
+  tip: "calc.step.tip.hint",
+  forma: "calc.step.forma.hint",
+  dims: "calc.step.dims.hint",
+  corp: "calc.step.corp.hint",
+  fatada: "calc.step.fatada.hint",
+  sertare: "calc.step.sertare.hint",
+  mecanisme: "calc.step.mecanisme.hint",
+  organizatoare: "calc.step.organizatoare.hint",
+  blat: "calc.step.blat.hint",
 };
+
+/**
+ * Erorile rutei de lead vin ca CHEI de dicționar, nu ca proză — ruta e aceeași
+ * pentru ambele limbi, deci traducerea se face aici, în limba paginii.
+ *
+ * Lista e închisă intenționat: un 502 de la CDN sau o pagină de proxy poate
+ * întoarce orice, iar `t()` pe o cheie inexistentă n-ar avea ce interpola. Ce
+ * nu recunoaștem cade pe mesajul generic, cel cu numărul de telefon.
+ */
+const API_ERROR_KEYS: readonly TranslationKey[] = [
+  "api.error.rateLimited",
+  "api.error.invalid",
+  "api.error.incomplete",
+  "api.error.sendFailed",
+];
+
+function apiErrorKey(value: unknown): TranslationKey | null {
+  return typeof value === "string" && (API_ERROR_KEYS as readonly string[]).includes(value)
+    ? (value as TranslationKey)
+    : null;
+}
 
 function stepsFor(type: FurnitureType): StepId[] {
   return [
@@ -318,6 +348,24 @@ function ShapeDiagram({ shape }: { shape: KitchenShape }) {
 
 /* ------------------------------------------------------------ subcomponente */
 
+/**
+ * Un `{placeholder}` care trebuie să devină markup, nu text.
+ *
+ * `t(key)` fără variabile întoarce șablonul neatins, deci putem tăia exact în
+ * locul marcat de traducător — așa linkul din acord și numărul din mesajul de
+ * confirmare stau acolo unde cere fraza, în ambele limbi, fără să lipim bucăți
+ * de propoziție în cod.
+ */
+function withNode(template: string, name: string, node: ReactNode): ReactNode {
+  const parts = template.split(`{${name}}`);
+  return parts.map((part, index) => (
+    <Fragment key={index}>
+      {index > 0 ? node : null}
+      {part}
+    </Fragment>
+  ));
+}
+
 function PhotoCard({
   label,
   blurb,
@@ -456,6 +504,7 @@ function CounterRow({
   value: number;
   onChange: (next: number) => void;
 }) {
+  const { t } = useI18n();
   const stepBtn = cn(
     "grid size-9 shrink-0 select-none place-items-center rounded-full border border-white/15 text-fg",
     "transition-[background-color,border-color,transform] duration-150 ease-out-strong",
@@ -488,7 +537,7 @@ function CounterRow({
           type="button"
           onClick={() => onChange(Math.max(0, value - 1))}
           disabled={value === 0}
-          aria-label={`Scade ${label}`}
+          aria-label={t("calc.counter.decrease", { item: label })}
           className={stepBtn}
         >
           −
@@ -504,7 +553,7 @@ function CounterRow({
         <button
           type="button"
           onClick={() => onChange(Math.min(20, value + 1))}
-          aria-label={`Adaugă ${label}`}
+          aria-label={t("calc.counter.increase", { item: label })}
           className={stepBtn}
         >
           +
@@ -517,6 +566,7 @@ function CounterRow({
 /* ---------------------------------------------------------------- wizard -- */
 
 export default function Calculator({ settings }: { settings: CalcSettings }) {
+  const { t, lang, href } = useI18n();
   const uid = useId();
   const reduce = useReducedMotion();
   const topRef = useRef<HTMLDivElement>(null);
@@ -558,11 +608,11 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
       const length = parseNum(lengthText);
       const height = parseNum(heightText);
       if (!(length >= 0.5 && length <= 30)) {
-        setDimsError("Introdu lungimea în metri — între 0,5 și 30.");
+        setDimsError(t("calc.dims.error.length"));
         return;
       }
       if (!(height >= 1 && height <= 3.5)) {
-        setDimsError("Înălțimea trebuie să fie între 1 și 3,5 metri.");
+        setDimsError(t("calc.dims.error.height"));
         return;
       }
       setDimsError(null);
@@ -576,7 +626,7 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
     }
     setStepIndex((prev) => Math.min(prev + 1, steps.length - 1));
     scrollToTop();
-  }, [step, lengthText, heightText, blatText, steps.length, scrollToTop]);
+  }, [step, lengthText, heightText, blatText, steps.length, scrollToTop, t]);
 
   const goBack = useCallback(() => {
     setStepIndex((prev) => Math.max(prev - 1, 0));
@@ -603,7 +653,7 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
 
     if (lead.name.trim().length < 2 || lead.phone.trim().length < 6 || !lead.consent) {
       setLeadStatus("error");
-      setLeadError("Completează numele, telefonul și bifează acordul.");
+      setLeadError(t("calc.lead.error.fields"));
       return;
     }
 
@@ -611,7 +661,9 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
     setLeadError(null);
 
     /* Configurația pleacă în CRM ca rânduri etichetate — cerință de client:
-       „să vină info completă", nu doar numele și telefonul. */
+       „să vină info completă", nu doar numele și telefonul. `summarize()` dă
+       rânduri ROMÂNEȘTI și așa rămân: CRM-ul se citește în română chiar dacă
+       vizitatorul a configurat pe varianta rusă a paginii. */
     try {
       const res = await fetch("/api/calculator-lead", {
         method: "POST",
@@ -627,11 +679,18 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
           _startedAt: startedAt.current,
         }),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const data = (await res.json().catch(() => null)) as { error?: unknown } | null;
+        setLeadStatus("error");
+        setLeadError(
+          t(apiErrorKey(data?.error) ?? "calc.lead.error.send", { phone: SITE.phone }),
+        );
+        return;
+      }
       setLeadStatus("success");
     } catch {
       setLeadStatus("error");
-      setLeadError(`Nu am putut trimite cererea. Sună-ne direct la ${SITE.phone}.`);
+      setLeadError(t("calc.lead.error.send", { phone: SITE.phone }));
     }
   }
 
@@ -651,54 +710,168 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
 
     if (done("mod")) {
       const option = MODE_OPTIONS.find((o) => o.value === cfg.mode);
-      rows.push({ label: "Mod", value: option?.label ?? "", image: option?.image });
-    }
-    if (done("tip")) rows.push({ label: "Tip", value: typeOption?.label ?? "", image: typeOption?.image });
-    if (done("forma") && cfg.type === "bucatarie") {
       rows.push({
-        label: "Formă",
-        value: SHAPE_OPTIONS.find((o) => o.value === cfg.shape)?.label ?? "",
+        label: t("calc.row.mode"),
+        value: option ? t(option.labelKey) : "",
+        image: option?.image,
       });
+    }
+    if (done("tip")) {
+      rows.push({
+        label: t("calc.row.type"),
+        value: typeOption ? t(typeOption.labelKey) : "",
+        image: typeOption?.image,
+      });
+    }
+    if (done("forma") && cfg.type === "bucatarie") {
+      const option = SHAPE_OPTIONS.find((o) => o.value === cfg.shape);
+      rows.push({ label: t("calc.row.shape"), value: option ? t(option.labelKey) : "" });
     }
     if (done("dims")) {
       rows.push({
-        label: "Dimensiuni",
+        label: t("calc.row.dims"),
         value:
-          `${cfg.lengthM} × ${cfg.heightM} m` +
-          (cfg.type === "bucatarie" ? `, ${cfg.depth} mm` : ""),
+          cfg.type === "bucatarie"
+            ? t("calc.value.dims.depth", {
+                length: cfg.lengthM,
+                height: cfg.heightM,
+                depth: cfg.depth,
+              })
+            : t("calc.value.dims", { length: cfg.lengthM, height: cfg.heightM }),
       });
     }
     if (done("corp")) {
-      rows.push({
-        label: "Corp",
-        value: CORP_OPTIONS.find((o) => o.value === cfg.corp)?.label ?? cfg.corp,
-      });
+      const option = CORP_OPTIONS.find((o) => o.value === cfg.corp);
+      rows.push({ label: t("calc.row.corp"), value: option ? t(option.labelKey) : cfg.corp });
     }
     if (done("fatada")) {
-      rows.push({ label: "Fațadă", value: frontOption?.label ?? "", image: frontOption?.image });
+      rows.push({
+        label: t("calc.row.front"),
+        value: frontOption ? t(frontOption.labelKey) : "",
+        image: frontOption?.image,
+      });
     }
     if (done("sertare")) {
       const count = Object.values(cfg.drawers).reduce((a, b) => a + b, 0);
-      rows.push({ label: "Sertare", value: count > 0 ? `${count} buc` : "—" });
+      rows.push({
+        label: t("calc.row.drawers"),
+        value: count > 0 ? t("calc.value.count", { n: count }) : "—",
+      });
     }
     if (done("mecanisme")) {
       const count = Object.values(cfg.mechanisms).reduce((a, b) => a + b, 0);
-      rows.push({ label: "Mecanisme", value: count > 0 ? `${count} buc` : "—" });
+      rows.push({
+        label: t("calc.row.mechanisms"),
+        value: count > 0 ? t("calc.value.count", { n: count }) : "—",
+      });
     }
     if (done("organizatoare") && hasOrganizers(cfg.type)) {
       const count = Object.values(cfg.organizers).reduce((a, b) => a + b, 0);
-      rows.push({ label: "Organizatoare", value: count > 0 ? `${count} buc` : "—" });
+      rows.push({
+        label: t("calc.row.organizers"),
+        value: count > 0 ? t("calc.value.count", { n: count }) : "—",
+      });
     }
     if (done("blat") && hasCountertop(cfg.type)) {
       const option = COUNTERTOP_OPTIONS.find((o) => o.value === cfg.countertop.brand);
       rows.push({
-        label: "Blat",
-        value: cfg.countertop.m2 > 0 ? `${option?.label}, ${cfg.countertop.m2} m²` : "—",
+        label: t("calc.row.countertop"),
+        value:
+          cfg.countertop.m2 > 0
+            ? t("calc.value.countertop", {
+                label: option ? t(option.labelKey) : cfg.countertop.brand,
+                area: cfg.countertop.m2,
+              })
+            : "—",
         image: cfg.countertop.m2 > 0 ? option?.image : undefined,
       });
     }
     return rows;
-  }, [cfg, steps, stepIndex, typeOption, frontOption]);
+  }, [cfg, steps, stepIndex, typeOption, frontOption, t]);
+
+  /**
+   * Rezumatul complet de sub preț — perechea AFIȘATĂ a lui `summarize()`.
+   *
+   * Aceleași rânduri, în aceeași ordine, dar din dicționar. `summarize()` nu se
+   * atinge: el rămâne pentru sârmă, în română, și e singurul care ajunge în
+   * CRM. Dacă se adaugă un rând acolo, se adaugă și aici.
+   */
+  const summaryRows = useMemo(() => {
+    const rows: { label: string; value: string }[] = [];
+
+    const mode = MODE_OPTIONS.find((o) => o.value === cfg.mode);
+    rows.push({ label: t("calc.row.mode"), value: mode ? t(mode.labelKey) : cfg.mode });
+    rows.push({ label: t("calc.row.type"), value: typeOption ? t(typeOption.labelKey) : cfg.type });
+
+    if (cfg.type === "bucatarie") {
+      const shape = SHAPE_OPTIONS.find((o) => o.value === cfg.shape);
+      rows.push({ label: t("calc.row.shape"), value: shape ? t(shape.labelKey) : cfg.shape });
+    }
+
+    rows.push({
+      label: t("calc.row.dims"),
+      value:
+        cfg.type === "bucatarie"
+          ? t("calc.value.dims.full.depth", {
+              length: cfg.lengthM,
+              height: cfg.heightM,
+              depth: cfg.depth,
+            })
+          : t("calc.value.dims.full", { length: cfg.lengthM, height: cfg.heightM }),
+    });
+
+    const corp = CORP_OPTIONS.find((o) => o.value === cfg.corp);
+    rows.push({ label: t("calc.row.corp"), value: corp ? t(corp.labelKey) : cfg.corp });
+    rows.push({
+      label: t("calc.row.front"),
+      value: frontOption ? t(frontOption.labelKey) : cfg.front,
+    });
+
+    const drawers = DRAWER_OPTIONS.filter((o) => (cfg.drawers[`${o.brand}_${o.type}`] ?? 0) > 0)
+      .map((o) =>
+        t("calc.value.qty", {
+          label: t(o.labelKey),
+          n: cfg.drawers[`${o.brand}_${o.type}`] ?? 0,
+        }),
+      )
+      .join(", ");
+    rows.push({ label: t("calc.row.drawers"), value: drawers || "—" });
+
+    const mechanisms = MECHANISM_OPTIONS.filter((o) => (cfg.mechanisms[o.value] ?? 0) > 0)
+      .map((o) => t("calc.value.qty", { label: t(o.labelKey), n: cfg.mechanisms[o.value] ?? 0 }))
+      .join(", ");
+    rows.push({ label: t("calc.row.mechanisms"), value: mechanisms || "—" });
+
+    if (hasOrganizers(cfg.type)) {
+      const organizers = ORGANIZER_OPTIONS.filter((o) => (cfg.organizers[o.value] ?? 0) > 0)
+        .map((o) =>
+          t("calc.value.qty.detail", {
+            label: t(o.labelKey),
+            /* Blurb-ul distinge suporturile cu același nume; fără punctul final. */
+            detail: t(o.blurbKey).replace(/\.$/, ""),
+            n: cfg.organizers[o.value] ?? 0,
+          }),
+        )
+        .join(", ");
+      rows.push({ label: t("calc.row.organizers"), value: organizers || "—" });
+    }
+
+    if (hasCountertop(cfg.type)) {
+      const option = COUNTERTOP_OPTIONS.find((o) => o.value === cfg.countertop.brand);
+      rows.push({
+        label: t("calc.row.countertop"),
+        value:
+          cfg.countertop.m2 > 0
+            ? t("calc.value.countertop", {
+                label: option ? t(option.labelKey) : cfg.countertop.brand,
+                area: cfg.countertop.m2,
+              })
+            : "—",
+      });
+    }
+
+    return rows;
+  }, [cfg, typeOption, frontOption, t]);
 
   const swap = reduce
     ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
@@ -709,14 +882,17 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
       };
 
   return (
-    <section aria-label="Calculator de preț" className="grain relative bg-ink-900">
+    <section aria-label={t("calc.aria.section")} className="grain relative bg-ink-900">
       <div className="mx-auto w-full max-w-[88rem] px-5 pb-40 pt-14 sm:px-8 sm:pt-16 lg:px-12">
         <div className="lg:grid lg:grid-cols-12 lg:gap-10">
           {/* ------------------------------------------------------- pașii -- */}
           <div ref={topRef} className="scroll-mt-28 lg:col-span-7 xl:col-span-8">
             <div className="flex items-center justify-between gap-6">
               <p className="text-eyebrow text-fg-dim">
-                Pasul {Math.min(stepIndex + 1, steps.length)} din {steps.length}
+                {t("calc.progress", {
+                  current: Math.min(stepIndex + 1, steps.length),
+                  total: steps.length,
+                })}
               </p>
               <div
                 role="progressbar"
@@ -740,10 +916,10 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                 exit={{ ...swap.exit, transition: { duration: DUR.micro, ease: EASE_OUT } }}
                 className="mt-6"
               >
-                <h2 className="text-h1 text-balance text-fg">{STEP_TITLES[step]}</h2>
+                <h2 className="text-h1 text-balance text-fg">{t(STEP_TITLES[step])}</h2>
                 {STEP_HINTS[step] ? (
                   <p className="text-pretty mt-3 max-w-[56ch] text-[0.9375rem] leading-[1.65] text-fg-dim">
-                    {STEP_HINTS[step]}
+                    {t(STEP_HINTS[step])}
                   </p>
                 ) : null}
 
@@ -753,8 +929,8 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                     {MODE_OPTIONS.map((option) => (
                       <PhotoCard
                         key={option.value}
-                        label={option.label}
-                        blurb={option.blurb}
+                        label={t(option.labelKey)}
+                        blurb={t(option.blurbKey)}
                         image={option.image}
                         selected={cfg.mode === option.value}
                         onClick={() =>
@@ -778,8 +954,8 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                     {TYPE_OPTIONS.map((option) => (
                       <PhotoCard
                         key={option.value}
-                        label={option.label}
-                        blurb={option.blurb}
+                        label={t(option.labelKey)}
+                        blurb={t(option.blurbKey)}
                         image={option.image}
                         selected={cfg.type === option.value}
                         onClick={() =>
@@ -801,7 +977,7 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                     {SHAPE_OPTIONS.map((option) => (
                       <DiagramCard
                         key={option.value}
-                        label={option.label}
+                        label={t(option.labelKey)}
                         shape={option.value}
                         selected={cfg.shape === option.value}
                         onClick={() => setCfg((prev) => ({ ...prev, shape: option.value }))}
@@ -817,13 +993,13 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                       <div className="grid gap-7 sm:grid-cols-2">
                         <div>
                           <label htmlFor={`${uid}-len`} className={FIELD_LABEL}>
-                            Lungime, metri
+                            {t("calc.dims.length.label")}
                           </label>
                           <input
                             id={`${uid}-len`}
                             type="text"
                             inputMode="decimal"
-                            placeholder="ex. 5"
+                            placeholder={t("calc.dims.length.placeholder")}
                             value={lengthText}
                             onChange={(e) => {
                               setLengthText(e.target.value);
@@ -834,7 +1010,7 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                         </div>
                         <div>
                           <label htmlFor={`${uid}-h`} className={FIELD_LABEL}>
-                            Înălțime, metri
+                            {t("calc.dims.height.label")}
                           </label>
                           <input
                             id={`${uid}-h`}
@@ -852,7 +1028,7 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
 
                       {cfg.type === "bucatarie" ? (
                         <fieldset className="mt-7">
-                          <legend className={FIELD_LABEL}>Adâncimea corpurilor</legend>
+                          <legend className={FIELD_LABEL}>{t("calc.dims.depth.legend")}</legend>
                           <div className="mt-3 flex flex-wrap gap-2">
                             {([600, 900] as const).map((depth) => (
                               <button
@@ -862,7 +1038,7 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                                 onClick={() => setCfg((prev) => ({ ...prev, depth }))}
                                 className={CHIP(cfg.depth === depth)}
                               >
-                                {depth} mm{depth === 900 ? " — corpuri adânci" : ""}
+                                {t(depth === 900 ? "calc.dims.depth.900" : "calc.dims.depth.600")}
                               </button>
                             ))}
                           </div>
@@ -941,11 +1117,11 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                               cfg.corp === option.value ? "text-lime-brand" : "text-fg",
                             )}
                           >
-                            {option.label}
+                            {t(option.labelKey)}
                           </span>
                         </span>
                         <span className="text-pretty mt-1.5 block text-[0.8125rem] leading-[1.55] text-fg-dim">
-                          {option.blurb}
+                          {t(option.blurbKey)}
                         </span>
                       </button>
                     ))}
@@ -958,8 +1134,8 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                     {FRONT_OPTIONS.map((option) => (
                       <PhotoCard
                         key={option.value}
-                        label={option.label}
-                        blurb={option.blurb}
+                        label={t(option.labelKey)}
+                        blurb={t(option.blurbKey)}
                         image={option.image}
                         selected={cfg.front === option.value}
                         onClick={() => setCfg((prev) => ({ ...prev, front: option.value }))}
@@ -979,7 +1155,7 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                           key={key}
                           icon={option.icon}
                           image={option.image}
-                          label={option.label}
+                          label={t(option.labelKey)}
                           value={cfg.drawers[key] ?? 0}
                           onChange={(qty) => setQty("drawers", key, qty)}
                         />
@@ -996,8 +1172,8 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                         key={option.value}
                         icon={option.icon}
                         image={option.image}
-                        label={option.label}
-                        blurb={option.blurb}
+                        label={t(option.labelKey)}
+                        blurb={t(option.blurbKey)}
                         value={cfg.mechanisms[option.value] ?? 0}
                         onChange={(qty) => setQty("mechanisms", option.value, qty)}
                       />
@@ -1012,8 +1188,8 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                       <CounterRow
                         key={option.value}
                         icon={option.icon}
-                        label={option.label}
-                        blurb={option.blurb}
+                        label={t(option.labelKey)}
+                        blurb={t(option.blurbKey)}
                         value={cfg.organizers[option.value] ?? 0}
                         onChange={(qty) => setQty("organizers", option.value, qty)}
                       />
@@ -1028,8 +1204,8 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                       {COUNTERTOP_OPTIONS.map((option) => (
                         <PhotoCard
                           key={option.value}
-                          label={option.label}
-                          blurb={option.blurb}
+                          label={t(option.labelKey)}
+                          blurb={t(option.blurbKey)}
                           image={option.image}
                           selected={cfg.countertop.brand === option.value}
                           onClick={() =>
@@ -1044,13 +1220,13 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                     </div>
                     <div className="mt-7 max-w-56">
                       <label htmlFor={`${uid}-blat`} className={FIELD_LABEL}>
-                        Suprafață blat, m² (opțional)
+                        {t("calc.blat.area.label")}
                       </label>
                       <input
                         id={`${uid}-blat`}
                         type="text"
                         inputMode="decimal"
-                        placeholder="ex. 3,5"
+                        placeholder={t("calc.blat.area.placeholder")}
                         value={blatText}
                         onChange={(e) => setBlatText(e.target.value)}
                         className={CONTROL}
@@ -1079,22 +1255,21 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                           className="absolute inset-0 bg-gradient-to-t from-ink-950/70 via-ink-950/10 to-transparent"
                         />
                         <p className="absolute bottom-4 left-5 text-[0.8125rem] text-fg">
-                          Fotografie dintr-un proiect MOBO — {typeOption.label.toLowerCase()} la
-                          comandă.
+                          {t("calc.result.banner", { type: t(typeOption.lowerKey) })}
                         </p>
                       </div>
                     ) : null}
 
-                    <p className="text-eyebrow mt-8 text-fg-dim">Estimare orientativă</p>
+                    <p className="text-eyebrow mt-8 text-fg-dim">{t("calc.result.eyebrow")}</p>
                     {/* Client, 2026-09-10: euro pronunțat, leii mai jos și mai mici. */}
                     <p className="mt-3">
                       <span className="text-display text-lime-brand">
-                        {formatMdl(estimateEur(settings, total))}
+                        {formatMdl(estimateEur(settings, total), lang)}
                       </span>
                       <span className="text-h3 ml-2 text-fg-dim">€</span>
                     </p>
                     <p className="mt-1 text-[0.9375rem] tabular-nums text-fg-faint">
-                      ≈ {formatMdl(total)} MDL
+                      {t("calc.result.mdl", { value: formatMdl(total, lang) })}
                     </p>
 
                     {/* --------------------------------------------- lead --
@@ -1102,17 +1277,20 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                         „este prea jos, și clientul poate să nu ajungă". */}
                     {leadStatus === "success" ? (
                       <div className="mt-8 rounded-card border border-white/10 bg-white/[0.03] p-6">
-                        <h3 className="text-h3 text-fg">Am primit configurația ta.</h3>
+                        <h3 className="text-h3 text-fg">{t("calc.lead.success.title")}</h3>
                         <p className="text-pretty mt-2 max-w-[44ch] text-[0.9375rem] leading-[1.65] text-fg-dim">
-                          Te contactăm la <span className="text-fg">{lead.phone}</span> în aceeași
-                          zi lucrătoare, cu un calcul verificat de un consultant.
+                          {withNode(
+                            t("calc.lead.success.body"),
+                            "phone",
+                            <span className="text-fg">{lead.phone}</span>,
+                          )}
                         </p>
                         <button
                           type="button"
                           onClick={restart}
                           className="mt-5 text-[0.875rem] text-fg-dim underline decoration-white/30 underline-offset-4 transition-colors duration-200 ease-out-strong hover-fine:hover:text-fg"
                         >
-                          Calculează altă configurație
+                          {t("calc.lead.success.again")}
                         </button>
                       </div>
                     ) : (
@@ -1121,20 +1299,18 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                         noValidate
                         className="mt-8 rounded-card border border-white/10 bg-white/[0.03] p-6 sm:p-7"
                       >
-                        <h3 className="text-h3 text-fg">
-                          Vrei calculul exact? Ți-l face un consultant.
-                        </h3>
+                        <h3 className="text-h3 text-fg">{t("calc.lead.title")}</h3>
                         <div className="mt-5 grid gap-7 sm:grid-cols-2">
                           <div>
                             <label htmlFor={`${uid}-nume`} className={FIELD_LABEL}>
-                              Nume
+                              {t("calc.lead.name.label")}
                             </label>
                             <input
                               id={`${uid}-nume`}
                               type="text"
                               autoComplete="name"
                               maxLength={80}
-                              placeholder="Numele tău"
+                              placeholder={t("calc.lead.name.placeholder")}
                               value={lead.name}
                               onChange={(e) =>
                                 setLead((prev) => ({ ...prev, name: e.target.value }))
@@ -1144,7 +1320,7 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                           </div>
                           <div>
                             <label htmlFor={`${uid}-tel`} className={FIELD_LABEL}>
-                              Telefon
+                              {t("calc.lead.phone.label")}
                             </label>
                             <input
                               id={`${uid}-tel`}
@@ -1180,14 +1356,16 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                             )}
                           />
                           <span className="text-[0.8125rem] leading-normal text-fg-dim">
-                            Sunt de acord cu prelucrarea datelor personale conform{" "}
-                            <a
-                              href="/politica-de-confidentialitate"
-                              className="underline decoration-white/30 underline-offset-2 hover-fine:hover:text-fg"
-                            >
-                              Politicii de confidențialitate
-                            </a>
-                            .
+                            {withNode(
+                              t("calc.lead.consent"),
+                              "link",
+                              <a
+                                href={href("/politica-de-confidentialitate")}
+                                className="underline decoration-white/30 underline-offset-2 hover-fine:hover:text-fg"
+                              >
+                                {t("calc.lead.consent.link")}
+                              </a>,
+                            )}
                           </span>
                         </label>
 
@@ -1211,21 +1389,23 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                               "active:scale-[0.98] disabled:pointer-events-none disabled:opacity-70",
                             )}
                           >
-                            {leadStatus === "submitting" ? "Se trimite…" : "Trimite configurația"}
+                            {leadStatus === "submitting"
+                              ? t("calc.lead.submitting")
+                              : t("calc.lead.submit")}
                           </button>
                           <button
                             type="button"
                             onClick={restart}
                             className="text-left text-[0.875rem] text-fg-dim underline decoration-white/30 underline-offset-4 transition-colors duration-200 ease-out-strong hover-fine:hover:text-fg sm:text-center"
                           >
-                            Reia de la zero
+                            {t("calc.lead.restart")}
                           </button>
                         </div>
                       </form>
                     )}
 
                     <ul className="mt-9 list-none border-t border-white/8">
-                      {summarize(cfg).map((row) => (
+                      {summaryRows.map((row) => (
                         <li
                           key={row.label}
                           className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-white/8 py-3"
@@ -1239,9 +1419,7 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                     </ul>
 
                     <p className="text-pretty mt-5 max-w-[56ch] text-[0.8125rem] leading-[1.6] text-fg-faint">
-                      Estimarea e orientativă — depinde de configurația exactă, decoruri și
-                      accesorii. Prețul final îl primești după măsurători, împreună cu proiectul,
-                      fără nicio obligație din partea ta.
+                      {t("calc.result.note")}
                     </p>
                   </div>
                 ) : null}
@@ -1252,11 +1430,11 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
           {/* --------------------------------------------- bonul de config -- */}
           <aside className="hidden lg:col-span-4 lg:col-start-9 lg:block xl:col-start-9">
             <div className="sticky top-28 rounded-card-lg border border-white/10 bg-white/[0.03] p-6">
-              <p className="text-eyebrow text-fg-dim">Configurația ta</p>
+              <p className="text-eyebrow text-fg-dim">{t("calc.aside.title")}</p>
 
               {receipt.length === 0 ? (
                 <p className="text-pretty mt-4 text-[0.875rem] leading-[1.6] text-fg-faint">
-                  Alegerile tale se adună aici, pas cu pas — ca un bon de configurare.
+                  {t("calc.aside.empty")}
                 </p>
               ) : (
                 <ul className="mt-4 list-none">
@@ -1288,22 +1466,20 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
               )}
 
               <div className="mt-5 border-t border-white/10 pt-5">
-                <p className="text-[0.8125rem] text-fg-faint">Estimare orientativă</p>
+                <p className="text-[0.8125rem] text-fg-faint">{t("calc.aside.estimate")}</p>
                 {total > 0 ? (
                   <p className="mt-1.5">
                     {/* Euro mai pronunțat, leii dedesubt — client, 2026-09-10. */}
                     <span className="text-h1 tabular-nums text-lime-brand">
-                      {formatMdl(estimateEur(settings, total))}
+                      {formatMdl(estimateEur(settings, total), lang)}
                     </span>
                     <span className="ml-2 text-[0.9375rem] text-fg-dim">€</span>
                     <span className="mt-0.5 block text-[0.8125rem] tabular-nums text-fg-faint">
-                      ≈ {formatMdl(total)} MDL · prețul final, după măsurători
+                      {t("calc.aside.mdl", { value: formatMdl(total, lang) })}
                     </span>
                   </p>
                 ) : (
-                  <p className="mt-1.5 text-[0.9375rem] text-fg-dim">
-                    Apare după ce introduci dimensiunile.
-                  </p>
+                  <p className="mt-1.5 text-[0.9375rem] text-fg-dim">{t("calc.aside.pending")}</p>
                 )}
               </div>
             </div>
@@ -1312,18 +1488,18 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
       </div>
 
       {/* ------------------------------------------------- bara de estimare */}
-      {/* Sub SocialIsland (z-[80]) și nav (z-[90]) — bară utilitară, nu chrome. */}
+      {/* Sub nav (z-[90]) — bară utilitară, nu chrome. */}
       <div className="fixed inset-x-0 bottom-0 z-[70]">
         <div className="mx-auto w-full max-w-3xl px-5 pb-4 sm:px-8 sm:pb-5">
           <div className="glass flex items-center justify-between gap-4 rounded-pill py-2 pl-6 pr-2">
             <p className="min-w-0 truncate text-[0.8125rem] text-fg-dim">
-              <span className="hidden sm:inline">Estimare curentă: </span>
+              <span className="hidden sm:inline">{t("calc.bar.current")} </span>
               <span className="text-[1.0625rem] font-medium tabular-nums text-fg">
-                {total > 0 ? `${formatMdl(estimateEur(settings, total))} €` : "—"}
+                {total > 0 ? `${formatMdl(estimateEur(settings, total), lang)} €` : "—"}
               </span>
               {total > 0 ? (
                 <span className="ml-2 hidden tabular-nums text-fg-faint sm:inline">
-                  ≈ {formatMdl(total)} MDL
+                  {t("calc.result.mdl", { value: formatMdl(total, lang) })}
                 </span>
               ) : null}
             </p>
@@ -1334,7 +1510,7 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                   onClick={goBack}
                   className="inline-flex h-11 select-none items-center rounded-pill px-4 text-[0.875rem] text-fg-dim transition-colors duration-150 ease-out-strong hover-fine:hover:text-fg"
                 >
-                  Înapoi
+                  {t("calc.bar.back")}
                 </button>
               ) : null}
               {!isResult ? (
@@ -1348,7 +1524,7 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
                     "active:scale-[0.98]",
                   )}
                 >
-                  Continuă
+                  {t("calc.bar.next")}
                   <span aria-hidden="true">→</span>
                 </button>
               ) : null}
