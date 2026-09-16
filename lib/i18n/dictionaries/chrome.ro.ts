@@ -69,6 +69,9 @@ export const chromeRo = {
   "chrome.form.writeUs": "Scrie-ne pe",
 
   "chrome.gallery.alt": "{title} — fotografia {n} din {total}",
+  "chrome.gallery.close": "Închide fotografia",
+  "chrome.gallery.lightbox": "{title} — fotografie mărită",
+  "chrome.gallery.open": "Mărește fotografia {n} din {total}",
   "chrome.gallery.altSpace": "{title} — {space}, fotografia {n} din {total}",
   "chrome.gallery.figure": "Galerie foto — {title}",
   "chrome.gallery.next": "Fotografia următoare",

@@ -16,6 +16,8 @@ import {
   ORGANIZER_OPTIONS,
   SHAPE_OPTIONS,
   TYPE_OPTIONS,
+  breakdown,
+  calculationRows,
   estimateEur,
   estimatePrice,
   formatMdl,
@@ -662,8 +664,11 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
 
     /* Configurația pleacă în CRM ca rânduri etichetate — cerință de client:
        „să vină info completă", nu doar numele și telefonul. `summarize()` dă
-       rânduri ROMÂNEȘTI și așa rămân: CRM-ul se citește în română chiar dacă
-       vizitatorul a configurat pe varianta rusă a paginii. */
+       ce a ales clientul, `calculationRows()` cum a ieșit prețul (rând cu
+       rând, cu tarife și coeficienți) — cerință de client (2026-09-16): „să
+       meargă tot calculul". Rândurile sunt ROMÂNEȘTI și așa rămân: CRM-ul se
+       citește în română chiar dacă vizitatorul a configurat pe varianta rusă;
+       limba paginii pleacă separat, ca echipa să știe în ce limbă să sune. */
     try {
       const res = await fetch("/api/calculator-lead", {
         method: "POST",
@@ -672,7 +677,13 @@ export default function Calculator({ settings }: { settings: CalcSettings }) {
           name: lead.name,
           phone: lead.phone,
           consent: lead.consent,
-          rows: summarize(cfg),
+          rows: [...summarize(cfg), ...calculationRows(settings, cfg)],
+          breakdown: breakdown(settings, cfg).lines.map((line) => ({
+            label: line.label,
+            detail: line.detail,
+            amount: Math.round(line.amount),
+          })),
+          lang,
           total,
           totalEur: estimateEur(settings, total),
           _company: "",

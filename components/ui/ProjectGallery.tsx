@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { useI18n } from "@/components/ui/LangProvider";
+import Lightbox, { type LightboxSlide } from "@/components/ui/Lightbox";
 import { cn } from "@/lib/utils";
 import type { ProjectSpace } from "@/lib/data";
 
@@ -27,6 +28,11 @@ import type { ProjectSpace } from "@/lib/data";
  * primul cadru al spațiului), o etichetă pe cadrul care deschide fiecare
  * spațiu și numele spațiului curent lângă contor. Galeriile încă negrupate
  * (un singur spațiu, fără etichetă) cad înapoi pe filmstrip-ul simplu.
+ *
+ * Click / tap pe un cadru îl deschide în Lightbox (cadrul întreg, mărit, cu
+ * zoom); la închidere banda sare la cadrul unde a rămas vizitatorul. Cu
+ * mouse-ul, click-ul e recunoscut în pointerup (fără mișcare) — captura de
+ * pointer a drag-ului retrimite click-ul pe bandă, nu pe buton.
  *
  * Sub prefers-reduced-motion salturile devin instant (behavior: auto).
  */
@@ -54,6 +60,7 @@ export default function ProjectGallery({
   const trackRef = useRef<HTMLUListElement>(null);
   const [index, setIndex] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [lightbox, setLightbox] = useState<number | null>(null);
 
   const slides = useMemo<Slide[]>(
     () =>
@@ -66,11 +73,51 @@ export default function ProjectGallery({
   const labeled = spaces.length > 1 && spaces.every((s) => s.label);
   const activeSpace = slides[index]?.spaceIndex ?? 0;
 
+  const altFor = useCallback(
+    (i: number) =>
+      labeled
+        ? t("chrome.gallery.altSpace", {
+            title,
+            space: spaces[slides[i].spaceIndex].label ?? "",
+            n: i + 1,
+            total: slides.length,
+          })
+        : t("chrome.gallery.alt", { title, n: i + 1, total: slides.length }),
+    [labeled, slides, spaces, t, title],
+  );
+
+  const lightboxSlides = useMemo<LightboxSlide[]>(
+    () =>
+      slides.map((slide, i) => ({
+        src: slide.src,
+        alt: altFor(i),
+        label: labeled ? spaces[slide.spaceIndex].label : undefined,
+      })),
+    [altFor, labeled, slides, spaces],
+  );
+
+  /* Deschiderea din pointerup (mouse) e urmată de un click retrimis pe bandă;
+     marca de timp îl face inofensiv, oricare ar fi ținta lui. */
+  const openedAt = useRef(0);
+  const openSlide = useCallback((i: number) => {
+    openedAt.current = Date.now();
+    setLightbox(i);
+  }, []);
+  const openFromClick = useCallback(
+    (i: number) => {
+      if (Date.now() - openedAt.current < 500) return;
+      openSlide(i);
+    },
+    [openSlide],
+  );
+
   /* Drag cu mouse-ul: banda urmează cursorul 1:1. Snap-ul e suspendat cât
      ține gestul (altfel se bate cu scrollLeft imperativ) și browserul
      reașază banda pe cadru la eliberare. Touch-ul nu trece pe aici — are
      deja defilare nativă cu inerție. */
-  const drag = useRef<{ startX: number; startLeft: number } | null>(null);
+  const drag = useRef<{ startX: number; startLeft: number; slide: number; moved: boolean } | null>(
+    null,
+  );
   const [dragging, setDragging] = useState(false);
 
   const slideAt = useCallback((track: HTMLUListElement, i: number) => {
@@ -165,6 +212,12 @@ export default function ProjectGallery({
     [scrollToSlide, slides],
   );
 
+  /* La închidere banda urmează cadrul răsfoit în lightbox. */
+  const closeLightbox = useCallback(() => {
+    if (lightbox !== null && lightbox !== index) scrollToSlide(lightbox);
+    setLightbox(null);
+  }, [index, lightbox, scrollToSlide]);
+
   const counter = `${String(index + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
 
   return (
@@ -207,6 +260,9 @@ export default function ProjectGallery({
           } else if (e.key === "ArrowLeft") {
             e.preventDefault();
             step(-1);
+          } else if (e.key === "Enter" && e.target === e.currentTarget) {
+            e.preventDefault();
+            openSlide(index);
           }
         }}
         onWheel={stopGlide}
@@ -216,7 +272,13 @@ export default function ProjectGallery({
           stopGlide();
           const track = trackRef.current;
           if (!track) return;
-          drag.current = { startX: e.clientX, startLeft: track.scrollLeft };
+          const li = (e.target as Element).closest("li");
+          drag.current = {
+            startX: e.clientX,
+            startLeft: track.scrollLeft,
+            slide: li ? Array.prototype.indexOf.call(track.children, li) : -1,
+            moved: false,
+          };
           setDragging(true);
           track.setPointerCapture(e.pointerId);
         }}
@@ -224,11 +286,15 @@ export default function ProjectGallery({
           if (!drag.current) return;
           const track = trackRef.current;
           if (!track) return;
-          track.scrollLeft = drag.current.startLeft - (e.clientX - drag.current.startX);
+          const dx = e.clientX - drag.current.startX;
+          if (Math.abs(dx) > 6) drag.current.moved = true;
+          track.scrollLeft = drag.current.startLeft - dx;
         }}
         onPointerUp={() => {
+          const d = drag.current;
           drag.current = null;
           setDragging(false);
+          if (d && !d.moved && d.slide >= 0) openSlide(d.slide);
         }}
         onPointerCancel={() => {
           drag.current = null;
@@ -253,31 +319,34 @@ export default function ProjectGallery({
                 slide.wide ? "aspect-[3/2]" : "aspect-[2/3]",
               )}
             >
-              <Image
-                src={slide.src}
-                alt={
-                  labeled
-                    ? t("chrome.gallery.altSpace", {
-                        title,
-                        space: spaceLabel ?? "",
-                        n: i + 1,
-                        total: slides.length,
-                      })
-                    : t("chrome.gallery.alt", { title, n: i + 1, total: slides.length })
-                }
-                fill
-                sizes={
-                  slide.wide
-                    ? "(min-width: 1024px) 48vw, 95vw"
-                    : "(min-width: 1024px) 30vw, 75vw"
-                }
-                /* Cadrele locale (import static) au blurDataURL generat de
-                   Next — blur-up în locul plăcii bone-200 goale. */
-                placeholder={local ? "blur" : "empty"}
-                preload={i < 2}
-                draggable={false}
-                className="select-none object-cover"
-              />
+              {/* Butonul e calea de deschidere pentru touch și tastatură;
+                  mouse-ul trece prin pointerup-ul benzii (vezi antetul). */}
+              <button
+                type="button"
+                onClick={() => openFromClick(i)}
+                aria-label={t("chrome.gallery.open", { n: i + 1, total: slides.length })}
+                className={cn(
+                  "absolute inset-0 block focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-lime-on-light",
+                  dragging ? "cursor-grabbing" : "hover-fine:cursor-zoom-in",
+                )}
+              >
+                <Image
+                  src={slide.src}
+                  alt={altFor(i)}
+                  fill
+                  sizes={
+                    slide.wide
+                      ? "(min-width: 1024px) 48vw, 95vw"
+                      : "(min-width: 1024px) 30vw, 75vw"
+                  }
+                  /* Cadrele locale (import static) au blurDataURL generat de
+                     Next — blur-up în locul plăcii bone-200 goale. */
+                  placeholder={local ? "blur" : "empty"}
+                  preload={i < 2}
+                  draggable={false}
+                  className="select-none object-cover"
+                />
+              </button>
               {/* Eticheta care deschide spațiul — semnalul „am trecut în altă
                   cameră" chiar în bandă. Decorativă aici (numele e deja în
                   bara de spații și în contor), deci ascunsă de la AT. */}
@@ -348,6 +417,15 @@ export default function ProjectGallery({
           </button>
         </div>
       </div>
+
+      <Lightbox
+        title={title}
+        slides={lightboxSlides}
+        index={lightbox ?? index}
+        open={lightbox !== null}
+        onClose={closeLightbox}
+        onIndexChange={setLightbox}
+      />
     </figure>
   );
 }

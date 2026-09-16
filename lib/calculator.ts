@@ -611,55 +611,139 @@ function num(settings: CalcSettings, key: string): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-export function estimatePrice(settings: CalcSettings, cfg: CalcConfig): number {
-  if (!(cfg.lengthM > 0)) return 0;
+/** Un rând din calcul: cantitate × tarif (cu coeficienții aplicați) = sumă. */
+export type CalcLine = {
+  /** Unic — în CRM rândurile devin chei de obiect. */
+  label: string;
+  /** Cum a ieșit suma: „10,4 m² × 1.500 MDL/m² × 1,5 (adâncime 900 mm)". */
+  detail: string;
+  amount: number;
+};
+
+export type CalcBreakdown = {
+  lines: CalcLine[];
+  /** Suma rândurilor, înainte de prețul de pornire și coeficient. */
+  subtotal: number;
+  start: number;
+  coef: number;
+  total: number;
+};
+
+const roNumber = (value: number, maxFraction = 0) =>
+  value.toLocaleString("ro-RO", { maximumFractionDigits: maxFraction });
+const mdl = (value: number) => `${roNumber(Math.round(value))} MDL`;
+const m2 = (value: number) => `${roNumber(value, 2)} m²`;
+
+/**
+ * Formula, rând cu rând — aceeași ca în vechiul calculator, doar că fiecare
+ * termen rămâne vizibil. `estimatePrice()` e totalul ei; nu există două
+ * implementări care să poată diverge.
+ */
+export function breakdown(settings: CalcSettings, cfg: CalcConfig): CalcBreakdown {
+  if (!(cfg.lengthM > 0)) return { lines: [], subtotal: 0, start: 0, coef: 1, total: 0 };
 
   const area = cfg.lengthM * cfg.heightM;
+  const lines: CalcLine[] = [];
   let sum = 0;
+  const push = (line: CalcLine) => {
+    lines.push(line);
+    sum += line.amount;
+  };
 
   /* Corpul. */
-  let corpRate = num(settings, `price_pal_${cfg.corp}`);
-  if (cfg.mode === "premium" && cfg.corp !== "egger_alb") corpRate *= 1.8;
-  sum += area * (cfg.type === "bucatarie" && cfg.depth === 900 ? 1.5 : 1) * corpRate;
+  const corpRate = num(settings, `price_pal_${cfg.corp}`);
+  const premiumCorp = cfg.mode === "premium" && cfg.corp !== "egger_alb";
+  const deep = cfg.type === "bucatarie" && cfg.depth === 900;
+  push({
+    label: "Corp",
+    detail:
+      `${m2(area)} × ${mdl(corpRate)}/m²` +
+      (premiumCorp ? " × 1,8 (premium)" : "") +
+      (deep ? " × 1,5 (adâncime 900 mm)" : ""),
+    amount: area * (deep ? 1.5 : 1) * (premiumCorp ? corpRate * 1.8 : corpRate),
+  });
 
   /* Fațada — aria fronturilor e estimată la 1.5 × aria corpului. */
-  sum += area * 1.5 * num(settings, `price_front_${cfg.front}`);
+  const frontRate = num(settings, `price_front_${cfg.front}`);
+  push({
+    label: "Fațadă",
+    detail: `${m2(area * 1.5)} (1,5 × aria corpului) × ${mdl(frontRate)}/m²`,
+    amount: area * 1.5 * frontRate,
+  });
 
   /* Sertarele. */
+  const drawers: string[] = [];
+  let drawersAmount = 0;
   for (const option of DRAWER_OPTIONS) {
     const qty = cfg.drawers[`${option.brand}_${option.type}`] ?? 0;
     if (qty <= 0) continue;
     let rate = num(settings, `price_sertar_${option.brand}_${option.type}`);
-    if (cfg.mode === "premium" && option.type === "metal") rate *= 2;
-    sum += rate * qty;
+    const premiumMetal = cfg.mode === "premium" && option.type === "metal";
+    if (premiumMetal) rate *= 2;
+    drawers.push(`${option.label} ×${qty} × ${mdl(rate)}${premiumMetal ? " (×2 premium)" : ""}`);
+    drawersAmount += rate * qty;
   }
+  if (drawers.length > 0) push({ label: "Sertare", detail: drawers.join("; "), amount: drawersAmount });
 
   /* Mecanismele. */
+  const mechanisms: string[] = [];
+  let mechanismsAmount = 0;
   for (const option of MECHANISM_OPTIONS) {
     const qty = cfg.mechanisms[option.value] ?? 0;
-    if (qty > 0) sum += num(settings, `price_mecanism_${option.value}`) * qty;
+    if (qty <= 0) continue;
+    const rate = num(settings, `price_mecanism_${option.value}`);
+    mechanisms.push(`${option.label} ×${qty} × ${mdl(rate)}`);
+    mechanismsAmount += rate * qty;
+  }
+  if (mechanisms.length > 0) {
+    push({ label: "Mecanisme", detail: mechanisms.join("; "), amount: mechanismsAmount });
   }
 
   /* Organizatoarele — doar garderobă și dulap. */
   if (hasOrganizers(cfg.type)) {
+    const organizers: string[] = [];
+    let organizersAmount = 0;
     for (const option of ORGANIZER_OPTIONS) {
       const qty = cfg.organizers[option.value] ?? 0;
-      if (qty > 0) sum += num(settings, `price_storex_${option.value}`) * qty;
+      if (qty <= 0) continue;
+      const rate = num(settings, `price_storex_${option.value}`);
+      organizers.push(`${option.label} ×${qty} × ${mdl(rate)}`);
+      organizersAmount += rate * qty;
+    }
+    if (organizers.length > 0) {
+      push({ label: "Organizatoare", detail: organizers.join("; "), amount: organizersAmount });
     }
   }
 
   /* Blatul — doar bucătărie. */
   if (hasCountertop(cfg.type) && cfg.countertop.m2 > 0) {
-    sum += cfg.countertop.m2 * num(settings, `price_blat_${cfg.countertop.brand}`);
+    const rate = num(settings, `price_blat_${cfg.countertop.brand}`);
+    const label = COUNTERTOP_OPTIONS.find((o) => o.value === cfg.countertop.brand)?.label;
+    push({
+      label: "Blat",
+      detail: `${label ?? cfg.countertop.brand}: ${m2(cfg.countertop.m2)} × ${mdl(rate)}/m²`,
+      amount: cfg.countertop.m2 * rate,
+    });
   }
 
   /* Forma bucătăriei. */
-  if (cfg.type === "bucatarie") sum += num(settings, `price_forma_${cfg.shape}`);
+  if (cfg.type === "bucatarie") {
+    const shape = SHAPE_OPTIONS.find((o) => o.value === cfg.shape)?.label ?? cfg.shape;
+    push({
+      label: "Formă",
+      detail: `${shape} (sumă fixă)`,
+      amount: num(settings, `price_forma_${cfg.shape}`),
+    });
+  }
 
   const start = num(settings, `start_${cfg.type}_${cfg.mode === "premium" ? "prem" : "std"}`);
   const coef = num(settings, `coef_${cfg.type}`) || 1;
 
-  return Math.round((start + sum) * coef);
+  return { lines, subtotal: sum, start, coef, total: Math.round((start + sum) * coef) };
+}
+
+export function estimatePrice(settings: CalcSettings, cfg: CalcConfig): number {
+  return breakdown(settings, cfg).total;
 }
 
 export function estimateEur(settings: CalcSettings, mdl: number): number {
@@ -745,5 +829,37 @@ export function summarize(cfg: CalcConfig): { label: string; value: string }[] {
     });
   }
 
+  return rows;
+}
+
+/**
+ * Calculul, rând cu rând, PENTRU CRM — perechea lui `summarize()`: acela
+ * spune ce a ales clientul, acesta spune cum a ieșit prețul. Tot românesc,
+ * tot cu etichete unice (în CRM rândurile devin chei de obiect).
+ */
+export function calculationRows(
+  settings: CalcSettings,
+  cfg: CalcConfig,
+): { label: string; value: string }[] {
+  const calc = breakdown(settings, cfg);
+  if (calc.lines.length === 0) return [];
+
+  const rows = calc.lines.map((line) => ({
+    label: `Calcul · ${line.label}`,
+    value: `${line.detail} = ${mdl(line.amount)}`,
+  }));
+  rows.push({ label: "Calcul · Subtotal", value: mdl(calc.subtotal) });
+  rows.push({
+    label: "Calcul · Preț de pornire",
+    value: `${mdl(calc.start)} (${cfg.mode === "premium" ? "premium" : "standard"})`,
+  });
+  rows.push({
+    label: "Calcul · Coeficient",
+    value: `× ${roNumber(calc.coef, 3)} → (${mdl(calc.start)} + ${mdl(calc.subtotal)}) × ${roNumber(calc.coef, 3)} = ${mdl(calc.total)}`,
+  });
+  rows.push({
+    label: "Curs EUR",
+    value: `1 € = ${roNumber(num(settings, "eurExchangeRate") || 20, 2)} MDL`,
+  });
   return rows;
 }

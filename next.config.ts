@@ -14,7 +14,9 @@ const nextConfig: NextConfig = {
     // 100 is on the qualities allowlist for the hero: full-bleed AVIF at the
     // default 75 visibly smears — Next 16 rejects any quality not listed here.
     formats: ["image/avif", "image/webp"],
-    qualities: [75, 100],
+    // 90 is the gallery lightbox: a photo opened to be looked at closely, but
+    // fetched on demand, so it stops short of the hero's near-lossless 100.
+    qualities: [75, 90, 100],
   },
 };
 

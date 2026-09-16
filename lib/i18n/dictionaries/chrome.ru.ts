@@ -67,6 +67,9 @@ export const chromeRu: ChromeDict = {
   "chrome.form.writeUs": "Напишите нам в",
 
   "chrome.gallery.alt": "{title} — фотография {n} из {total}",
+  "chrome.gallery.close": "Закрыть фотографию",
+  "chrome.gallery.lightbox": "{title} — увеличенная фотография",
+  "chrome.gallery.open": "Увеличить фотографию {n} из {total}",
   "chrome.gallery.altSpace": "{title} — {space}, фотография {n} из {total}",
   "chrome.gallery.figure": "Фотогалерея — {title}",
   "chrome.gallery.next": "Следующая фотография",

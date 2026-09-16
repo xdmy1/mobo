@@ -341,6 +341,14 @@ export const HERO = {
 } as const;
 
 /**
+ * Fotografia din outro-ul de pe homepage (wordmark-ul MOBO decupat din ea).
+ * Cerință de client (2026-09-16): prin litere se vedeau „niște perdele" din
+ * living-ul de hero; bucătăria albă din ședința Universității, cu fronturile
+ * și masa în banda de mijloc, e ceea ce face MOBO — și se citește la 4K.
+ */
+export const OUTRO = { image: "/hero-bucatarie.jpg" } as const;
+
+/**
  * Rotația de hero — cerință de client (2026-09-05): „poza să se schimbe".
  * Primul cadru e fotografia de hero (LCP, preîncărcată); restul se încarcă
  * leneș și se rotesc prin crossfade în Hero. Sub prefers-reduced-motion

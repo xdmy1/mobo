@@ -50,12 +50,27 @@ const payloadSchema = z.object({
     .max(24)
     .regex(/^[+()\d][\d\s\-()]{5,23}$/),
   consent: z.literal(true),
+  /* Alegerile clientului + calculul rând cu rând (vezi lib/calculator.ts). */
   rows: z
-    .array(z.object({ label: z.string().max(60), value: z.string().max(400) }))
-    .max(16),
+    .array(z.object({ label: z.string().max(60), value: z.string().max(600) }))
+    .max(40),
+  breakdown: z
+    .array(
+      z.object({
+        label: z.string().max(60),
+        detail: z.string().max(600),
+        amount: z.number().int().max(100_000_000),
+      }),
+    )
+    .max(20)
+    .default([]),
+  /* Limba în care a configurat vizitatorul — echipa știe în ce limbă să sune. */
+  lang: z.enum(["ro", "ru"]).optional(),
   total: z.number().int().nonnegative().max(100_000_000),
   totalEur: z.number().int().nonnegative().max(10_000_000),
 });
+
+const LANG_LABEL: Record<"ro" | "ru", string> = { ro: "Română", ru: "Rusă" };
 
 /** Normalizarea de telefon a vechiului calculator, păstrată identic. */
 function normalizePhone(raw: string): string {
@@ -137,7 +152,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ ok: false, error: "api.error.incomplete" }, { status: 422 });
   }
-  const { name, phone, rows, total } = parsed.data;
+  const { name, phone, rows, breakdown, lang, total, totalEur } = parsed.data;
 
   /* Vechiul formular avea prenume + nume separate; al nostru un singur câmp. */
   const [firstName, ...rest] = name.trim().split(/\s+/);
@@ -178,8 +193,13 @@ export async function POST(req: Request) {
       quoteProduct: [],
       description: JSON.stringify({
         _wizardQuote: true,
-        config: Object.fromEntries(rows.map((row) => [row.label, row.value])),
-        breakdown: [],
+        config: {
+          ...Object.fromEntries(rows.map((row) => [row.label, row.value])),
+          Total: `${total.toLocaleString("ro-RO")} MDL ≈ ${totalEur.toLocaleString("ro-RO")} €`,
+          ...(lang ? { "Limba paginii": LANG_LABEL[lang] } : {}),
+          Sursă: "mobo.md/calculator",
+        },
+        breakdown,
         totalPrice: total,
         priceBeforeDiscount: total,
         discount: 0,
