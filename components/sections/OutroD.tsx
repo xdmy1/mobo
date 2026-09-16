@@ -35,8 +35,11 @@ const PHOTO_URL = `/_next/image?url=${encodeURIComponent(OUTRO.image)}&w=1920&q=
  *     Nothing changes inside the SVG any more: it rasterises once, and the
  *     only scroll-driven motion is compositor work — the fronts' transforms,
  *     a gentle scale on a will-change wrapper, and the caption's fade.
- *   - "prea lungă, să nu distragă" — the scroll track is 160svh (was 230),
- *     and the wall has fully parted by ~55% of it instead of ~77%.
+ *   - "prea lungă, să nu distragă", then "așa rapidă că parcă e glitch" — the
+ *     track went 230svh → 160svh → 200svh. At 160 the wall parted inside
+ *     ~30svh of scroll, under a quintic ease that spends most of that on the
+ *     first few pixels: it read as a jump cut. Now the parting spans ~70svh
+ *     of scroll on a cubic ease, so it reads as a door, not a glitch.
  *   - "se văd niște perdele" — the living-room hero showed curtains through
  *     the letters; the kitchen frame from the same shoot shows fronts.
  *
@@ -59,11 +62,11 @@ const VB_H = 260;
 const INSET = 4;
 
 /**
- * Soft-close. Nearly all the travel happens early, then it creeps home.
- * Deliberately more decelerated than the house ease-out — a drawer catching
- * itself is the entire point of the gesture.
+ * Soft-close. Fast off the mark, then it creeps home. Cubic, not the quintic
+ * it started as: under scroll-scrubbing a quintic spends its whole travel in
+ * the first few percent of the range and the eye reads a cut, not a motion.
  */
-const softClose = (t: number) => 1 - Math.pow(1 - t, 5);
+const softClose = (t: number) => 1 - Math.pow(1 - t, 3);
 
 /**
  * Outermost fronts lead, alternating up and down, so the wall parts.
@@ -73,12 +76,12 @@ const softClose = (t: number) => 1 - Math.pow(1 - t, 5);
 const panelOffset = (i: number) => (i % 2 === 0 ? "-130%" : "130%");
 const panelDelay = (i: number) => {
   const fromCentre = Math.abs(i - (PANELS - 1) / 2);
-  return (PANELS / 2 - fromCentre) * 0.035;
+  return (PANELS / 2 - fromCentre) * 0.05;
 };
 
 /** Where in the track the first front starts moving, and how long each takes. */
-const PART_START = 0.04;
-const PART_TRAVEL = 0.42;
+const PART_START = 0.06;
+const PART_TRAVEL = 0.55;
 
 function CabinetFront({ index, progress }: { index: number; progress: MotionValue<number> }) {
   const start = PART_START + panelDelay(index);
@@ -110,8 +113,8 @@ export default function OutroD() {
      It is the only transform on the wordmark, and it sits on a wrapper with
      will-change, so the SVG rasterises once and the scale is compositor-only. */
   const wordScale = useTransform(scrollYProgress, [0, 1], [1.06, 1.0]);
-  const captionOpacity = useTransform(scrollYProgress, [0.45, 0.7], [0, 1]);
-  const captionY = useTransform(scrollYProgress, [0.45, 0.7], [16, 0]);
+  const captionOpacity = useTransform(scrollYProgress, [0.55, 0.8], [0, 1]);
+  const captionY = useTransform(scrollYProgress, [0.55, 0.8], [16, 0]);
 
   /* Reduced motion gets a genuinely different render path — no sticky stage, no
      scrubbing, no parting wall. Scroll-jacked sticky sections are a vestibular
@@ -136,7 +139,7 @@ export default function OutroD() {
     <section
       ref={sectionRef}
       aria-label={`${SITE.shortName} — ${t("site.tagline")}`}
-      className="relative isolate h-[160svh] w-full bg-ink-950"
+      className="relative isolate h-[200svh] w-full bg-ink-950"
     >
       <div className="sticky top-0 flex h-svh w-full items-center justify-center overflow-hidden bg-ink-950">
         {/* --- the shot ---------------------------------------------------- */}
