@@ -45,7 +45,9 @@ import { EASE_OUT } from "@/lib/motion";
  * abutting boxes — no composited edges left to strand a hairline.
  *
  * Cost: transforms and opacity only. The four frames are the hero rotation's,
- * requested with the hero's exact props, so they come out of the HTTP cache.
+ * requested with the hero's exact props, so whatever the hero has already
+ * shown comes out of the HTTP cache; until the rest land, each leaf carries a
+ * 128px soft copy of its room, so the screen is never blank.
  */
 
 /* Kitchen first — it is the first word of the name. */
@@ -56,6 +58,12 @@ const ROOMS = [HERO_SLIDES[1], HERO_SLIDES[0], HERO_SLIDES[2], HERO_SLIDES[3]] a
 const ROOM_FOCUS = ["62% 50%", "70% 50%", "74% 50%", "74% 50%"] as const;
 
 const LEAVES = ROOMS.length;
+
+/* What a leaf shows until its photograph lands: the same frame at 128px, a
+   couple of KB, so a visitor who jumps straight to the foot of the page meets
+   four soft rooms rather than four blank boards. Hand-built because nothing
+   that exists to be out of focus needs a srcset. */
+const softUrl = (src: string) => `/_next/image?url=${encodeURIComponent(src)}&w=128&q=75`;
 
 /* How far each leaf is turned out of the wall when folded. */
 const FOLD_DEG = 46;
@@ -128,6 +136,16 @@ function LeafFace({
 }) {
   return (
     <div className="absolute inset-0 overflow-hidden">
+      {/* Blurred once, never animated; scaled past the leaf so the blur's
+          transparent fringe stays outside it. */}
+      <div
+        className="absolute inset-0 scale-110 bg-cover blur-lg"
+        style={{
+          backgroundImage: `url("${softUrl(ROOMS[index].src)}")`,
+          backgroundPosition: ROOM_FOCUS[index],
+        }}
+      />
+
       {/* alt="": all four frames are described in the hero rotation. Same
           props as the hero on purpose — same URL, so a cache hit. */}
       <Image
