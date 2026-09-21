@@ -5,7 +5,7 @@ import Process from "@/components/sections/Process";
 import Testimonials from "@/components/sections/Testimonials";
 import About from "@/components/sections/About";
 import LeadForm from "@/components/sections/LeadForm";
-import OutroD from "@/components/sections/OutroD";
+import OutroE from "@/components/sections/OutroE";
 import Footer from "@/components/sections/Footer";
 
 /**
@@ -46,14 +46,13 @@ export default function Home() {
       {/* The brand moment sits between the last content section and the
           practical footer: the film ends, then the credits roll.
 
-          The WebGL version was built and worked, but three.js is an ~875KB
-          floor for a footer flourish on a lead-generation page, and it cost a
-          15s cold start in dev plus visible jank on an M3. This is pure CSS and
-          SVG: zero extra JavaScript, instant, and it keeps the one idea that is
-          genuinely MOBO's — a wall of cabinet fronts parting on a soft-close
-          curve, which is the product feature customers remember from a
-          showroom. components/sections/OutroReal.tsx is kept for reference. */}
-      <OutroD />
+          Outro under review (2026-09-21): the client found the soft-close wall
+          (OutroD) too long — a 200svh sticky track — and too black, since the
+          ink wall was the first thing on screen. Three timed, photograph-first
+          replacements are being shown one at a time; OutroE is the first.
+          OutroD, the earlier A–C and the WebGL OutroReal are kept for
+          reference. */}
+      <OutroE />
       <Footer />
     </>
   );

@@ -341,7 +341,9 @@ export const HERO = {
 } as const;
 
 /**
- * Fotografia din outro-ul de pe homepage (wordmark-ul MOBO decupat din ea).
+ * Fotografia din outro-ul de pe homepage — de la OutroE încoace e cadrul
+ * întreg, full-bleed, cu wordmark-ul MOBO peste el (în OutroD era decupată
+ * prin litere).
  * Cerință de client (2026-09-16): prin litere se vedeau „niște perdele" din
  * living-ul de hero; bucătăria albă din ședința Universității, cu fronturile
  * și masa în banda de mijloc, e ceea ce face MOBO — și se citește la 4K.
