@@ -35,14 +35,26 @@ import { EASE_OUT } from "@/lib/motion";
  *
  * The rig is an honest one: each leaf is a child of the leaf before it,
  * rotating about their shared edge, so the hinges cannot drift apart at any
- * angle and ONE motion value (`fold`, 1 → 0) drives the whole screen — the
- * four rotations, the shading in the valleys, the recentring, the dolly.
+ * angle, and one motion value per PAIR of leaves (`fold`, 1 → 0) drives
+ * everything — the rotations, the shading in the valleys, the recentring,
+ * the dolly. A pair always returns to the wall's plane, which is what lets
+ * the two pairs fold by different amounts without the screen leaving it.
  * Perspective is set in vw, so the geometry is identical on a phone and on a
  * 4K monitor.
  *
  * At rest it is not 3D at all. Once the screen has landed the perspective,
  * preserve-3d and will-change come off, and the four leaves are ordinary
  * abutting boxes — no composited edges left to strand a hairline.
+ *
+ * It breathes (client, 2026-09-21: "poate în fiecare 10-15 sec să facă iar
+ * mișcarea aia"). Every twelve seconds while the band is on screen — and
+ * straight away when a visitor scrolls back to it after that long — the
+ * screen folds part of the way in, slowly, and opens again with the very
+ * move it arrived on, sheen and all. The two halves of the screen are driven
+ * separately so the fold travels across it, left pair first, as if a hand ran
+ * along the top. The letters stay on their leaves and flex with them; the
+ * name is never taken off the wall. It rests while the tab is hidden, and
+ * reduced motion never sees it.
  *
  * Cost: transforms and opacity only. The four frames are the hero rotation's,
  * requested with the hero's exact props, so whatever the hero has already
@@ -91,6 +103,20 @@ const TAGLINE_AT = 0.8;
 
 /* Soft-close: off the mark at once, then a long settle against the wall. */
 const EASE_UNFOLD = [0.2, 0.9, 0.25, 1] as const;
+
+/* The breath. Seconds of rest between two moves, and how soon it goes when a
+   visitor comes back to a screen that has rested at least that long. */
+const BREATH_EVERY = 12;
+const BREATH_ON_RETURN = 0.6;
+/* How far it folds back in (1 = as folded as it arrived), how slowly, and how
+   far the right-hand pair trails the left. */
+const BREATH_DEPTH = 0.6;
+const BREATH_IN_DUR = 1.25;
+const BREATH_DUR = BREATH_IN_DUR + UNFOLD_DUR;
+const BREATH_TURN = BREATH_IN_DUR / BREATH_DUR;
+const BREATH_RIPPLE = 0.16;
+/* Folding in is unhurried at both ends; only the opening has the snap. */
+const EASE_FOLD = [0.5, 0, 0.3, 1] as const;
 
 const NAME_LINE = SITE.name.replace(`${SITE.shortName} `, "");
 
@@ -183,36 +209,51 @@ function LeafFace({
   );
 }
 
+/** The motion values of the rig: one fold and one glint per pair of leaves. */
+type Rig = {
+  folds: readonly [MotionValue<number>, MotionValue<number>];
+  glints: readonly [MotionValue<number>, MotionValue<number>];
+};
+
 /**
- * One leaf and, hinged to its far edge, the rest of the screen. The first leaf
- * turns out of the wall by θ; every leaf after it turns back 2θ against its
- * parent, which is what makes a zig-zag.
+ * One leaf and, hinged to its far edge, the rest of the screen. Within a pair
+ * the first leaf turns out of the wall by θ and the second turns back 2θ
+ * against it, which is what makes a zig-zag — and brings the pair's far edge
+ * back into the wall's plane, where the next pair starts from.
  */
 function Leaf({
   index,
-  fold,
+  rig,
   landed,
   onLoad,
 }: {
   index: number;
-  fold: MotionValue<number>;
+  rig: Rig;
   landed: boolean;
   onLoad: () => void;
 }) {
-  const turn = index === 0 ? 1 : index % 2 === 1 ? -2 : 2;
-  const rotateY = useTransform(fold, (f) => turn * f * FOLD_DEG);
+  const pair = index >> 1;
+  const away = index % 2 === 1;
+  const fold = rig.folds[pair];
+  const glint = rig.glints[pair];
+
+  /* Relative to the parent leaf. A pair's first leaf hangs off a leaf that is
+     itself turned −θ of the pair before, so it has that to undo as well. */
+  const rotateY = useTransform([rig.folds[0], rig.folds[1]], (folds: number[]) => {
+    if (away) return -2 * folds[pair] * FOLD_DEG;
+    return ((pair === 0 ? 0 : folds[pair - 1]) + folds[pair]) * FOLD_DEG;
+  });
 
   /* Even leaves turn their face to the light, odd ones away from it; and the
      valley — the hinge pushed back into the wall — is where it gathers dark. */
-  const away = index % 2 === 1;
   const tone = useTransform(fold, (f) => f * (away ? 0.14 : 0.06));
   const valley = useTransform(fold, (f) => f * 0.24);
 
   /* A lacquered front catches the light as it turns. The glint crosses the
-     leaf with the turn itself — tied to `fold`, not to the clock — toward the
-     hinge the leaf is swinging on, and it is gone at both ends of the move. */
-  const sheenX = useTransform(fold, (f) => `${(away ? 1 : -1) * (2 * f - 1) * 100}%`);
-  const sheen = useTransform(fold, (f) => Math.sin(Math.PI * f) * 0.85);
+     leaf once per opening (0 → 1), toward the hinge the leaf is swinging on,
+     and it is gone at both ends of the move. */
+  const sheenX = useTransform(glint, (g) => `${(away ? 1 : -1) * (1 - 2 * g) * 100}%`);
+  const sheen = useTransform(glint, (g) => Math.sin(Math.PI * g) * 0.85);
 
   return (
     <motion.div
@@ -251,9 +292,7 @@ function Leaf({
         )}
       </LeafFace>
 
-      {index < LEAVES - 1 && (
-        <Leaf index={index + 1} fold={fold} landed={landed} onLoad={onLoad} />
-      )}
+      {index < LEAVES - 1 && <Leaf index={index + 1} rig={rig} landed={landed} onLoad={onLoad} />}
     </motion.div>
   );
 }
@@ -267,8 +306,15 @@ export default function OutroG() {
      already cached — but never longer than 2.5s. */
   const loadedLeaves = useRef(0);
   const [loaded, setLoaded] = useState(false);
+  /* `landed`: at rest, flat, and not 3D. False while the screen is arriving
+     and again for the length of every breath. */
   const [landed, setLanded] = useState(false);
+  const [opened, setOpened] = useState(false);
+  const [beat, setBeat] = useState(0);
+  const lastMove = useRef(0);
+  const moves = useRef<ReturnType<typeof animate>[]>([]);
   const inView = useInView(sectionRef, { once: true, amount: 0.3 });
+  const onScreen = useInView(sectionRef, { amount: 0.35 });
 
   const onLeafLoad = () => {
     loadedLeaves.current += 1;
@@ -283,26 +329,94 @@ export default function OutroG() {
 
   const play = reduce ? inView : inView && loaded;
 
-  /* 1 = folded, 0 = flat against the wall. */
-  const fold = useMotionValue(1);
+  /* Per pair of leaves. fold: 1 = folded, 0 = flat against the wall.
+     glint: 0 → 1, one pass of light across the pair's leaves. */
+  const foldA = useMotionValue(1);
+  const foldB = useMotionValue(1);
+  const glintA = useMotionValue(0);
+  const glintB = useMotionValue(0);
+  const rig: Rig = { folds: [foldA, foldB], glints: [glintA, glintB] };
 
-  /* A folded screen is narrower than an open one by cos θ. Both of its ends
-     stay in the wall's plane, so scaling it by 1/cos θ from its first hinge
-     puts them back on the band's edges at every angle. DOLLY is the camera
-     easing back as the screen opens: that much extra scale when folded, and
-     half of it taken off the left so the overshoot is shared by both edges. */
-  const rigScale = useTransform(fold, (f) => (1 + DOLLY * f) / Math.cos(f * FOLD_RAD));
-  const rigX = useTransform(fold, (f) => `${-50 * DOLLY * f}%`);
+  /* A folded leaf is narrower than an open one by cos θ. Every pair ends in
+     the wall's plane, so the screen's two ends do too, and scaling it from
+     its first hinge by (open width / folded width) puts them back on the
+     band's edges at every angle — whatever each pair is doing. DOLLY is the
+     camera easing back as the screen opens: that much extra scale when
+     folded, and half of it taken off the left so both edges share it. */
+  const rigScale = useTransform([foldA, foldB], ([a, b]: number[]) => {
+    const folded = (Math.cos(a * FOLD_RAD) + Math.cos(b * FOLD_RAD)) / 2;
+    return (1 + (DOLLY * (a + b)) / 2) / folded;
+  });
+  const rigX = useTransform([foldA, foldB], ([a, b]: number[]) => `${(-50 * DOLLY * (a + b)) / 2}%`);
 
+  /* The arrival: the whole screen opens as one. */
   useEffect(() => {
     if (!play || reduce) return;
-    const controls = animate(fold, 0, {
-      duration: UNFOLD_DUR,
-      ease: EASE_UNFOLD,
-      onComplete: () => setLanded(true),
-    });
-    return () => controls.stop();
-  }, [play, reduce, fold]);
+    const open = { duration: UNFOLD_DUR, ease: EASE_UNFOLD };
+    const arrival = [
+      animate(foldA, 0, open),
+      animate(foldB, 0, open),
+      animate(glintA, 1, open),
+      animate(glintB, 1, {
+        ...open,
+        onComplete: () => {
+          lastMove.current = performance.now();
+          setLanded(true);
+          setOpened(true);
+        },
+      }),
+    ];
+    return () => arrival.forEach((move) => move.stop());
+  }, [play, reduce, foldA, foldB, glintA, glintB]);
+
+  /* The breath. Armed only while the band is on screen; `beat` re-arms it
+     after every move. A breath already under way is left to finish even if
+     the band scrolls off — stopping it would strand the screen half folded. */
+  useEffect(() => {
+    if (!opened || reduce || !onScreen) return;
+    const rested = performance.now() - lastMove.current;
+    const wait = Math.max(BREATH_EVERY * 1000 - rested, BREATH_ON_RETURN * 1000);
+
+    const id = setTimeout(() => {
+      /* Nobody is watching a hidden tab, and its frames do not run. */
+      if (document.visibilityState !== "visible") {
+        lastMove.current = performance.now();
+        setBeat((n) => n + 1);
+        return;
+      }
+
+      setLanded(false);
+      glintA.set(0);
+      glintB.set(0);
+
+      const breathe = (delay: number) => ({
+        duration: BREATH_DUR,
+        times: [0, BREATH_TURN, 1],
+        delay,
+      });
+      const folding = [EASE_FOLD, EASE_UNFOLD];
+      const glinting = ["linear" as const, EASE_UNFOLD];
+
+      moves.current = [
+        animate(foldA, [0, BREATH_DEPTH, 0], { ...breathe(0), ease: folding }),
+        animate(glintA, [0, 0, 1], { ...breathe(0), ease: glinting }),
+        animate(foldB, [0, BREATH_DEPTH, 0], { ...breathe(BREATH_RIPPLE), ease: folding }),
+        animate(glintB, [0, 0, 1], {
+          ...breathe(BREATH_RIPPLE),
+          ease: glinting,
+          onComplete: () => {
+            lastMove.current = performance.now();
+            setLanded(true);
+            setBeat((n) => n + 1);
+          },
+        }),
+      ];
+    }, wait);
+
+    return () => clearTimeout(id);
+  }, [opened, reduce, onScreen, beat, foldA, foldB, glintA, glintB]);
+
+  useEffect(() => () => moves.current.forEach((move) => move.stop()), []);
 
   return (
     <motion.section
@@ -339,7 +453,7 @@ export default function OutroG() {
             }
             style={{ x: rigX, scale: rigScale, transformOrigin: "0% 50%" }}
           >
-            <Leaf index={0} fold={fold} landed={landed} onLoad={onLeafLoad} />
+            <Leaf index={0} rig={rig} landed={landed} onLoad={onLeafLoad} />
           </motion.div>
         )}
       </div>
