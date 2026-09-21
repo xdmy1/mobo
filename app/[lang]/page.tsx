@@ -5,7 +5,7 @@ import Process from "@/components/sections/Process";
 import Testimonials from "@/components/sections/Testimonials";
 import About from "@/components/sections/About";
 import LeadForm from "@/components/sections/LeadForm";
-import OutroE from "@/components/sections/OutroE";
+import OutroReview from "@/components/sections/OutroReview";
 import Footer from "@/components/sections/Footer";
 
 /**
@@ -49,10 +49,10 @@ export default function Home() {
           Outro under review (2026-09-21): the client found the soft-close wall
           (OutroD) too long — a 200svh sticky track — and too black, since the
           ink wall was the first thing on screen. Three timed, photograph-first
-          replacements are being shown one at a time; OutroE is the first.
-          OutroD, the earlier A–C and the WebGL OutroReal are kept for
-          reference. */}
-      <OutroE />
+          replacements are being shown one at a time; OutroReview mounts OutroE
+          by default and swaps in another with `?outro=3`. OutroD, the earlier
+          A–C and the WebGL OutroReal are kept for reference. */}
+      <OutroReview />
       <Footer />
     </>
   );

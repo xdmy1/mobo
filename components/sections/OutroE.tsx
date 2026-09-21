@@ -50,10 +50,11 @@ const FRONTS = 6;
    Percent of the front's own height (the stage is 120% of the band). */
 const FRONT_OFFSET = ["-5%", "4%", "-3%", "5%", "-4%", "3%"] as const;
 
-/* Timeline (s):     0 ───── .15 ───────── .6 ────── 1.05 ── 1.25
+/* Timeline (s):     0 ───── .15 ────── .5 ── .7 ─── 1.05 ── 1.25
  *   fronts          land, left to right (50ms apart) ┘
  *   letters               M  O  B  O  (70ms apart) ───┘
- *   caption                               fade ───────┘
+ *   KITCHENS & HOME                   rise ────┘
+ *   tagline                                 rise ─────────┘
  *   unsliced frame                                   fade ─┘                */
 const FRONT_DUR = 0.8;
 const FRONT_STEP = 0.05;
@@ -61,7 +62,11 @@ const FRONTS_LANDED = FRONT_DUR + (FRONTS - 1) * FRONT_STEP;
 const LETTER_AT = 0.15;
 const LETTER_STEP = 0.07;
 const LETTER_DUR = 0.75;
-const CAPTION_AT = 0.6;
+const NAME_AT = 0.5;
+const CAPTION_AT = 0.7;
+
+/* The second half of the name, under the wordmark. */
+const NAME_LINE = SITE.name.replace(`${SITE.shortName} `, "");
 
 /* "MOBO" in Geist Semibold at this tracking advances ≈3.0em (measured) and
    no sans fallback exceeds ~3.3em, so budgeting 3.5em per 1em of font-size
@@ -102,6 +107,15 @@ const letterVariants: Variants = {
     y: "0%",
     transition: { duration: LETTER_DUR, ease: EASE_OUT, delay: LETTER_AT + i * LETTER_STEP },
   }),
+};
+
+const nameVariants: Variants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: EASE_OUT, delay: NAME_AT },
+  },
 };
 
 const captionVariants: Variants = {
@@ -245,25 +259,41 @@ export default function OutroE() {
       <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center px-5 pb-7 sm:pb-9">
         <div
           aria-hidden="true"
-          className="flex font-semibold leading-none tracking-[-0.03em] text-bone-50"
+          className="flex flex-col items-center text-bone-50"
           style={{ fontSize: WORDMARK_SIZE }}
         >
-          {/* "O" repeats — index is the only stable key. */}
-          {Array.from(SITE.shortName, (letter, i) => (
-            <span key={i} className="block overflow-hidden">
-              <motion.span
-                className="block will-change-transform"
-                variants={reduce ? fadeVariants : letterVariants}
-                custom={i}
-              >
-                {letter}
-              </motion.span>
-            </span>
-          ))}
+          <div className="flex font-semibold leading-none tracking-[-0.03em]">
+            {/* "O" repeats — index is the only stable key. */}
+            {Array.from(SITE.shortName, (letter, i) => (
+              <span key={i} className="block overflow-hidden">
+                <motion.span
+                  className="block will-change-transform"
+                  variants={reduce ? fadeVariants : letterVariants}
+                  custom={i}
+                >
+                  {letter}
+                </motion.span>
+              </span>
+            ))}
+          </div>
+
+          {/* The rest of the name — the client asked for the full lockup, not
+              the four letters alone. Pulled up into the wordmark's empty
+              descender space (in the wordmark's em, hence the wrapper), sized
+              off it with a floor for phones; the indent balances the trailing
+              tracking of the last glyph. */}
+          <div className="-mt-[0.07em]">
+            <motion.p
+              className="pl-[0.42em] text-[length:max(0.8125rem,0.06em)] font-medium uppercase leading-none tracking-[0.42em] text-bone-50/90"
+              variants={reduce ? fadeVariants : nameVariants}
+            >
+              {NAME_LINE}
+            </motion.p>
+          </div>
         </div>
 
         <motion.p
-          className="text-eyebrow text-center text-bone-50/80"
+          className="text-eyebrow mt-4 text-center text-bone-50/80 sm:mt-6"
           variants={reduce ? fadeVariants : captionVariants}
         >
           {t("site.tagline")} · {t("hero.location")}
