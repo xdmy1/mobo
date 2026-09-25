@@ -143,6 +143,8 @@ export const contentRo = {
   "project.str-ialoveni.title": "Strada Ialoveni",
   "project.str-miorita.blurb": "Antreu alb cu dulap până în tavan și mânere profil din lemn.",
   "project.str-miorita.title": "Strada Miorița",
+  "project.str-moara-rosie.blurb": "Bucătărie albă cu insulă rotunjită și blat din piatră, deschisă spre masa ovală din stejar.",
+  "project.str-moara-rosie.title": "Strada Moara Roșie",
   "project.str-universitatii.blurb": "Dressing cu fronturi din furnir de nuc și uși glisante din sticlă riflată.",
   "project.str-universitatii.title": "Strada Universității",
   "project.str-valentin-rosca.blurb": "Birou acasă — dulap alb cu fronturi riflate și masă de lucru din nuc.",

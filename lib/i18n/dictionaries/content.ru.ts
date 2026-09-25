@@ -145,6 +145,8 @@ export const contentRu: ContentDict = {
   "project.str-ialoveni.title": "Улица Яловень",
   "project.str-miorita.blurb": "Белая прихожая со шкафом до потолка и профильными ручками из дерева.",
   "project.str-miorita.title": "Улица Миорица",
+  "project.str-moara-rosie.blurb": "Белая кухня со скруглённым островом и каменной столешницей, открытая к овальному дубовому столу.",
+  "project.str-moara-rosie.title": "Улица Моара Рошие",
   "project.str-universitatii.blurb": "Гардеробная с фасадами из орехового шпона и раздвижными дверями из рифлёного стекла.",
   "project.str-universitatii.title": "Улица Университеций",
   "project.str-valentin-rosca.blurb": "Домашний кабинет — белый шкаф с рифлёными фасадами и рабочий стол из ореха.",

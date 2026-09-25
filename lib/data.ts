@@ -181,6 +181,16 @@ import csCopii02 from "@/assets/proiecte/str-constantin-stere/copii-02.jpg";
 import csCopii03 from "@/assets/proiecte/str-constantin-stere/copii-03.jpg";
 import csCopii04 from "@/assets/proiecte/str-constantin-stere/copii-04.jpg";
 
+/* Ședința Strada Moara Roșie — locală. Cinci cadre din arhiva WordPress
+   (numerotarea `photo1716798924` a media library-ului), la 1280px pe latura
+   lungă — sub standardul de 2400 al celorlalte ședințe, dar nu le mărim: e
+   tot ce există din acest proiect. */
+import mrBucatarie01 from "@/assets/proiecte/str-moara-rosie/bucatarie-01.jpg";
+import mrBucatarie02 from "@/assets/proiecte/str-moara-rosie/bucatarie-02.jpg";
+import mrBucatarie03 from "@/assets/proiecte/str-moara-rosie/bucatarie-03.jpg";
+import mrBucatarie04 from "@/assets/proiecte/str-moara-rosie/bucatarie-04.jpg";
+import mrBucatarie05 from "@/assets/proiecte/str-moara-rosie/bucatarie-05.jpg";
+
 export const SITE = {
   name: "MOBO Kitchens & Home",
   shortName: "MOBO",
@@ -630,6 +640,19 @@ export const PROJECTS: Project[] = [
       spatiu("living", csLiving01, csLiving02, csLiving03, csLiving04),
       spatiu("birou", csBirou01, csBirou02),
       spatiu("camera-copilului", csCopii01, csCopii02, csCopii03, csCopii04),
+    ],
+  },
+  {
+    slug: "str-moara-rosie",
+    photoCount: 5,
+    href: "/proiecte/str-moara-rosie",
+    /* Copertă VERTICALĂ, ca la Ialoveni și Constantin Stere — 04 e portret
+       nativ și e scena proiectului: masa ovală din stejar cu bucătăria albă
+       în spate. */
+    cover: mrBucatarie04,
+    /* Un singur spațiu: bucătăria deschisă spre masă, de ansamblu spre detaliu. */
+    spaces: [
+      spatiu("bucatarie-dining", mrBucatarie01, mrBucatarie02, mrBucatarie03, mrBucatarie04, mrBucatarie05),
     ],
   },
 ];
