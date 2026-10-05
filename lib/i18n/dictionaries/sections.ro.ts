@@ -74,7 +74,7 @@ export const sectRo = {
 
   "sections.timeline.eyebrow": "Drumul nostru",
   "sections.timeline.title":
-    "Din 2005 până azi, același meșteșug — doar casele s-au înmulțit.",
+    "Din 2022, fiecare an — un pas mai departe.",
 
   "sections.why.eyebrow": "De ce MOBO",
   "sections.why.lead":

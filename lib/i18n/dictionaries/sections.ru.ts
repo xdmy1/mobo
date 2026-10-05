@@ -70,7 +70,7 @@ export const sectRu: SectDict = {
 
   "sections.timeline.eyebrow": "Наш путь",
   "sections.timeline.title":
-    "С 2005 года и до сегодня — то же мастерство, просто домов стало больше.",
+    "С 2022 года каждый год — ещё один шаг вперёд.",
 
   "sections.why.eyebrow": "Почему MOBO",
   "sections.why.lead":

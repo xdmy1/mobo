@@ -14,7 +14,7 @@
  *   ROOM_IDS[]           → room.<id>
  *   STATS index          → stat.<i>.label / .suffix
  *
- * Câteva exporturi (HERO, ABOUT, ADVANTAGES, HISTORY, REVIEWS, SITE.tagline…)
+ * Câteva exporturi (HERO, ABOUT, ADVANTAGES, REVIEWS, SITE.tagline…)
  * își păstrează câmpurile de text: le mai citesc componentele ARHIVATE, ținute
  * „pentru referință" (Outro*, Sequence*, Categories, WhyMobo). Pe site nu se
  * mai vede niciunul — a edita textul acolo NU schimbă nimic. Editează
@@ -956,51 +956,29 @@ export const ABOUT_PAGE = {
 /* ------------------------------------------------- Istoria (Despre noi) -- */
 
 /**
- * Cronologia „Drumul nostru" de pe /despre-noi — cerință de client, după
- * referința parke.md (Parchetnii Dvor): un drum parcurs din 2005 până azi.
+ * Cronologia „Drumul nostru" de pe /despre-noi — istoria reală trimisă de
+ * client (octombrie 2026): un reper pe an, din 2022 până azi.
  *
- * ATENȚIE: clientul trimite istoria reală mai târziu. Reperele marcate
- * `placeholder: true` sunt text de umplutură scris ca designul să poată fi
- * judecat pe conținut plauzibil — se înlocuiesc cu faptele clientului imediat
- * ce sosesc. 2022 și 2023 sunt reale (de pe mobo.md/despre-noi); „Azi" e
- * sinteza conținutului deja publicat.
+ * Aici stă doar structura; titlul, textul și punctele fiecărui an sunt în
+ * dicționar, sub `history.<an>.title`, `.text`, `.point.<i>` și `.stat`.
+ * Anul se tipărește direct din date — cifrele se citesc la fel în ambele limbi.
+ * Un an nou = un obiect aici + cheile lui în content.ro.ts și content.ru.ts;
+ * ultimul reper din listă e cel accentuat.
  */
 export type Milestone = {
   year: string;
-  title: string;
-  text: string;
-  /** TRUE = text de umplutură; se înlocuiește cu istoria trimisă de client. */
-  placeholder?: true;
+  /** Câte puncte are lista reperului (`history.<an>.point.0…`); 0 = doar text. */
+  points: number;
+  /** Cifra mare, numărată la intrarea în ecran; eticheta e `history.<an>.stat`. */
+  stat?: { value: number; suffix: string };
 };
 
 export const HISTORY: Milestone[] = [
-  {
-    year: "2005",
-    title: "Primele bucătării",
-    text: "Povestea începe cu mult înaintea brandului: primii ani în producția de mobilier la comandă, primele bucătării predate și standardul de execuție care avea să definească tot ce urmează.",
-    placeholder: true,
-  },
-  {
-    year: "2015",
-    title: "Experiența se adună",
-    text: "Zeci de case mobilate cap-coadă și o echipă care crește proiect cu proiect — designeri, tehnologi și montatori care învață să lucreze ca un singur atelier.",
-    placeholder: true,
-  },
-  {
-    year: "2022",
-    title: "Se naște MOBO",
-    text: "Cei 39 de ani de experiență cumulativă primesc un nume: fondăm MOBO Kitchens & Home, un brand dedicat bucătăriilor premium și mobilierului pentru toată casa.",
-  },
-  {
-    year: "2023",
-    title: "Lansarea oficială",
-    text: "MOBO se lansează la începutul anului: atelier propriu, primele proiecte sub noul nume și promisiunea care ne definește de atunci — 5 ani garanție la tot ce iese pe ușa atelierului.",
-  },
-  {
-    year: "Azi",
-    title: "Toată casa, un singur standard",
-    text: "Mobilăm locuințe întregi — bucătării, dressinguri, livinguri, băi — cu proiect 3D, materiale de la parteneri europeni și predare doar după verificarea împreună cu clientul.",
-  },
+  { year: "2022", points: 0 },
+  { year: "2023", points: 0 },
+  { year: "2024", points: 2, stat: { value: 200, suffix: "+" } },
+  { year: "2025", points: 3 },
+  { year: "2026", points: 3 },
 ];
 
 /* ---------------------------------------------------- Pagina Info clienți -- */

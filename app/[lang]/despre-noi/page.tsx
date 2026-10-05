@@ -34,9 +34,8 @@ export default async function DespreNoiPage() {
           intro={t("aboutPage.story")}
         />
 
-        {/* Istoria — cerință de client (referința parke.md): drumul din 2005
-            până azi. Reperele placeholder se înlocuiesc când sosește istoria
-            reală; vezi HISTORY în lib/data.ts. */}
+        {/* Istoria — cerință de client (referința parke.md): reperele reale
+            MOBO, din 2022 până azi; vezi HISTORY în lib/data.ts. */}
         <Timeline />
 
         {/* ------------------------------------------------------- ce oferim */}
