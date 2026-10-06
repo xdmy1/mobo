@@ -561,7 +561,11 @@ export const PROJECTS: Project[] = [
     slug: "str-universitatii",
     photoCount: 30,
     href: "/proiecte/str-universitatii",
-    cover: dressing01,
+    /* Coperțile au fost alese din nou pe 2026-10-06, la cererea clientului
+       („ceva mai frumos la fiecare proiect"): cadrul cel mai frumos al casei,
+       tot PORTRET (regula de la Ialoveni), cu mobilierul MOBO în prim-plan —
+       nu un perete de dressing, o baie sau o ușă de intrare. */
+    cover: bucatarie02,
     spaces: [
       spatiu("dressing", dressing01, dressing02, dressing03),
       spatiu("bucatarie", bucatarie01, bucatarie02, bucatarie03, bucatarie04, bucatarie05, bucatarie06, bucatarie07),
@@ -576,7 +580,7 @@ export const PROJECTS: Project[] = [
     slug: "str-bucovina",
     photoCount: 20,
     href: "/proiecte/str-bucovina",
-    cover: bucBaie01,
+    cover: bucBucatarie02,
     spaces: [
       spatiu("antreu", bucAntreu01, bucAntreu02, bucAntreu03, bucAntreu04),
       spatiu("scara", bucScara01, bucScara02, bucScara03, bucScara04, bucScara05),
@@ -589,7 +593,7 @@ export const PROJECTS: Project[] = [
     slug: "str-miorita",
     photoCount: 21,
     href: "/proiecte/str-miorita",
-    cover: mioAntreu01,
+    cover: mioBucatarie02,
     spaces: [
       spatiu("antreu", mioAntreu01, mioAntreu02, mioAntreu03),
       spatiu("living", mioLiving01, mioLiving02, mioLiving03, mioLiving04, mioLiving05, mioLiving06),
@@ -617,7 +621,7 @@ export const PROJECTS: Project[] = [
     slug: "str-valentin-rosca",
     photoCount: 23,
     href: "/proiecte/str-valentin-rosca",
-    cover: vrBirou01,
+    cover: vrDormitor05,
     spaces: [
       spatiu("birou", vrBirou01),
       spatiu("dressing", vrDressing01, vrDressing02),
@@ -632,8 +636,9 @@ export const PROJECTS: Project[] = [
     photoCount: 21,
     href: "/proiecte/str-constantin-stere",
     /* Copertă VERTICALĂ (regula stabilită la Ialoveni: cardul taie la 3:4,
-       cadrele landscape ies moi) — 02 e portret nativ și chiar scena din blurb. */
-    cover: csBucatarie02,
+       cadrele landscape ies moi) — 05: vitrina fumurie cu lumină caldă lângă
+       masa de dining, adică exact scena din blurb, mai aproape și mai caldă. */
+    cover: csBucatarie05,
     spaces: [
       spatiu("antreu", csAntreu01, csAntreu02, csAntreu03, csAntreu04),
       spatiu("bucatarie-dining", csBucatarie01, csBucatarie02, csBucatarie03, csBucatarie04, csBucatarie05, csBucatarie06, csBucatarie07),
