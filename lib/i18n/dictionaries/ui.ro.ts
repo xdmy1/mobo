@@ -38,7 +38,7 @@ export const uiRo = {
 
   "meta.despre.title": "Despre noi",
   "meta.despre.description":
-    "MOBO Kitchens & Home: brand fondat în 2022, lansat în 2023, cu o echipă cu 39 de ani de experiență cumulativă în mobilier la comandă. Designeri, manageri de calitate și montatori calificați.",
+    "MOBO Kitchens & Home: brand fondat în 2022, lansat în 2023. Mobilier la comandă pentru toată casa, fabricat în atelier propriu — designeri, manageri de calitate și montatori calificați.",
 
   "meta.contacte.title": "Contacte",
   "meta.contacte.description":
@@ -149,7 +149,8 @@ export const uiRo = {
   "contacte.openMaps": "Deschide în Google Maps",
   "contacte.phone": "Telefon",
   "contacte.email": "Email",
-  "contacte.social": "Social",
+  "contacte.social": "Rețele sociale",
+  "contacte.photoAlt": "Bucătărie cu masă rotundă și scaune bej, dintr-un proiect MOBO",
 
   /* ------------------------------------------------- pagina unui proiect -- */
   "proiect.eyebrow": "Proiect realizat · Chișinău",

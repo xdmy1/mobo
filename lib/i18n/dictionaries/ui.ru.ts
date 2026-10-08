@@ -38,7 +38,7 @@ export const uiRu: UiDict = {
 
   "meta.despre.title": "О нас",
   "meta.despre.description":
-    "MOBO Kitchens & Home: бренд основан в 2022 году, запущен в 2023-м, команда с 39 годами совокупного опыта в мебели на заказ. Дизайнеры, менеджеры качества и квалифицированные монтажники.",
+    "MOBO Kitchens & Home: бренд основан в 2022 году, запущен в 2023-м. Мебель на заказ для всего дома из собственного цеха — дизайнеры, менеджеры качества и квалифицированные монтажники.",
 
   "meta.contacte.title": "Контакты",
   "meta.contacte.description":
@@ -148,6 +148,7 @@ export const uiRu: UiDict = {
   "contacte.phone": "Телефон",
   "contacte.email": "Эл. почта",
   "contacte.social": "Соцсети",
+  "contacte.photoAlt": "Кухня с круглым столом и бежевыми стульями из проекта MOBO",
 
   /* ------------------------------------------------- pagina unui proiect -- */
   "proiect.eyebrow": "Реализованный проект · Кишинёв",

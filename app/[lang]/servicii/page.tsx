@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Nav from "@/components/sections/Nav";
 import PageHeader from "@/components/sections/PageHeader";
+import Process from "@/components/sections/Process";
 import Footer from "@/components/sections/Footer";
 import { Reveal } from "@/components/ui/Reveal";
 import { Button } from "@/components/ui/Button";
-import { MATERIAL_TIERS, PARTNERS, PROCESS, SITE } from "@/lib/data";
+import { MATERIAL_TIERS, PARTNERS, SITE } from "@/lib/data";
 import type { TranslationKey } from "@/lib/i18n/dictionary";
 import { alternatesFor } from "@/lib/i18n/metadata";
 import { getI18n } from "@/lib/i18n/server";
@@ -24,9 +24,14 @@ const partnerKey = (name: string, field: "origin" | "role") =>
   `partner.${name.toLowerCase().replace(/'/g, "").replace(/ /g, "-")}.${field}` as TranslationKey;
 
 /**
- * Pagina de servicii — versiunea desfășurată a benzii „Servicii" de pe
- * homepage: aceleași 9 etape reale, dar cu paragraful întreg al fiecăreia
- * (SERVICE_DETAILS), plus cele trei trepte de materiale și partenerii.
+ * Pagina de servicii — versiunea desfășurată a benzii „Cum lucrăm" de pe
+ * homepage: aceeași formă (fotografii reale, trei capitole, etapele ca rânduri
+ * liniștite), dar cu paragraful întreg al fiecărei etape (`service.NN.detail`),
+ * plus cele trei trepte de materiale și partenerii.
+ *
+ * Grila de dinainte — două coloane de titluri cu iconițele PNG din WordPress —
+ * a picat la client („nu prea îmi place cum e aici"); a arătat spre banda de
+ * pe homepage: „gen ceva de gen".
  */
 export default async function ServiciiPage() {
   const { t, href } = await getI18n();
@@ -41,36 +46,11 @@ export default async function ServiciiPage() {
           intro={t("page.servicii.intro")}
         />
 
-        {/* ------------------------------------------------------ cele 9 etape */}
-        <section aria-label={t("servicii.stepsAria")} className="relative bg-bone-50 text-fg-invert">
-          <div className="mx-auto w-full max-w-[88rem] px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
-            <ol className="grid list-none gap-x-10 gap-y-12 sm:grid-cols-2 lg:gap-y-14">
-              {PROCESS.map((step, i) => (
-                <Reveal key={step.n} as="li" index={i % 2} className="border-t border-ink-850/15 pt-5">
-                  <div className="flex items-start justify-between gap-6">
-                    <div>
-                      <p className="font-mono text-xs tracking-[0.12em] text-lime-on-light">
-                        {step.n}
-                      </p>
-                      <h2 className="text-h3 mt-2">{t(`process.${step.n}.title` as TranslationKey)}</h2>
-                    </div>
-                    <Image
-                      src={step.icon}
-                      alt=""
-                      aria-hidden="true"
-                      width={40}
-                      height={40}
-                      className="size-9 shrink-0 opacity-80"
-                    />
-                  </div>
-                  <p className="text-pretty mt-3 max-w-[56ch] text-[0.9375rem] leading-[1.7] text-fg-invert-dim">
-                    {t(`service.${step.n}.detail` as TranslationKey)}
-                  </p>
-                </Reveal>
-              ))}
-            </ol>
-          </div>
-        </section>
+        {/* ---------------------------------------------------- cele 9 etape */}
+        {/* Banda de pe homepage, cu textul lung al fiecărei etape; bone-50 ca
+            să țină ritmul paginii (antet întunecat → ivoriu → materiale pe
+            grafit → CTA bone-100). */}
+        <Process detailed className="bg-bone-50" />
 
         {/* -------------------------------------------- materiale și parteneri */}
         <section aria-labelledby="materiale-titlu" className="grain relative bg-ink-900">

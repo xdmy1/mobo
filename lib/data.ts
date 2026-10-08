@@ -929,10 +929,10 @@ export const PARTNERS = [
 /* ----------------------------------------------------- Pagina Despre noi -- */
 
 export const ABOUT_PAGE = {
-  headline: "Echipă cu 39 de ani de experiență cumulativă.",
+  headline: "Proiectăm și fabricăm mobilier la comandă pentru toată casa.",
   /** Repere reale, de pe mobo.md/despre-noi. */
   story:
-    "MOBO Kitchens & Home a fost fondat în 2022 și lansat oficial la începutul lui 2023, ca un brand creat pentru a transforma fiecare locuință într-un spațiu confortabil, funcțional și plin de stil. În spatele lui stă o echipă cu 39 de ani de experiență cumulativă în proiectarea și fabricarea mobilierului la comandă.",
+    "MOBO Kitchens & Home a fost fondat în 2022 și lansat oficial la începutul lui 2023, ca un brand creat pentru a transforma fiecare locuință într-un spațiu confortabil, funcțional și plin de stil. În spatele lui stă o echipă de designeri, manageri de calitate și montatori care duce fiecare proiect de la prima măsurătoare până la montaj.",
   kitchens: [
     "Mobilier ergonomic, personalizat pe spațiul tău",
     "Soluții moderne cu sisteme de depozitare inteligente",

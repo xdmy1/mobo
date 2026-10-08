@@ -78,18 +78,30 @@ const CHAPTERS: Chapter[] = [
  * `Step.n` e `string` în date, deci literalul nu se poate verifica la
  * compilare; cheile din content.ro.ts sunt generate din aceleași numere.
  */
-function stepKey(n: string, part: "title" | "description"): TranslationKey {
-  return `process.${n}.${part}` as TranslationKey;
+function stepKey(n: string, part: "title" | "description" | "detail"): TranslationKey {
+  return (part === "detail" ? `service.${n}.detail` : `process.${n}.${part}`) as TranslationKey;
 }
 
-export default async function Process() {
+type Props = {
+  /**
+   * Pe /servicii: paragraful întreg al fiecărei etape (`service.NN.detail`),
+   * nu rezumatul de două propoziții de pe homepage. Aceeași formă — fotografii
+   * și capitole — pentru că clientul a cerut ca pagina să arate ca banda de
+   * pe homepage, nu ca grila cu iconițe pe care o avea.
+   */
+  detailed?: boolean;
+  /** Fondul benzii: bone-100 pe homepage, bone-50 pe /servicii (ritmul paginii). */
+  className?: string;
+};
+
+export default async function Process({ detailed = false, className }: Props) {
   const { t } = await getI18n();
 
   return (
     <section
       id="servicii"
       aria-labelledby="servicii-title"
-      className="relative bg-bone-100 py-16 text-fg-invert sm:py-20 lg:py-24"
+      className={cn("relative bg-bone-100 py-16 text-fg-invert sm:py-20 lg:py-24", className)}
     >
       <div className="mx-auto w-full max-w-[88rem] px-5 sm:px-8 lg:px-12">
         <header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between lg:gap-16">
@@ -182,7 +194,7 @@ export default async function Process() {
                             {t(stepKey(step.n, "title"))}
                           </span>
                           <span className="text-pretty mt-1.5 block max-w-[54ch] text-[0.9375rem] leading-[1.65] text-fg-invert-dim">
-                            {t(stepKey(step.n, "description"))}
+                            {t(stepKey(step.n, detailed ? "detail" : "description"))}
                           </span>
                         </span>
                       </Reveal>
