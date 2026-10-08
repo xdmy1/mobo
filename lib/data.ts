@@ -636,9 +636,9 @@ export const PROJECTS: Project[] = [
     photoCount: 21,
     href: "/proiecte/str-constantin-stere",
     /* Copertă VERTICALĂ (regula stabilită la Ialoveni: cardul taie la 3:4,
-       cadrele landscape ies moi) — 05: vitrina fumurie cu lumină caldă lângă
-       masa de dining, adică exact scena din blurb, mai aproape și mai caldă. */
-    cover: csBucatarie05,
+       cadrele landscape ies moi) — 07, ales de client (08.10.2026): fronturile
+       bej de sus, cuptorul și masa cu lalele, toată bucătăria într-un cadru. */
+    cover: csBucatarie07,
     spaces: [
       spatiu("antreu", csAntreu01, csAntreu02, csAntreu03, csAntreu04),
       spatiu("bucatarie-dining", csBucatarie01, csBucatarie02, csBucatarie03, csBucatarie04, csBucatarie05, csBucatarie06, csBucatarie07),
