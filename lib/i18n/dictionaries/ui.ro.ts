@@ -14,9 +14,9 @@ export const uiRo = {
   /* ------------------------------------------------------------- metadate -- */
   "meta.home.title": "MOBO Kitchens & Home — Mobilier la comandă în Chișinău",
   "meta.home.description":
-    "Mobilier la comandă pentru toată casa — bucătării, livinguri, dormitoare, dressinguri. Proiect 3D, 5 ani garanție, plată în 10 rate. De la consultație până la montaj.",
+    "Mobilier la comandă pentru toată casa — bucătării, livinguri, dormitoare, dressinguri. Proiect 3D, 5 ani garanție, atelier propriu. De la consultație până la montaj.",
   "meta.home.ogDescription":
-    "Mobilier la comandă pentru toată casa. Proiect 3D, 5 ani garanție, plată în 10 rate.",
+    "Mobilier la comandă pentru toată casa. Proiect 3D, 5 ani garanție, atelier propriu în Chișinău.",
   "meta.home.keywords":
     "bucatarii la comanda|mobila la comanda Chisinau|bucatarii Moldova|mobilier living|dressing la comanda|MOBO",
 

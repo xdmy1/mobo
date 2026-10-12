@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRef, useState } from "react";
+import { Button } from "@/components/ui/Button";
 import { useI18n } from "@/components/ui/LangProvider";
 import { Reveal } from "@/components/ui/Reveal";
 import { PROJECTS, PROJECTS_INDEX_HREF } from "@/lib/data";
@@ -35,7 +37,13 @@ function projectKey(slug: string, part: "title" | "blurb"): TranslationKey {
  *     se desenează sub adresă. Fără badge-uri, fără scrim-uri.
  *
  * Fără filtre: cinci case nu se filtrează, se răsfoiesc.
+ *
+ * Cel mult șase carduri odată (cererea clientului, 2026-10-10): pe homepage
+ * primele șase și linkul spre /proiecte; pe /proiecte primele șase și butonul
+ * „Mai multe proiecte", care deschide următoarele șase, până la capăt.
  */
+const PAGE_SIZE = 6;
+
 export default function Projects({
   variant = "home",
 }: {
@@ -46,6 +54,21 @@ export default function Projects({
   variant?: "home" | "page";
 }) {
   const { t, href } = useI18n();
+  const [shown, setShown] = useState(PAGE_SIZE);
+  const listRef = useRef<HTMLUListElement>(null);
+
+  const visible = variant === "home" ? PROJECTS.slice(0, PAGE_SIZE) : PROJECTS.slice(0, shown);
+  const hasMore = variant === "page" && shown < PROJECTS.length;
+
+  /* După extindere, focusul trece pe primul card nou — altfel tastatura
+     rămâne pe un buton care tocmai a dispărut. */
+  const showMore = () => {
+    const first = shown;
+    setShown(Math.min(shown + PAGE_SIZE, PROJECTS.length));
+    requestAnimationFrame(() => {
+      listRef.current?.querySelectorAll<HTMLAnchorElement>("a")[first]?.focus({ preventScroll: true });
+    });
+  };
 
   return (
     <section
@@ -79,12 +102,13 @@ export default function Projects({
         {/* Grila. Toate cardurile pe aceeași linie de sus — decalajul coloanei
             din mijloc a fost scos la cererea clientului. */}
         <ul
+          ref={listRef}
           className={cn(
             "grid list-none grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-7 lg:gap-y-16",
             variant === "home" ? "mt-10 lg:mt-12" : "mt-2",
           )}
         >
-          {PROJECTS.map((proiect, i) => {
+          {visible.map((proiect, i) => {
             const titlu = t(projectKey(proiect.slug, "title"));
             const blurb = t(projectKey(proiect.slug, "blurb"));
             return (
@@ -131,6 +155,14 @@ export default function Projects({
             );
           })}
         </ul>
+
+        {hasMore && (
+          <Reveal className="mt-14 flex justify-center border-t border-ink-850/15 pt-10 lg:mt-16">
+            <Button type="button" variant="invert" size="lg" onClick={showMore}>
+              {t("sections.projects.more")}
+            </Button>
+          </Reveal>
+        )}
 
         {variant === "home" && (
           <Reveal className="mt-14 border-t border-ink-850/15 pt-7">

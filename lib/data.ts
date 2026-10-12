@@ -215,7 +215,13 @@ export const SITE = {
 export const COMPANY = {
   legalName: "Timber Inc S.R.L.",
   idno: "1025600002305",
-  mapsHref: "https://maps.google.com/?q=stradela+Studen%C8%9Bilor+15A,+Chi%C8%99in%C4%83u",
+  /* Fișa Google a showroom-ului („Mobo Bucătării", stradela Studenților 15A),
+     deschisă direct după id. Căutarea după textul adresei ajungea pe o altă
+     intrare „Stradela Studenţilor 15a", la ~200 m, în zona verde — clientul a
+     semnalat-o la 2026-10-10 („geolocația te aruncă în pădure"). */
+  mapsHref: "https://maps.google.com/?cid=12379906918911695139",
+  /* Coordonatele fișei, pentru datele structurate. */
+  geo: { latitude: 47.0661384, longitude: 28.8466079 },
 } as const;
 
 /**

@@ -58,9 +58,10 @@ export const sectRu: SectDict = {
   "sections.projects.coverAlt": "{title} — {blurb}",
   "sections.projects.lead":
     "Каждый проект — это реальный адрес в Кишинёве: вся мебель одного дома, замеренная, изготовленная и смонтированная одной командой.",
+  "sections.projects.more": "Ещё проекты",
   "sections.projects.photoCount": "{count} фото",
   "sections.projects.title": "Выполненные проекты — дом за домом.",
-  "sections.projects.viewAll": "Все проекты",
+  "sections.projects.viewAll": "Ещё проекты",
 
   "sections.reviews.eyebrow": "Что говорят клиенты",
   "sections.reviews.googleCount": "Реальные отзывы на Google: {count}",

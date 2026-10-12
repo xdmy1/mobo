@@ -62,9 +62,10 @@ export const sectRo = {
   "sections.projects.coverAlt": "{title} — {blurb}",
   "sections.projects.lead":
     "Fiecare proiect e o adresă reală din Chișinău: tot mobilierul unei locuințe, măsurat, fabricat și montat de aceeași echipă.",
+  "sections.projects.more": "Mai multe proiecte",
   "sections.projects.photoCount": "{count} foto",
   "sections.projects.title": "Proiecte realizate, casă cu casă.",
-  "sections.projects.viewAll": "Vezi toate proiectele",
+  "sections.projects.viewAll": "Mai multe proiecte",
 
   "sections.reviews.eyebrow": "Ce spun clienții",
   "sections.reviews.googleCount": "{count} recenzii reale pe Google",

@@ -5,7 +5,7 @@ import SmoothScroll from "@/components/ui/SmoothScroll";
 import PageGrade from "@/components/ui/PageGrade";
 import CookieConsent from "@/components/ui/CookieConsent";
 import LangProvider from "@/components/ui/LangProvider";
-import { SITE } from "@/lib/data";
+import { COMPANY, SITE } from "@/lib/data";
 import { CONSENT_BOOT_SCRIPT, GTM_ID, GTM_SCRIPT } from "@/lib/gtm";
 import { HTML_LANG, LANGS, OG_LOCALE, type Lang } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionary";
@@ -93,6 +93,14 @@ const jsonLdFor = (lang: Lang) => ({
     addressLocality: "Chișinău",
     addressCountry: "MD",
   },
+  /* Punctul exact și fișa Google — altfel motoarele geocodifică singure
+     adresa, iar „stradela Studenților 15A" cade pe un alt punct, la ~200 m. */
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: COMPANY.geo.latitude,
+    longitude: COMPANY.geo.longitude,
+  },
+  hasMap: COMPANY.mapsHref,
   sameAs: [
     "https://www.instagram.com/mobokitchenshome/",
     "https://www.facebook.com/Mobo.md",
