@@ -625,13 +625,15 @@ export const PROJECTS: Project[] = [
      „Stefan cel Mare (Site)"). Primul în listă, ca proiectul nou să intre în
      cele șase carduri de pe homepage. Din cele 45 de cadre au rămas 40: cinci
      erau același cadru repetat (regula de mai sus — tăiem repetițiile, nu
-     acoperirea). Copertă VERTICALĂ: masa cu scaunele crem, coloana neagră de
-     cuptor și fronturile albe — bucătăria dintr-un singur cadru. */
+     acoperirea). Copertă VERTICALĂ, fără masă și scaune (cerință de client,
+     2026-10-23 — Universității și Moara Roșie au deja mese pe copertă):
+     bucatarie-08, fronturile albe cu plita, coloana din stejar cu cuptorul
+     negru și blatul de marmură — numai mobilierul. */
   {
     slug: "bd-stefan-cel-mare",
     photoCount: 40,
     href: "/proiecte/bd-stefan-cel-mare",
-    cover: scmBucatarie02,
+    cover: scmBucatarie08,
     spaces: [
       spatiu("antreu", scmAntreu01, scmAntreu02, scmAntreu03, scmAntreu04),
       spatiu("bucatarie-dining", scmBucatarie01, scmBucatarie02, scmBucatarie03, scmBucatarie04, scmBucatarie05, scmBucatarie06, scmBucatarie07, scmBucatarie08, scmBucatarie09, scmBucatarie10, scmBucatarie11),
