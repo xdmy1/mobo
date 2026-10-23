@@ -29,7 +29,7 @@ export const sectRo = {
   "sections.footer.social": "Social",
   "sections.footer.title": "Contacte și navigare MOBO Kitchens & Home",
 
-  "sections.hero.subline": "Realizăm mobilier de orice tip, creat pentru casa ta.",
+  "sections.hero.subline": "Garanție 5 ani la toate bucătăriile și mobilierul pentru casă.",
 
   "sections.legal.reviewNote":
     "Document cu caracter informativ; versiunea finală urmează să fie validată de un consilier juridic.",

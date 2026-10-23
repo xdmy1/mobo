@@ -190,6 +190,46 @@ import mrBucatarie02 from "@/assets/proiecte/str-moara-rosie/bucatarie-02.jpg";
 import mrBucatarie03 from "@/assets/proiecte/str-moara-rosie/bucatarie-03.jpg";
 import mrBucatarie04 from "@/assets/proiecte/str-moara-rosie/bucatarie-04.jpg";
 import mrBucatarie05 from "@/assets/proiecte/str-moara-rosie/bucatarie-05.jpg";
+import scmAntreu01 from "@/assets/proiecte/bd-stefan-cel-mare/antreu-01.jpg";
+import scmAntreu02 from "@/assets/proiecte/bd-stefan-cel-mare/antreu-02.jpg";
+import scmAntreu03 from "@/assets/proiecte/bd-stefan-cel-mare/antreu-03.jpg";
+import scmAntreu04 from "@/assets/proiecte/bd-stefan-cel-mare/antreu-04.jpg";
+import scmBucatarie01 from "@/assets/proiecte/bd-stefan-cel-mare/bucatarie-01.jpg";
+import scmBucatarie02 from "@/assets/proiecte/bd-stefan-cel-mare/bucatarie-02.jpg";
+import scmBucatarie03 from "@/assets/proiecte/bd-stefan-cel-mare/bucatarie-03.jpg";
+import scmBucatarie04 from "@/assets/proiecte/bd-stefan-cel-mare/bucatarie-04.jpg";
+import scmBucatarie05 from "@/assets/proiecte/bd-stefan-cel-mare/bucatarie-05.jpg";
+import scmBucatarie06 from "@/assets/proiecte/bd-stefan-cel-mare/bucatarie-06.jpg";
+import scmBucatarie07 from "@/assets/proiecte/bd-stefan-cel-mare/bucatarie-07.jpg";
+import scmBucatarie08 from "@/assets/proiecte/bd-stefan-cel-mare/bucatarie-08.jpg";
+import scmBucatarie09 from "@/assets/proiecte/bd-stefan-cel-mare/bucatarie-09.jpg";
+import scmBucatarie10 from "@/assets/proiecte/bd-stefan-cel-mare/bucatarie-10.jpg";
+import scmBucatarie11 from "@/assets/proiecte/bd-stefan-cel-mare/bucatarie-11.jpg";
+import scmLiving01 from "@/assets/proiecte/bd-stefan-cel-mare/living-01.jpg";
+import scmLiving02 from "@/assets/proiecte/bd-stefan-cel-mare/living-02.jpg";
+import scmLiving03 from "@/assets/proiecte/bd-stefan-cel-mare/living-03.jpg";
+import scmLiving04 from "@/assets/proiecte/bd-stefan-cel-mare/living-04.jpg";
+import scmLiving05 from "@/assets/proiecte/bd-stefan-cel-mare/living-05.jpg";
+import scmLiving06 from "@/assets/proiecte/bd-stefan-cel-mare/living-06.jpg";
+import scmLiving07 from "@/assets/proiecte/bd-stefan-cel-mare/living-07.jpg";
+import scmLiving08 from "@/assets/proiecte/bd-stefan-cel-mare/living-08.jpg";
+import scmDormitor01 from "@/assets/proiecte/bd-stefan-cel-mare/dormitor-01.jpg";
+import scmDormitor02 from "@/assets/proiecte/bd-stefan-cel-mare/dormitor-02.jpg";
+import scmDormitor03 from "@/assets/proiecte/bd-stefan-cel-mare/dormitor-03.jpg";
+import scmDormitor04 from "@/assets/proiecte/bd-stefan-cel-mare/dormitor-04.jpg";
+import scmDormitor05 from "@/assets/proiecte/bd-stefan-cel-mare/dormitor-05.jpg";
+import scmDormitor06 from "@/assets/proiecte/bd-stefan-cel-mare/dormitor-06.jpg";
+import scmDormitor07 from "@/assets/proiecte/bd-stefan-cel-mare/dormitor-07.jpg";
+import scmDormitor08 from "@/assets/proiecte/bd-stefan-cel-mare/dormitor-08.jpg";
+import scmDormitor09 from "@/assets/proiecte/bd-stefan-cel-mare/dormitor-09.jpg";
+import scmDormitor10 from "@/assets/proiecte/bd-stefan-cel-mare/dormitor-10.jpg";
+import scmBaie01 from "@/assets/proiecte/bd-stefan-cel-mare/baie-01.jpg";
+import scmBaie02 from "@/assets/proiecte/bd-stefan-cel-mare/baie-02.jpg";
+import scmBaie03 from "@/assets/proiecte/bd-stefan-cel-mare/baie-03.jpg";
+import scmBaie04 from "@/assets/proiecte/bd-stefan-cel-mare/baie-04.jpg";
+import scmBaie05 from "@/assets/proiecte/bd-stefan-cel-mare/baie-05.jpg";
+import scmBaie06 from "@/assets/proiecte/bd-stefan-cel-mare/baie-06.jpg";
+import scmBaie07 from "@/assets/proiecte/bd-stefan-cel-mare/baie-07.jpg";
 
 export const SITE = {
   name: "MOBO Kitchens & Home",
@@ -381,9 +421,29 @@ export const OUTRO = { image: "/hero-bucatarie.jpg" } as const;
  */
 export const HERO_SLIDES = [
   { src: HERO.image, alt: HERO.imageAlt },
+  /* 2026-10-23, cerință de client: „pe homepage pot rula și câteva poze de la
+     expoziție și proiectul nou". Două cadre de la standul MOBO de la Moldexpo
+     2026 și două din ședința Ștefan cel Mare, intercalate cu cele vechi, ca
+     să apară în primele secunde ale rotației. Toate la 3872px (regula 4K). */
+  {
+    src: "/hero-moldexpo-stand.jpg",
+    alt: "Standul MOBO la Moldexpo 2026 — insulă de bucătărie crem, canapea albă și lămpi rotunde",
+  },
+  {
+    src: "/hero-stefan-living.jpg",
+    alt: "Living deschis spre bucătăria albă, cu canapea crem și vitrină din stejar — proiect MOBO, Ștefan cel Mare",
+  },
   {
     src: "/hero-bucatarie.jpg",
     alt: "Bucătărie albă la comandă, deschisă spre masa rotundă din lemn — proiect MOBO",
+  },
+  {
+    src: "/hero-moldexpo-bucatarie.jpg",
+    alt: "Bucătărie expusă de MOBO la Moldexpo 2026 — fronturi crem cu lumină integrată și insulă cu blat alb",
+  },
+  {
+    src: "/hero-stefan-dormitor.jpg",
+    alt: "Dormitor cu dulap cu uși din sticlă fumurie și pat tapițat — proiect MOBO, Ștefan cel Mare",
   },
   {
     src: "/hero-dressing.jpg",
@@ -561,6 +621,25 @@ function spatiu(key: SpaceKey, ...images: StaticImageData[]): ProjectSpaceData {
 }
 
 export const PROJECTS: Project[] = [
+  /* Ștefan cel Mare — ședința primită de la client pe 2026-10-23 (folderul
+     „Stefan cel Mare (Site)"). Primul în listă, ca proiectul nou să intre în
+     cele șase carduri de pe homepage. Din cele 45 de cadre au rămas 40: cinci
+     erau același cadru repetat (regula de mai sus — tăiem repetițiile, nu
+     acoperirea). Copertă VERTICALĂ: masa cu scaunele crem, coloana neagră de
+     cuptor și fronturile albe — bucătăria dintr-un singur cadru. */
+  {
+    slug: "bd-stefan-cel-mare",
+    photoCount: 40,
+    href: "/proiecte/bd-stefan-cel-mare",
+    cover: scmBucatarie02,
+    spaces: [
+      spatiu("antreu", scmAntreu01, scmAntreu02, scmAntreu03, scmAntreu04),
+      spatiu("bucatarie-dining", scmBucatarie01, scmBucatarie02, scmBucatarie03, scmBucatarie04, scmBucatarie05, scmBucatarie06, scmBucatarie07, scmBucatarie08, scmBucatarie09, scmBucatarie10, scmBucatarie11),
+      spatiu("living", scmLiving01, scmLiving02, scmLiving03, scmLiving04, scmLiving05, scmLiving06, scmLiving07, scmLiving08),
+      spatiu("dormitor", scmDormitor01, scmDormitor02, scmDormitor03, scmDormitor04, scmDormitor05, scmDormitor06, scmDormitor07, scmDormitor08, scmDormitor09, scmDormitor10),
+      spatiu("baie", scmBaie01, scmBaie02, scmBaie03, scmBaie04, scmBaie05, scmBaie06, scmBaie07),
+    ],
+  },
   /* Ședința foto completă, local. Ordinea spațiilor e parcursul fotografului
      prin casă; în fiecare spațiu, cadrul de ansamblu întâi, detaliile după. */
   {

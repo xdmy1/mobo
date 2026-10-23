@@ -25,7 +25,7 @@ export const sectRu: SectDict = {
   "sections.footer.social": "Соцсети",
   "sections.footer.title": "Контакты и навигация MOBO Kitchens & Home",
 
-  "sections.hero.subline": "Изготавливаем мебель любого типа — для вашего дома.",
+  "sections.hero.subline": "5 лет гарантии на все кухни и мебель для дома.",
 
   "sections.legal.reviewNote":
     "Документ носит информационный характер; окончательная версия будет проверена юристом.",

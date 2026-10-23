@@ -40,7 +40,11 @@ import { cn } from "@/lib/utils";
    compilare (`satisfies`), ca o cheie scrisă greșit să nu ajungă pe ecran. */
 const SLIDE_ALT_KEYS = [
   "hero.imageAlt",
+  "heroSlide.4.alt",
+  "heroSlide.5.alt",
   "heroSlide.1.alt",
+  "heroSlide.6.alt",
+  "heroSlide.7.alt",
   "heroSlide.2.alt",
   "heroSlide.3.alt",
 ] as const satisfies readonly TranslationKey[];
@@ -191,10 +195,10 @@ export default function Hero() {
               delay: reduce ? 0.05 : 0.42,
             }}
           >
-            {/* Prima propoziție din hero.subtitle. Paragraful explicativ
-                întreg stă mai jos în pagină, nu peste fotografie — formulare
-                aprobată de client: brandul face mobilier de orice tip, nu doar
-                bucătării. */}
+            {/* Sublinia poartă garanția — din 2026-10-23 titlul spune ce face
+                brandul („mobilier personalizat pentru fiecare colț al casei",
+                formularea clientului), iar promisiunea de 5 ani, scoasă din
+                titlu, coboară aici ca să nu dispară din primul ecran. */}
             <p className="mt-5 max-w-[36rem] text-[0.9375rem] leading-relaxed text-fg-dim">
               {t("sections.hero.subline")}
             </p>
