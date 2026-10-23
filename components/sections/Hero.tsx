@@ -149,10 +149,26 @@ export default function Hero() {
 
       {/* Directional scrim on the anchored side only — the photograph stays
           clearly visible above it. It grades in with the photo on load and
-          then moves as its own plane on scroll. */}
+          then moves as its own plane on scroll.
+
+          2026-10-23: scrim-ul a fost întărit (via 40% → 65%) și a primit un
+          al doilea strat, o pată eliptică ancorată în colțul din stânga-jos,
+          exact sub titlu. Cadrele noi (standul Moldexpo, livingul și
+          dormitorul Ștefan cel Mare) sunt albe până la marginea de jos —
+          canapea, insulă, dulap — și titlul alb cădea pe alb. Pata lasă
+          restul fotografiei curat; doar colțul textului se întunecă. */}
       <motion.div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 -bottom-[10%] h-[82%] bg-gradient-to-t from-ink-950/90 via-ink-950/40 to-transparent will-move sm:h-[72%]"
+        className="pointer-events-none absolute inset-x-0 -bottom-[10%] h-[82%] bg-gradient-to-t from-ink-950/95 via-ink-950/65 to-transparent will-move sm:h-[72%]"
+        style={reduce ? undefined : { y: scrimY }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: reduce ? DUR.micro : DUR.reveal, ease: EASE_OUT, delay: reduce ? 0 : 0.1 }}
+      />
+
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(110%_85%_at_0%_100%,rgba(19,20,16,0.82),rgba(19,20,16,0.35)_38%,transparent_68%)] will-move"
         style={reduce ? undefined : { y: scrimY }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -199,7 +215,7 @@ export default function Hero() {
                 brandul („mobilier personalizat pentru fiecare colț al casei",
                 formularea clientului), iar promisiunea de 5 ani, scoasă din
                 titlu, coboară aici ca să nu dispară din primul ecran. */}
-            <p className="mt-5 max-w-[36rem] text-[0.9375rem] leading-relaxed text-fg-dim">
+            <p className="mt-5 max-w-[36rem] text-[0.9375rem] leading-relaxed text-fg/90">
               {t("sections.hero.subline")}
             </p>
 
