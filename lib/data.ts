@@ -192,8 +192,6 @@ import mrBucatarie04 from "@/assets/proiecte/str-moara-rosie/bucatarie-04.jpg";
 import mrBucatarie05 from "@/assets/proiecte/str-moara-rosie/bucatarie-05.jpg";
 import scmAntreu01 from "@/assets/proiecte/bd-stefan-cel-mare/antreu-01.jpg";
 import scmAntreu02 from "@/assets/proiecte/bd-stefan-cel-mare/antreu-02.jpg";
-import scmAntreu03 from "@/assets/proiecte/bd-stefan-cel-mare/antreu-03.jpg";
-import scmAntreu04 from "@/assets/proiecte/bd-stefan-cel-mare/antreu-04.jpg";
 import scmBucatarie01 from "@/assets/proiecte/bd-stefan-cel-mare/bucatarie-01.jpg";
 import scmBucatarie02 from "@/assets/proiecte/bd-stefan-cel-mare/bucatarie-02.jpg";
 import scmBucatarie03 from "@/assets/proiecte/bd-stefan-cel-mare/bucatarie-03.jpg";
@@ -223,6 +221,7 @@ import scmDormitor07 from "@/assets/proiecte/bd-stefan-cel-mare/dormitor-07.jpg"
 import scmDormitor08 from "@/assets/proiecte/bd-stefan-cel-mare/dormitor-08.jpg";
 import scmDormitor09 from "@/assets/proiecte/bd-stefan-cel-mare/dormitor-09.jpg";
 import scmDormitor10 from "@/assets/proiecte/bd-stefan-cel-mare/dormitor-10.jpg";
+import scmDormitor11 from "@/assets/proiecte/bd-stefan-cel-mare/dormitor-11.jpg";
 import scmBaie01 from "@/assets/proiecte/bd-stefan-cel-mare/baie-01.jpg";
 import scmBaie02 from "@/assets/proiecte/bd-stefan-cel-mare/baie-02.jpg";
 import scmBaie03 from "@/assets/proiecte/bd-stefan-cel-mare/baie-03.jpg";
@@ -230,6 +229,7 @@ import scmBaie04 from "@/assets/proiecte/bd-stefan-cel-mare/baie-04.jpg";
 import scmBaie05 from "@/assets/proiecte/bd-stefan-cel-mare/baie-05.jpg";
 import scmBaie06 from "@/assets/proiecte/bd-stefan-cel-mare/baie-06.jpg";
 import scmBaie07 from "@/assets/proiecte/bd-stefan-cel-mare/baie-07.jpg";
+import scmBaie08 from "@/assets/proiecte/bd-stefan-cel-mare/baie-08.jpg";
 
 export const SITE = {
   name: "MOBO Kitchens & Home",
@@ -634,12 +634,16 @@ export const PROJECTS: Project[] = [
     photoCount: 40,
     href: "/proiecte/bd-stefan-cel-mare",
     cover: scmBucatarie08,
+    /* Ordinea e a clientului (2026-10-23): proiectul începe cu bucătăria,
+       antreul vine la urmă. Tot atunci două cadre au fost mutate din antreu:
+       poșeta pe polița din stejar e dulapul din dormitor (dormitor-11), nișa
+       albă cu sticluțe face parte din baie (baie-08). */
     spaces: [
-      spatiu("antreu", scmAntreu01, scmAntreu02, scmAntreu03, scmAntreu04),
       spatiu("bucatarie-dining", scmBucatarie01, scmBucatarie02, scmBucatarie03, scmBucatarie04, scmBucatarie05, scmBucatarie06, scmBucatarie07, scmBucatarie08, scmBucatarie09, scmBucatarie10, scmBucatarie11),
       spatiu("living", scmLiving01, scmLiving02, scmLiving03, scmLiving04, scmLiving05, scmLiving06, scmLiving07, scmLiving08),
-      spatiu("dormitor", scmDormitor01, scmDormitor02, scmDormitor03, scmDormitor04, scmDormitor05, scmDormitor06, scmDormitor07, scmDormitor08, scmDormitor09, scmDormitor10),
-      spatiu("baie", scmBaie01, scmBaie02, scmBaie03, scmBaie04, scmBaie05, scmBaie06, scmBaie07),
+      spatiu("dormitor", scmDormitor01, scmDormitor02, scmDormitor03, scmDormitor04, scmDormitor05, scmDormitor06, scmDormitor07, scmDormitor08, scmDormitor09, scmDormitor10, scmDormitor11),
+      spatiu("baie", scmBaie01, scmBaie02, scmBaie03, scmBaie04, scmBaie05, scmBaie06, scmBaie07, scmBaie08),
+      spatiu("antreu", scmAntreu01, scmAntreu02),
     ],
   },
   /* Ședința foto completă, local. Ordinea spațiilor e parcursul fotografului
