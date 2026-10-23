@@ -230,6 +230,7 @@ import scmBaie05 from "@/assets/proiecte/bd-stefan-cel-mare/baie-05.jpg";
 import scmBaie06 from "@/assets/proiecte/bd-stefan-cel-mare/baie-06.jpg";
 import scmBaie07 from "@/assets/proiecte/bd-stefan-cel-mare/baie-07.jpg";
 import scmBaie08 from "@/assets/proiecte/bd-stefan-cel-mare/baie-08.jpg";
+import scmCover from "@/assets/proiecte/bd-stefan-cel-mare/cover.jpg";
 
 export const SITE = {
   name: "MOBO Kitchens & Home",
@@ -625,15 +626,16 @@ export const PROJECTS: Project[] = [
      „Stefan cel Mare (Site)"). Primul în listă, ca proiectul nou să intre în
      cele șase carduri de pe homepage. Din cele 45 de cadre au rămas 40: cinci
      erau același cadru repetat (regula de mai sus — tăiem repetițiile, nu
-     acoperirea). Copertă VERTICALĂ, fără masă și scaune (cerință de client,
-     2026-10-23 — Universității și Moara Roșie au deja mese pe copertă):
-     bucatarie-08, fronturile albe cu plita, coloana din stejar cu cuptorul
-     negru și blatul de marmură — numai mobilierul. */
+     acoperirea). Coperta e cadrul ales de client (2026-10-23): livingul
+     deschis spre bucătărie, DSC_4752 — cadru LANDSCAPE, deci cover.jpg e un
+     decupaj 3:4 făcut de noi din originalul de 4242px (poziție 0.62 pe
+     orizontală: bucătăria întreagă, vitrina din stejar și colțul canapelei),
+     nu o tăietură la întâmplare a browserului. */
   {
     slug: "bd-stefan-cel-mare",
     photoCount: 40,
     href: "/proiecte/bd-stefan-cel-mare",
-    cover: scmBucatarie08,
+    cover: scmCover,
     /* Ordinea e a clientului (2026-10-23): proiectul începe cu bucătăria,
        antreul vine la urmă. Tot atunci două cadre au fost mutate din antreu:
        poșeta pe polița din stejar e dulapul din dormitor (dormitor-11), nișa
