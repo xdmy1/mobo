@@ -198,17 +198,36 @@ import moscBucatarie05 from "@/assets/proiecte/str-moscovei/bucatarie-05.jpg";
 import moscBucatarie06 from "@/assets/proiecte/str-moscovei/bucatarie-06.jpg";
 import moscBucatarie07 from "@/assets/proiecte/str-moscovei/bucatarie-07.jpg";
 import moscBucatarie08 from "@/assets/proiecte/str-moscovei/bucatarie-08.jpg";
+import moscBucatarie09 from "@/assets/proiecte/str-moscovei/bucatarie-09.jpg";
+import moscBucatarie10 from "@/assets/proiecte/str-moscovei/bucatarie-10.jpg";
+import moscBucatarie11 from "@/assets/proiecte/str-moscovei/bucatarie-11.jpg";
+import moscBucatarie12 from "@/assets/proiecte/str-moscovei/bucatarie-12.jpg";
+import moscBucatarie13 from "@/assets/proiecte/str-moscovei/bucatarie-13.jpg";
+import moscBucatarie14 from "@/assets/proiecte/str-moscovei/bucatarie-14.jpg";
 import moscLiving01 from "@/assets/proiecte/str-moscovei/living-01.jpg";
 import moscLiving02 from "@/assets/proiecte/str-moscovei/living-02.jpg";
 import moscLiving03 from "@/assets/proiecte/str-moscovei/living-03.jpg";
 import moscLiving04 from "@/assets/proiecte/str-moscovei/living-04.jpg";
+import moscLiving05 from "@/assets/proiecte/str-moscovei/living-05.jpg";
+import moscLiving06 from "@/assets/proiecte/str-moscovei/living-06.jpg";
+import moscLiving07 from "@/assets/proiecte/str-moscovei/living-07.jpg";
+import moscLiving08 from "@/assets/proiecte/str-moscovei/living-08.jpg";
 import moscDormitor01 from "@/assets/proiecte/str-moscovei/dormitor-01.jpg";
 import moscDormitor02 from "@/assets/proiecte/str-moscovei/dormitor-02.jpg";
+import moscDormitor03 from "@/assets/proiecte/str-moscovei/dormitor-03.jpg";
+import moscCopii01 from "@/assets/proiecte/str-moscovei/copii-01.jpg";
+import moscCopii02 from "@/assets/proiecte/str-moscovei/copii-02.jpg";
+import moscCopii03 from "@/assets/proiecte/str-moscovei/copii-03.jpg";
+import moscCopii04 from "@/assets/proiecte/str-moscovei/copii-04.jpg";
+import moscCopii05 from "@/assets/proiecte/str-moscovei/copii-05.jpg";
+import moscCopii06 from "@/assets/proiecte/str-moscovei/copii-06.jpg";
 import moscBaie01 from "@/assets/proiecte/str-moscovei/baie-01.jpg";
 import moscBaie02 from "@/assets/proiecte/str-moscovei/baie-02.jpg";
+import moscBaie03 from "@/assets/proiecte/str-moscovei/baie-03.jpg";
 import moscAntreu01 from "@/assets/proiecte/str-moscovei/antreu-01.jpg";
 import moscAntreu02 from "@/assets/proiecte/str-moscovei/antreu-02.jpg";
 import moscAntreu03 from "@/assets/proiecte/str-moscovei/antreu-03.jpg";
+import moscAntreu04 from "@/assets/proiecte/str-moscovei/antreu-04.jpg";
 import moscCover from "@/assets/proiecte/str-moscovei/cover.jpg";
 import scmAntreu01 from "@/assets/proiecte/bd-stefan-cel-mare/antreu-01.jpg";
 import scmAntreu02 from "@/assets/proiecte/bd-stefan-cel-mare/antreu-02.jpg";
@@ -643,22 +662,26 @@ function spatiu(key: SpaceKey, ...images: StaticImageData[]): ProjectSpaceData {
 
 export const PROJECTS: Project[] = [
   /* Strada Moscovei — selecția clientului pentru site (folderul „Str. Moscovei
-     Site", 2026-10-30): 19 cadre, toate păstrate. Ordinea e cea cerută de
-     client: bucătăria, apoi zona TV, dormitorul, baia și antreul la urmă.
-     Coperta e cadrul ales de client, DSC_5168 (insula cu masa, bucătăria
-     neagră): cadru 2:3, cover.jpg e un decupaj 3:4 din originalul de 4242px
-     (330px tăiați de sus, restul de jos), ca lustra inelară să rămână în cadru. */
+     Site", 2026-10-30): 39 de fișiere, unul dublură („DSC_5313 (1)"), deci 38
+     de cadre, toate păstrate. Clientul a mai urcat poze după prima descărcare
+     (19 → 39), de aceea proiectul a fost refăcut în aceeași zi. Ordinea e cea
+     cerută: bucătăria, zona TV, dormitorul (cu dulapul din sticlă striată),
+     camera copiilor (două paturi, despărțitor din lamele, birou la fereastră),
+     baia și antreul la urmă. Coperta e cadrul ales de client, DSC_5168: cadru
+     2:3, cover.jpg e un decupaj 3:4 din originalul de 4242px (330px tăiați de
+     sus), ca lustra inelară să rămână în cadru. */
   {
     slug: "str-moscovei",
-    photoCount: 19,
+    photoCount: 38,
     href: "/proiecte/str-moscovei",
     cover: moscCover,
     spaces: [
-      spatiu("bucatarie-dining", moscBucatarie01, moscBucatarie02, moscBucatarie03, moscBucatarie04, moscBucatarie05, moscBucatarie06, moscBucatarie07, moscBucatarie08),
-      spatiu("living", moscLiving01, moscLiving02, moscLiving03, moscLiving04),
-      spatiu("dormitor", moscDormitor01, moscDormitor02),
-      spatiu("baie", moscBaie01, moscBaie02),
-      spatiu("antreu", moscAntreu01, moscAntreu02, moscAntreu03),
+      spatiu("bucatarie-dining", moscBucatarie01, moscBucatarie02, moscBucatarie03, moscBucatarie04, moscBucatarie05, moscBucatarie06, moscBucatarie07, moscBucatarie08, moscBucatarie09, moscBucatarie10, moscBucatarie11, moscBucatarie12, moscBucatarie13, moscBucatarie14),
+      spatiu("living", moscLiving01, moscLiving02, moscLiving03, moscLiving04, moscLiving05, moscLiving06, moscLiving07, moscLiving08),
+      spatiu("dormitor", moscDormitor01, moscDormitor02, moscDormitor03),
+      spatiu("camera-copilului", moscCopii01, moscCopii02, moscCopii03, moscCopii04, moscCopii05, moscCopii06),
+      spatiu("baie", moscBaie01, moscBaie02, moscBaie03),
+      spatiu("antreu", moscAntreu01, moscAntreu02, moscAntreu03, moscAntreu04),
     ],
   },
   /* Ștefan cel Mare — ședința primită de la client pe 2026-10-23 (folderul
