@@ -143,6 +143,8 @@ export const contentRo = {
   "process.09.description": "Bucură-te de 5 ani garanție pentru toate produsele. Ne asigurăm că mobilierul tău va rezista testului timpului.",
   "process.09.title": "Garanție",
 
+  "project.str-moscovei.blurb": "Bucătărie neagră cu insulă și masă din piatră albă sub o lustră inelară, deschisă spre zona TV.",
+  "project.str-moscovei.title": "Strada Moscovei",
   "project.bd-stefan-cel-mare.blurb": "Bucătărie albă cu electrocasnice negre și vitrină din stejar cu lumină integrată, deschisă spre living.",
   "project.bd-stefan-cel-mare.title": "Bulevardul Ștefan cel Mare",
   "project.str-bucovina.blurb": "Bucătărie albă cu insulă și blat negru, lângă o vitrină din sticlă fumurie cu lumină integrată.",
