@@ -667,7 +667,12 @@ export const PROJECTS: Project[] = [
      (19 → 39), de aceea proiectul a fost refăcut în aceeași zi. Ordinea e cea
      cerută: bucătăria, zona TV, dormitorul (cu dulapul din sticlă striată),
      camera copiilor (două paturi, despărțitor din lamele, birou la fereastră),
-     baia și antreul la urmă. Coperta e cadrul ales de client, DSC_5168: cadru
+     baia și antreul la urmă. În bucătărie (2026-11-01, la cererea clientului:
+     „sunt poze din același unghi și par la fel la prima vedere") cele cinci
+     cadre cu insula și masa văzute de la capătul mesei (5168 5313 5166 5253
+     5306) nu mai stau una lângă alta: sunt pe pozițiile 1, 5, 9, 12 și 14, cu
+     alte unghiuri între ele (spre living, coridorul, peretele negru, chiuveta).
+     Coperta e cadrul ales de client, DSC_5168: cadru
      2:3, cover.jpg e un decupaj 3:4 din originalul de 4242px (330px tăiați de
      sus), ca lustra inelară să rămână în cadru. */
   {
